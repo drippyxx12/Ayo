@@ -1,0 +1,164 @@
+{
+  "schema_version": "1.0.0",
+  "version_date": "2026-10-25",
+  "release_status": "design_config_not_live_integration",
+  "default": {
+    "commercial_scope": "ecommerce_only",
+    "verification_rule": "merchant_selected_country_plus_provider_capability_not_IP_inference",
+    "public_research": "can run without merchant connection; requires compliant crawler and sourced evidence",
+    "outbound_message_policy": "blocked_until_authenticated_sender_approval_documented_lawful_basis_provider_verified_and_suppression_checks",
+    "fx": "never_sum_mixed_currencies_without_fx_source_time_and_original_amounts",
+    "cultural_personalization": "tone_and_language_selected_by_merchant_and_supported_by_actual_source_evidence_no_identity_inference",
+    "allowed_providers_state": "design_candidate_only"
+  },
+  "markets": {
+    "NG": {
+      "name": "Nigeria",
+      "currency": "NGN",
+      "timezone_default": "Africa/Lagos",
+      "language_options": [
+        "en"
+      ],
+      "commerce_patterns": [
+        "shopify_webstore",
+        "whatsapp_social_commerce",
+        "bank_transfer_checkout",
+        "card",
+        "ussd"
+      ],
+      "regional_recommendations": [
+        "display_payments_and_delivery_policy",
+        "separate_pending_bank_transfer_from_cleared_payment",
+        "support_mobile_first_product_paths",
+        "surface_whatsapp_contact_if_public_site_discloses_it"
+      ],
+      "candidate_adapters": [
+        {
+          "provider": "Shopify",
+          "capability": "commerce_orders_catalog",
+          "status": "requires_dev_app_oauth"
+        },
+        {
+          "provider": "Paystack",
+          "capability": "verified_payment_events_and_status",
+          "status": "not_implemented"
+        },
+        {
+          "provider": "Flutterwave",
+          "capability": "payments",
+          "status": "not_implemented"
+        },
+        {
+          "provider": "WhatsApp Business Platform",
+          "capability": "opted_in_merchant_communication",
+          "status": "not_implemented"
+        }
+      ],
+      "legal_review": [
+        "Nigeria Data Protection Act 2023 and currently applicable NDPC guidance",
+        "Provider anti-spam and consent requirements"
+      ],
+      "example_lead_goal": "Find public Nigerian stockists/distributors relevant to merchant categories"
+    },
+    "GH": {
+      "name": "Ghana",
+      "currency": "GHS",
+      "timezone_default": "Africa/Accra",
+      "language_options": [
+        "en"
+      ],
+      "commerce_patterns": [
+        "shopify_webstore",
+        "mobile_money",
+        "bank_transfer_checkout",
+        "whatsapp_social_commerce"
+      ],
+      "regional_recommendations": [
+        "inspect_public_mobile_money_checkout_options",
+        "avoid_assuming_MoMo_payment_completed_before_webhook",
+        "support_mobile_first_product_paths",
+        "observe_delivery_and_returns_disclosures"
+      ],
+      "candidate_adapters": [
+        {
+          "provider": "Shopify",
+          "capability": "commerce_orders_catalog",
+          "status": "requires_dev_app_oauth"
+        },
+        {
+          "provider": "Paystack",
+          "capability": "mobile_money_and_bank_transfer_reconciliation",
+          "status": "not_implemented"
+        },
+        {
+          "provider": "Hubtel",
+          "capability": "candidate_merchant_payment_integration",
+          "status": "needs_vendor_research"
+        },
+        {
+          "provider": "WhatsApp Business Platform",
+          "capability": "opted_in_merchant_communication",
+          "status": "not_implemented"
+        }
+      ],
+      "legal_review": [
+        "Ghana Data Protection Act 2012 Act 843 and DPC direct marketing guidance: prior written consent for individual direct marketing",
+        "Provider terms/consent"
+      ],
+      "example_lead_goal": "Find Ghanaian boutique stockists in Accra or Kumasi with public evidence"
+    },
+    "KE": {
+      "name": "Kenya",
+      "currency": "KES",
+      "timezone_default": "Africa/Nairobi",
+      "language_options": [
+        "en",
+        "sw"
+      ],
+      "commerce_patterns": [
+        "mobile_money",
+        "ecommerce"
+      ],
+      "candidate_adapters": [
+        {
+          "provider": "Paystack",
+          "capability": "M-Pesa/country_supported_methods",
+          "status": "needs_market_validation"
+        }
+      ],
+      "legal_review": [
+        "Kenya Data Protection Act and regulator guidance—review before onboarding"
+      ],
+      "country_phase": "future_research_only"
+    },
+    "ZA": {
+      "name": "South Africa",
+      "currency": "ZAR",
+      "timezone_default": "Africa/Johannesburg",
+      "language_options": [
+        "en"
+      ],
+      "commerce_patterns": [
+        "eft",
+        "card",
+        "ecommerce"
+      ],
+      "candidate_adapters": [
+        {
+          "provider": "Paystack",
+          "capability": "regionally_supported_payment_methods",
+          "status": "needs_market_validation"
+        }
+      ],
+      "legal_review": [
+        "POPIA and regulator guidance—review before onboarding"
+      ],
+      "country_phase": "future_research_only"
+    }
+  },
+  "notes": [
+    "Supported country does not mean payment provider has granted Ayo integration scopes.",
+    "Languages listed are UI defaults proposed, not a claim about all merchant/customer languages or identities.",
+    "No payment processing integrations exist in the current Ayo alpha; this file is design configuration only."
+  ]
+}

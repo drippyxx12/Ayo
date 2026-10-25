@@ -1,0 +1,29 @@
+{
+  "schema_version": "2026-10-25",
+  "status": "design_contract_not_live_feature",
+  "primary_onboarding": "public_search_first",
+  "public_homepage_cta": "Search for your business",
+  "shopify": "optional_later_provider_integration",
+  "no_account_research": true,
+  "preview_report_before_signup": true,
+  "business_name_without_website": true,
+  "claim_business_proof_required": true,
+  "user_scoped_persistent_report_after_signup": true,
+  "unified_ai_model_gateway": {
+    "initial_recommendation": "gemini",
+    "alternate": "claude",
+    "decision": "benchmark_pending",
+    "tools_server_side_only": true
+  },
+  "founding_free_users": 500,
+  "all_features_free_for_founding_users": true,
+  "must_not_claim_live_integration": true,
+  "governance": [
+    "crawl_ssrf_safety",
+    "source_provenance",
+    "anti_spam",
+    "data_minimization",
+    "tenant_isolation",
+    "action_approval"
+  ]
+}

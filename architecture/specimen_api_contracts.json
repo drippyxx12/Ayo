@@ -1,0 +1,234 @@
+{
+  "schema_version": "1.0.0",
+  "status": "planning_contracts_not_live_api",
+  "base": "/api/v1",
+  "global_error": {
+    "code": "stable_snake_case",
+    "message": "human_readable",
+    "trace_id": "opaque",
+    "retry_after_seconds": "optional_integer"
+  },
+  "endpoints": [
+    {
+      "method": "POST",
+      "path": "/website/search",
+      "auth": "merchant_or_quota_limited_anonymous",
+      "input": {
+        "query": "string",
+        "country": "ISO2?",
+        "language": "BCP47?",
+        "limit": "int<=20"
+      },
+      "output": {
+        "candidates": "source_backed_results",
+        "provenance": "provider+timestamp"
+      },
+      "missing_provider": "503 search_not_configured"
+    },
+    {
+      "method": "POST",
+      "path": "/website/research-runs",
+      "auth": "authenticated_or_ephemeral_limited",
+      "input": {
+        "website_url": "https public domain",
+        "scan_mode": "quick|deep"
+      },
+      "output": {
+        "run_id": "uuid",
+        "status": "QUEUED",
+        "status_url": "path",
+        "remaining_budget": "integer"
+      },
+      "missing_provider": "none_direct_URL_supported_if_safe_egress"
+    },
+    {
+      "method": "GET",
+      "path": "/website/research-runs/{id}",
+      "auth": "tenant_or_run_capability",
+      "output": {
+        "status": "QUEUED|RUNNING|PARTIAL|SUCCEEDED|FAILED",
+        "pages_visited": "integer",
+        "error_code": "optional",
+        "source_document_ids": "array"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/website/research-runs/{id}/dossier",
+      "auth": "tenant_or_run_capability",
+      "output": {
+        "claims": [
+          {
+            "kind": "OBSERVED|INFERRED|UNKNOWN",
+            "statement": "string",
+            "evidence_ids": "array",
+            "observed_at": "ISO timestamp"
+          }
+        ],
+        "limitations": "array",
+        "sources": "array"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/leads/campaigns",
+      "auth": "tenant_merchant",
+      "input": {
+        "goal": "string",
+        "business_audience": "string",
+        "country": "ISO2",
+        "region": "optional",
+        "max_candidates": "int"
+      },
+      "output": {
+        "campaign_id": "uuid",
+        "state": "DRAFT|RESEARCHING|READY|FAILED"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/leads/campaigns/{id}/discover",
+      "auth": "tenant_merchant",
+      "output": {
+        "job_id": "uuid",
+        "status": "QUEUED"
+      },
+      "missing_provider": "503 search_not_configured"
+    },
+    {
+      "method": "GET",
+      "path": "/leads/campaigns/{id}/candidates",
+      "auth": "tenant_merchant",
+      "output": {
+        "candidates": "organization-level sourced leads",
+        "provenance": "per lead"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/leads/{id}/pitch-drafts",
+      "auth": "tenant_merchant",
+      "input": {
+        "merchant_offer": "string",
+        "channel": "string",
+        "language": "optional"
+      },
+      "output": {
+        "draft_id": "uuid",
+        "state": "DRAFT",
+        "facts_sources": "array"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/outreach/{id}/approve",
+      "auth": "owner_or_authorized_admin",
+      "input": {
+        "approved_content_sha256": "string",
+        "expires_at": "timestamp",
+        "idempotency_key": "uuid"
+      },
+      "output": {
+        "approval_id": "uuid",
+        "state": "APPROVED|BLOCKED",
+        "policy_reason": "string"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/outreach/{id}/execute",
+      "auth": "owner_or_authorized_operator",
+      "output": {
+        "state": "BLOCKED|QUEUED|SENT_CONFIRMED|FAILED|UNCERTAIN",
+        "provider_receipt": "required_for_SENT_CONFIRMED"
+      },
+      "missing_provider": "403 provider_unavailable"
+    },
+    {
+      "method": "POST",
+      "path": "/ayo/ask",
+      "auth": "tenant_merchant",
+      "input": {
+        "prompt": "string",
+        "source_context_ids": "array?"
+      },
+      "output": {
+        "answer": "string",
+        "facts": "evidence linked",
+        "limitations": "array",
+        "tools_used": "array",
+        "actions_executed": "receipts only"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/public/business-discoveries",
+      "auth": "anonymous_rate_limited",
+      "input": {
+        "company_name_or_url_or_public_profile": "string",
+        "country": "ISO2 optional",
+        "city": "optional"
+      },
+      "output": {
+        "discovery_id": "opaque",
+        "matching_candidates": "sourced_or_empty",
+        "next_step": "choose_candidate_or_direct_public_source_or_owner_facts"
+      },
+      "no_provider": "503 discovery_unavailable"
+    },
+    {
+      "method": "GET",
+      "path": "/public/research-runs/{id}/mini-report",
+      "auth": "ephemeral_capability_or_owned_tenant",
+      "output": {
+        "mini_report": "evidence_backed_structured",
+        "possible_lead_previews": "zero_to_three_actual_organization_leads_only",
+        "source_coverage": "actual",
+        "limits": "array",
+        "cta": "Create your free Ayo account"
+      },
+      "not_ready": "202 running_or_503 unavailable"
+    },
+    {
+      "method": "POST",
+      "path": "/onboarding/claim-report",
+      "auth": "verified_account_with_single_use_ticket",
+      "input": {
+        "one_time_claim_token": "opaque",
+        "business_name_confirmed": "string"
+      },
+      "output": {
+        "business_id": "owned_workspace_only",
+        "report_id": "claimed_report",
+        "site_ownership_verified": false
+      },
+      "security": "atomic_one_time_claim_does_not_prove_domain_ownership"
+    },
+    {
+      "method": "POST",
+      "path": "/businesses/{id}/select-optional-integration",
+      "auth": "owner_or_authorized_admin",
+      "input": {
+        "provider": "shopify|other_supported",
+        "choice": "connect|skip"
+      },
+      "output": {
+        "status": "not_connected_until_actual_oauth",
+        "next_action": "scope_consent_if_connect"
+      }
+    }
+  ],
+  "global_invariants": [
+    "all mutable records tenant-scoped",
+    "no public research implies ownership or provider scope",
+    "write approvals bound to exact hash and TTL",
+    "no sourced claim without traceable page/source",
+    "all model output treated as untrusted until checked",
+    "country/provider support verified independently",
+    "anonymous_research_precedes_customer_signup",
+    "shopify_is_optional_not_onboarding_gate",
+    "preview_report_requires_actual_source_evidence",
+    "owner_supplied_no_site_facts_explicitly_labeled",
+    "mini_report_claim_is_one_time_and_does_not_verify_business_ownership"
+  ]
+}

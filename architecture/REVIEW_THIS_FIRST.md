@@ -1,0 +1,4 @@
+# Machine-readable architecture reference
+These JSON manifests are **proposals**; no listed provider or skill should be presented as live based on its presence here. `skill_registry.json` records current status (`planned`, `alpha_mock_tests_only`, `not_implemented_blocked`) and write permission contracts. `country_capabilities.json` defines Nigeria/Ghana-first localization defaults and unimplemented provider candidates. `specimen_api_contracts.json` describes example API IO shape; its examples are *schemas*, not fabricated business results. Source of truth for actual deployed code is the versioned implementation + real integration receipts.
+
+Every new capability must have: typed input/output + version, permissions/tenancy, country/locale handling, provider setup state, no-data/unconfigured/error response contract, cost budget, audit policy, tests and release gate. If a capability is not deployable, leave it explicitly unavailable in UI.

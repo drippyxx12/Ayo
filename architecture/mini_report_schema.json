@@ -1,0 +1,60 @@
+{
+  "schema_version": "1.0.0",
+  "status": "design_contract_only",
+  "type": "object",
+  "required": [
+    "business_candidate",
+    "source_documents",
+    "claims",
+    "opportunities",
+    "limitations",
+    "report_status"
+  ],
+  "business_candidate": {
+    "identity": "public_unverified_until_owner_verification",
+    "country": "user_selection_or_verified_source",
+    "has_site": "true_false_unknown"
+  },
+  "source_documents": {
+    "url": "public_canonical_url",
+    "retrieved_at": "timestamp",
+    "source_hash": "sha256",
+    "type": "public_web_or_owner_provided",
+    "fetch_status": "ok_partial_blocked"
+  },
+  "claims": {
+    "statement": "string",
+    "evidence_ids": "nonempty_for_observed",
+    "kind": [
+      "OBSERVED",
+      "INFERRED",
+      "UNKNOWN"
+    ],
+    "observed_at": "timestamp_or_null"
+  },
+  "opportunities": {
+    "description": "hypothesis",
+    "reason": "cited_observations",
+    "confidence": "bounded_number",
+    "next_step": "reviewable_not_executed"
+  },
+  "lead_previews": {
+    "optional": true,
+    "max": 3,
+    "each_requires_real_business_source": true,
+    "no_personal_contacts_before_signup": true,
+    "no_revenue_attribution": true
+  },
+  "limitations": [
+    "no_private_revenue_without_permission",
+    "no_inferred_actual_conversion",
+    "site_visibility_and_social_limitations"
+  ],
+  "report_status": [
+    "SUCCEEDED",
+    "PARTIAL",
+    "FAILED",
+    "UNAVAILABLE"
+  ],
+  "call_to_action": "Create your free Ayo account"
+}

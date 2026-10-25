@@ -1,0 +1,15 @@
+.git
+.venv
+.env
+.env.*
+*.zip
+*.db
+*.sqlite*
+__pycache__
+.pytest_cache
+.ruff_cache
+tests
+docs
+architecture
+RISK_REGISTER.md
+BASELINE_TEST_RESULTS.md

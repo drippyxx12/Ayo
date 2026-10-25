@@ -1,0 +1,21 @@
+title = "Ayo secret scanning"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Local dependency environments and tool caches, never source"
+paths = [
+  '''(^|/)\.git/''',
+  '''(^|/)\.venv/''',
+  '''(^|/)__pycache__/''',
+  '''(^|/)\.pytest_cache/''',
+  '''(^|/)\.ruff_cache/''',
+]
+
+[[allowlists]]
+description = "SHA-256 file digests in the imported-source artifact manifest"
+condition = "AND"
+paths = ['''^architecture/source_artifact_manifest\.json$''']
+regexTarget = "line"
+regexes = ['''^\s*"[^"]+": "[0-9a-f]{64}",?$''']

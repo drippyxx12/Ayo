@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}{{"Create your account" if mode == "signup" else "Sign in"}} — Ayo{% endblock %}
+{% block body %}
+<main class="wrap authwrap" id="main-content"><div class="eyebrow">{{'01 / START YOUR BUSINESS WORKSPACE' if mode == 'signup' else 'WELCOME BACK / AYO'}}</div>
+<h1 class="auth-title">{{'Make the first move.' if mode == 'signup' else 'Pick up where you left off.'}}</h1><p class="sub">{{'Create your private workspace. Save research and find your next opportunity. Shopify is optional.' if mode == 'signup' else 'Sign in to your private Ayo workspace.'}}</p>
+{% if error %}<div class="notice" role="alert">{{error}}</div>{% endif %}
+<form method="post" action="/{{mode}}" class="auth-form">
+<input type="hidden" name="csrf" value="{{csrf}}">
+<label for="email">WORK EMAIL</label><input id="email" name="email" type="email" required autocomplete="email" placeholder="you@business.com" maxlength="320">
+{% if mode == 'signup' %}
+<label for="business-name">BUSINESS NAME</label><input id="business-name" name="business_name" required minlength="2" maxlength="160" autocomplete="organization" placeholder="Your business name">
+<label for="business-country">YOUR MARKET</label><select id="business-country" name="country" required><option value="">Choose your market</option><option value="NG">Nigeria · NGN</option><option value="GH">Ghana · GHS</option></select>
+{% endif %}
+<label for="password">PASSWORD</label><input id="password" name="password" type="password" required minlength="12" maxlength="200" autocomplete="{{'new-password' if mode == 'signup' else 'current-password'}}" placeholder="At least 12 characters">
+<button class="pill full" type="submit">{{'Create account' if mode == 'signup' else 'Sign in'}} <span>↗</span></button>
+</form>
+<p class="switch">{% if mode == 'signup' %}Already have an account? <a href="/login">Sign in.</a>{% else %}New to Ayo? <a href="/signup">Create an account.</a>{% endif %}</p>
+{% if mode == 'signup' %}<div class="auth-foot">The first 500 distinct customer accounts receive all available Ayo features free, including future releases. Signup does not verify business ownership or authorize marketing.</div>{% else %}<p class="auth-foot"><a href="/forgot-password">Forgot your password?</a></p>{% endif %}
+</main>
+{% endblock %}

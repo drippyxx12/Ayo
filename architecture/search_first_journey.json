@@ -1,0 +1,59 @@
+{
+  "schema_version": "1.0.0",
+  "status": "founder_confirmed_specification_not_implemented",
+  "entry_priority": "search_first",
+  "shopify": "optional_after_account",
+  "supports_inputs": [
+    "brand_name_plus_market",
+    "website_url",
+    "public_social_profile_url",
+    "public_marketplace_page",
+    "business_without_website_owner_facts"
+  ],
+  "pre_signup_access": {
+    "requires_account": false,
+    "public_only": true,
+    "mini_report": true,
+    "lead_preview_only_when_real_provider_data": true,
+    "max_organization_preview_count": 3,
+    "forbid_contact_exports": true,
+    "forbid_messages": true,
+    "can_claim_site_ownership": false
+  },
+  "flow": [
+    "search",
+    "disambiguate",
+    "fetch_real_public_evidence",
+    "generate_sourced_mini_report",
+    "optional_real_lead_preview",
+    "create_free_account",
+    "claim_preview_one_time",
+    "enter_workspace",
+    "run_further_lead_discovery",
+    "optional_connections",
+    "governed_approved_actions"
+  ],
+  "no_site_fallbacks": [
+    "search_brand_and_city",
+    "permitted_public_marketplace_listing",
+    "permitted_public_social_profile",
+    "owner_supplied_descriptions_with_provenance"
+  ],
+  "report_claim": {
+    "requires_verified_authenticated_customer": true,
+    "one_time_opaque_token": true,
+    "merchant_site_ownership_verified_separately": true
+  },
+  "founding_cohort": {
+    "first_distinct_customer_users": 500,
+    "all_released_features_free": true,
+    "premium_feature_gates": false
+  },
+  "nonnegotiable": [
+    "no_fictional_data",
+    "no_unverified_sales",
+    "no_public_search_grants_permissions",
+    "no_shopify_gate",
+    "no_unsolicited_automated_outreach"
+  ]
+}

@@ -1,0 +1,19 @@
+services:
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: ayo
+      POSTGRES_USER: ayo
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set a local development database password}
+    ports:
+      - "127.0.0.1:15432:5432"
+    volumes:
+      - ayo_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ayo -d ayo"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  ayo_pgdata:

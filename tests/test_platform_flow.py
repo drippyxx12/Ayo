@@ -1,0 +1,182 @@
+"""End-to-end HTTP workflow with explicit, offline provider fixtures.
+
+These tests verify application behavior, not a live business or vendor grant.
+"""
+import hashlib
+import json
+import os
+import re
+import secrets
+from datetime import datetime, timezone
+from types import SimpleNamespace
+from urllib.parse import urlsplit
+
+import pytest
+from fastapi.testclient import TestClient
+from sqlalchemy import create_engine, select
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.schema import CreateSchema, DropSchema
+
+from ayo import app as mod
+from ayo.models import Base, FoundingGrant, Lead, MailOutbox, ResearchReportRecord, User
+from ayo.research import BusinessCandidate, ResearchService, SourceDocument
+
+
+class FixtureProvider:
+    async def search(self, query, country='', city='', limit=5):
+        now = datetime.now(timezone.utc)
+        return tuple(BusinessCandidate(id=str(i), name='Fixture Clothing Shop', url=url,
+            snippet='Fixture online clothing boutique and wholesale business in Accra.',
+            country=country, source_id='fixture-search-' + str(i), discovered_at=now,
+            provider='offline-fixture') for i, url in enumerate([
+                'https://fixture-clothing.org/', 'https://fixture-clothing.org/catalog']))
+
+    async def fetch(self, url, country=''):
+        text = 'Fixture Clothing Shop sells handmade clothing online. Delivery information is available on request.'
+        return SourceDocument(id='fixture-source', url=url, retrieved_at=datetime.now(timezone.utc),
+            source_hash=hashlib.sha256(text.encode()).hexdigest(), title='Fixture Clothing Shop',
+            excerpt=text, content=text, provider='offline-fixture', provider_receipt_id='fixture-receipt')
+
+
+@pytest.fixture(params=['sqlite', 'postgresql'])
+def platform(request, tmp_path, monkeypatch):
+    admin = None
+    if request.param == 'postgresql':
+        url = os.getenv('AYO_TEST_POSTGRES_URL')
+        if not url:
+            pytest.skip('Set AYO_TEST_POSTGRES_URL for real PostgreSQL workflow tests')
+        admin = create_engine(url)
+        schema = 'flow_' + secrets.token_hex(8)
+        with admin.begin() as conn:
+            conn.execute(CreateSchema(schema))
+        engine = admin.execution_options(schema_translate_map={None: schema})
+    else:
+        engine = create_engine('sqlite:///' + str(tmp_path / 'platform.db'), connect_args={'check_same_thread': False})
+    Base.metadata.create_all(engine)
+    factory = sessionmaker(bind=engine, expire_on_commit=False)
+    monkeypatch.setattr(mod, 'DbSession', factory)
+    monkeypatch.setattr(mod.app.state, 'research_factory', lambda: ResearchService(FixtureProvider()))
+    with TestClient(mod.app, base_url='http://testserver', follow_redirects=False) as client:
+        yield SimpleNamespace(client=client, factory=factory, engine=engine)
+    if admin:
+        with admin.begin() as conn:
+            conn.execute(DropSchema(schema, cascade=True))
+        admin.dispose()
+    else:
+        engine.dispose()
+
+
+def csrf(client, path='/'):
+    response = client.get(path)
+    assert response.status_code == 200, response.text
+    return re.search(r'name="csrf" value="([^"]+)"', response.text).group(1)
+
+
+def register(client, email):
+    response = client.post('/signup', data={'csrf': csrf(client, '/signup'), 'email': email,
+        'password': 'FixturePassword123!', 'business_name': 'Fixture merchant', 'country': 'GH'})
+    assert response.status_code == 303, response.text
+
+
+def verify_latest(client, factory):
+    with factory() as sess:
+        mail = sess.scalar(select(MailOutbox).where(MailOutbox.kind == 'verify_email').order_by(MailOutbox.id.desc()))
+        payload = json.loads(mod.fernet.decrypt(mail.payload_cipher.encode()))
+    link = urlsplit(payload['url'])
+    return client.get(link.path + '?' + link.query)
+
+
+def test_search_report_register_verify_save_reopen_and_lead_discovery(platform):
+    client, factory = platform.client, platform.factory
+    response = client.post('/research', data={'query': 'Fixture clothing business', 'country': 'GH', 'csrf': csrf(client)})
+    assert response.status_code == 200 and 'Fixture Clothing Shop' in response.text
+    response = client.post('/research/select', data={'url': 'https://fixture-clothing.org/', 'country': 'GH',
+        'business_name': 'Fixture Clothing Shop', 'csrf': csrf(client)})
+    assert response.status_code == 303, response.text
+    job_path = response.headers['location']
+    assert 'queued' in client.get(job_path).text.lower()
+    import asyncio
+    from ayo.jobs import process_one
+    assert asyncio.run(process_one(factory, mod.fernet, mod.app.state.research_factory))
+    finished = client.get(job_path)
+    assert finished.status_code == 303
+    report_path = finished.headers['location']
+    public_report = client.get(report_path)
+    assert 'Fixture Clothing Shop' in public_report.text and 'fixture-source' in public_report.text
+    claim = re.search(r'name="claim_token" value="([^"]+)"', public_report.text)
+    # Anonymous CTAs lead to registration; the capability stays in the signed
+    # HttpOnly session, then a verified account can consume it atomically.
+    assert claim is None
+    with TestClient(mod.app, base_url='http://testserver') as stranger:
+        assert stranger.get(report_path).status_code == 404
+    register(client, 'owner@example.org')
+    with factory() as sess:
+        assert sess.scalar(select(ResearchReportRecord)).business_id is None
+        assert sess.scalar(select(FoundingGrant)).slot == 1
+    assert verify_latest(client, factory).status_code == 303
+    home = client.get('/dashboard')
+    assert home.status_code == 200 and 'Fixture Clothing Shop' in home.text
+    saved = client.get(report_path)
+    assert saved.status_code == 200 and 'Part of your business memory' in saved.text
+    response = client.post('/leads/discover', data={'csrf': csrf(client, '/dashboard'),
+        'query': 'clothing boutiques', 'country': 'GH', 'city': 'Accra'})
+    assert response.status_code == 303, response.text
+    assert 'Fixture Clothing Shop' in client.get('/leads').text
+    client.post('/leads/discover', data={'csrf': csrf(client, '/dashboard'),
+        'query': 'clothing boutiques', 'country': 'GH', 'city': 'Accra'})
+    with factory() as sess:
+        rows = sess.scalars(select(Lead)).all()
+        assert len(rows) == 1 and rows[0].status == 'discovered'
+        assert 'fixture-search' in rows[0].evidence_json
+        assert sess.scalar(select(User)).email_verified_at is not None
+        lead_id = rows[0].id
+    assert client.post('/leads/' + lead_id + '/qualify', data={
+        'csrf': csrf(client, '/dashboard'), 'note': 'Source describes a clothing boutique matching the offer.'}).status_code == 303
+    assert 'Qualified' in client.get('/leads').text
+    assert client.post('/leads/' + lead_id + '/qualify', data={
+        'csrf': csrf(client, '/dashboard'), 'note': 'Repeated review'}).status_code == 409
+    # A second account cannot access the first report or prospects, even with a
+    # known report URL. It receives its own workspace and entitlement.
+    with TestClient(mod.app, base_url='http://testserver', follow_redirects=False) as other:
+        register(other, 'other@example.org')
+        assert other.get(report_path).status_code == 404
+        assert 'Fixture Clothing Shop' not in other.get('/leads').text
+        assert other.post('/leads/' + lead_id + '/qualify', data={
+            'csrf': csrf(other, '/dashboard'), 'note': 'Unauthorized review'}).status_code == 404
+    # Database-backed sessions are revoked server-side, including captured cookies.
+    cookie = client.cookies.get('ayo_session')
+    assert client.post('/logout', data={'csrf': csrf(client, '/dashboard')}).status_code == 303
+    with TestClient(mod.app, base_url='http://testserver', follow_redirects=False) as replay:
+        replay.cookies.set('ayo_session', cookie)
+        assert replay.get('/dashboard').status_code == 303
+    token = csrf(client, '/login')
+    assert client.post('/login', data={'csrf': token, 'email': 'owner@example.org', 'password': 'FixturePassword123!'}).status_code == 303
+    assert client.get(report_path).status_code == 200
+
+
+def test_claim_rejects_other_browser_expiry_and_replay(platform):
+    import asyncio
+    from ayo.identity import IdentityError, IdentityService
+    from ayo.report_storage import ReportStore
+    report = asyncio.run(ResearchService(FixtureProvider()).research('https://fixture-clothing.org/', country='GH'))
+    with platform.factory() as sess:
+        identity = IdentityService(sess)
+        account = identity.register('verified@example.org', 'FixturePassword123!', 'Fixture merchant', 'GH')
+        identity.consume_verification(account.verification_token)
+        record, raw = ReportStore(sess).save_preview(report, 'a' * 48)
+        sess.commit()
+        for anon in ['b' * 48, '']:
+            with pytest.raises(IdentityError):
+                ReportStore(sess).claim(raw, anon, account.user.id, account.business.id)
+            sess.rollback()
+        with pytest.raises(IdentityError):
+            ReportStore(sess, clock=lambda: time_after(record.created_at)).claim(raw, 'a' * 48, account.user.id, account.business.id)
+        sess.rollback()
+        ReportStore(sess).claim(raw, 'a' * 48, account.user.id, account.business.id)
+        sess.commit()
+        with pytest.raises(IdentityError):
+            ReportStore(sess).claim(raw, 'a' * 48, account.user.id, account.business.id)
+
+
+def time_after(created):
+    return created + 1801
