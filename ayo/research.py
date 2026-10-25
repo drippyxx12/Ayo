@@ -21,13 +21,14 @@ import json
 import os
 import re
 import time
+from decimal import Decimal, InvalidOperation
 from typing import Literal, Protocol
 from urllib.parse import urlsplit
 
 import httpx
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from ayo.website_research import SiteInputError, normalize_public_url
+from ayo.website_research import SiteInputError, extract_public_page, normalize_public_url
 
 COUNTRY_NAMES = {"NG": "Nigeria", "GH": "Ghana"}
 MAX_RESPONSE_BYTES = 1_000_000
@@ -93,6 +94,25 @@ class ResearchModel(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
 
+class PublicProduct(ResearchModel):
+    name: str = Field(min_length=1, max_length=200)
+    listed_price: str | None = Field(default=None, max_length=40)
+    currency: str | None = Field(default=None, pattern=r'^[A-Z]{3}$')
+    classification: Literal['PUBLIC_STRUCTURED_DATA_UNVERIFIED'] = 'PUBLIC_STRUCTURED_DATA_UNVERIFIED'
+
+    @field_validator('listed_price')
+    @classmethod
+    def valid_price(cls, value):
+        if value is not None:
+            try:
+                number = Decimal(value)
+                if not number.is_finite() or number < 0:
+                    raise ValueError('Invalid public price')
+            except InvalidOperation as exc:
+                raise ValueError('Invalid public price') from exc
+        return value
+
+
 class BusinessCandidate(ResearchModel):
     id: str = Field(min_length=1, max_length=100)
     name: str = Field(min_length=1, max_length=240)
@@ -130,6 +150,9 @@ class SourceDocument(ResearchModel):
     provider_receipt_id: str = Field(min_length=1, max_length=120)
     robots_policy: Literal["PROVIDER_REQUESTED"] = "PROVIDER_REQUESTED"
     source_type: Literal["PUBLIC_WEB"] = "PUBLIC_WEB"
+    html_source_hash: str | None = Field(default=None, pattern=r'^[0-9a-f]{64}$')
+    product_observations: tuple[PublicProduct, ...] = Field(default=(), max_length=20)
+    channel_observations: tuple[str, ...] = Field(default=(), max_length=10)
 
     @field_validator("url")
     @classmethod
@@ -149,6 +172,12 @@ class SourceDocument(ResearchModel):
             raise ValueError("Evidence content does not match its immutable hash")
         if self.excerpt not in self.content:
             raise ValueError("Evidence excerpt must occur in retained source content")
+        if (self.product_observations or self.channel_observations) and not self.html_source_hash:
+            raise ValueError('Public markup observations require their captured HTML hash')
+        if any(product.name not in self.content for product in self.product_observations):
+            raise ValueError('Product observations must be present in the retained evidence')
+        if any(channel not in self.content for channel in self.channel_observations):
+            raise ValueError('Channel observations must be present in the retained evidence')
         return self
 
 
@@ -324,7 +353,7 @@ class FirecrawlProvider:
         if host not in self._approved_hosts:
             raise ResearchError("source_policy_not_approved", "This source has not been approved under Ayo's public access policy.", 403)
         scrape_options = {
-            "formats": [{"type": "markdown"}], "onlyMainContent": True,
+            "formats": [{"type": "markdown"}, {"type": "html"}], "onlyMainContent": False,
             "skipTlsVerification": False, "timeout": 10000, "maxAge": 0,
             "proxy": "basic", "storeInCache": False, "redactPII": True,
             "blockAds": True, "parsers": [],
@@ -383,12 +412,48 @@ class FirecrawlProvider:
         content = _public_content(raw_content)
         if len(content) < 30:
             raise ResearchError("insufficient_evidence", "Not enough readable public evidence was retrieved to create a report.", 422)
+        products, channels, html_hash = (), (), None
+        html = page.get('html')
+        if isinstance(html, str) and html:
+            if len(html) > 300_000:
+                raise ResearchError('source_unavailable', 'Public markup exceeded the extraction limit.', 502)
+            html_hash = hashlib.sha256(html.encode()).hexdigest()
+            parsed = extract_public_page(final_url, html)
+            collected = []
+            for item in parsed.product_structured_data:
+                name = _public_content(item.get('name') or '')[:200]
+                if not name:
+                    continue
+                price = str(item['price']) if item.get('price') is not None else None
+                if price is not None and len(price) > 40:
+                    price = None
+                currency = item.get('priceCurrency')
+                currency = currency.upper() if isinstance(currency, str) and re.fullmatch(r'[A-Za-z]{3}', currency) else None
+                try:
+                    product = PublicProduct(name=name, listed_price=price, currency=currency)
+                except ValueError:
+                    product = PublicProduct(name=name, currency=currency)
+                if product not in collected:
+                    collected.append(product)
+            products = tuple(collected[:20])
+            hosts = {urlsplit(link).hostname for link in parsed.links}
+            known = {'WhatsApp': {'wa.me', 'api.whatsapp.com', 'whatsapp.com'},
+                     'Instagram': {'instagram.com', 'www.instagram.com'},
+                     'Facebook': {'facebook.com', 'www.facebook.com'},
+                     'TikTok': {'tiktok.com', 'www.tiktok.com'},
+                     'Jiji': {'jiji.ng', 'jiji.com.gh'}, 'Jumia': {'jumia.com.ng', 'jumia.com.gh'}}
+            channels = tuple(name for name, domains in known.items() if hosts & domains)
+            if products or channels:
+                appendix = '\n\nPUBLIC MARKUP OBSERVATIONS (UNVERIFIED):\n' + json.dumps(
+                    {'listed_products': [p.model_dump() for p in products], 'linked_channels': channels}, ensure_ascii=False)
+                content = content[:MAX_SOURCE_CHARS - len(appendix)] + appendix
         digest = hashlib.sha256(content.encode()).hexdigest()
         return SourceDocument(
             id="source-" + digest[:32], url=final_url, retrieved_at=_now(), source_hash=digest,
             title=_public_content(str(metadata.get("title", "")))[:240],
             excerpt=content[:600], content=content, provider="firecrawl",
             provider_receipt_id=receipt,
+            html_source_hash=html_hash, product_observations=products, channel_observations=channels,
         )
 
 
@@ -449,6 +514,15 @@ def build_report(source: SourceDocument, *, country: str = "", business_name: st
         kind="OBSERVED", evidence_ids=ids, observed_at=source.retrieved_at,
     )]
     opportunities = []
+    for product in source.product_observations:
+        price = f' Listed price: {product.currency or "currency not established"} {product.listed_price}.' if product.listed_price is not None else ' A usable listed price was not established.'
+        claims.append(ReportClaim(text=f'Public product markup names “{product.name}”.' + price + ' This is not verified stock, checkout or sales data.',
+                                  kind='OBSERVED', evidence_ids=ids, observed_at=source.retrieved_at))
+    if not source.product_observations:
+        claims.append(ReportClaim(text='A structured product catalog was not established from the retrieved source. Products may exist on other pages or selling channels.', kind='UNKNOWN', evidence_ids=ids))
+    for channel in source.channel_observations:
+        claims.append(ReportClaim(text=f'The public page includes a link to {channel}. The profile ownership and functioning sales process are not verified.',
+                                  kind='OBSERVED', evidence_ids=ids, observed_at=source.retrieved_at))
     lower = source.content.casefold()
     checks = [
         ("delivery", ("delivery", "shipping", "dispatch"), "Clarify delivery coverage", "Review whether your public page clearly explains delivery locations, charges and timing."),

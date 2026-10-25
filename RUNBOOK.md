@@ -12,6 +12,8 @@ Run `python -m alembic upgrade head`, then `uvicorn ayo.app:app --host 127.0.0.1
 
 Run `python -m ayo.worker` separately for durable public research jobs. Jobs require the same database and encryption key as the web process. `--once` handles at most one job. Expired worker leases can be retried up to three attempts; failures are persisted without invented reports. The browser status page has a refresh link and reports actual job state.
 
+Run `python -m ayo.worker --once --cleanup` to delete expired anonymous reports/jobs/claim tickets, sessions, identity tickets, stale abuse windows and old mail artifacts. It preserves claimed workspace reports and founding grants. Schedule this only in an approved environment; no hosted schedule has been deployed. Production retention/legal review and deletion propagation to backups/providers remain launch gates.
+
 ## Provider setup — requires owner permission
 
 - **Research:** configure `FIRECRAWL_API_KEY` only after a permitted provider account and spend are authorized. Set `AYO_PROVIDER_SPEND_AUTHORIZED=1` only with that authorization. Hosted fetching additionally requires reviewed robots/terms/source policies, verified provider egress/redirect controls, `AYO_RESEARCH_EGRESS_POLICY=provider_managed_verified`, and exact source hosts in `AYO_RESEARCH_APPROVED_HOSTS`. The flag records an operator acceptance decision; it does not independently prove network controls. Ayo never locally fetches arbitrary submitted URLs. Without these checks, fetch fails closed.
@@ -25,6 +27,8 @@ Run `python -m ayo.worker` separately for durable public research jobs. Jobs req
 Anonymous reports expire after 24 hours; claim capabilities expire after 30 minutes and are hashed at rest and browser-session-bound. A verified account can claim once into its authorized business. Saving research does not prove site ownership. A new user receives a private business membership; all report, lead and AI queries derive that membership server-side.
 
 The first 500 distinct normalized customer accounts receive persistent all-feature grants, including future releases. Grants survive additional business creation and have no automatic expiry. Email verification, abuse prevention, third-party charges and provider authorization remain independent. Anti-abuse and legitimate-account policy still need launch review; later-user prices are not applied automatically.
+
+Account Security includes password-confirmed removal of local Ayo account data. Exclusive workspaces/reports/leads, credentials, sessions, and mail artifacts are removed. Shared workspaces must retain another owner. The former user row is disabled and pseudonymized to preserve the non-reusable founding ordinal; provider-side data, backups and legal retention obligations require separate review. The interface does not claim external deletion or legal compliance.
 
 Lead discovery stores only sourced organization candidates, with source snippets/times and deduplication. Qualification records merchant review. Contacted/replied/converted require separate matching evidence; this build exposes no send endpoint, no automatic messaging and no invented conversions.
 

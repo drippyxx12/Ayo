@@ -180,3 +180,68 @@ def test_claim_rejects_other_browser_expiry_and_replay(platform):
 
 def time_after(created):
     return created + 1801
+
+
+def test_workspace_switch_is_membership_scoped_and_does_not_consume_founder_slot(platform):
+    from ayo.models import Business, Membership
+    client = platform.client
+    register(client, 'multi@example.org')
+    assert client.post('/business/setup', data={'csrf': csrf(client, '/dashboard'),
+        'business_name': 'Second fixture business', 'country': 'NG'}).status_code == 303
+    assert 'Second fixture business' in client.get('/dashboard').text
+    assert 'NGN' in client.get('/settings').text
+    with platform.factory() as sess:
+        assert len(sess.scalars(select(FoundingGrant)).all()) == 1
+        first = sess.scalar(select(Business).where(Business.name == 'Fixture merchant'))
+        first_id = first.id
+    assert client.post('/business/switch', data={'csrf': csrf(client, '/dashboard'), 'business_id': first_id}).status_code == 303
+    assert 'GHS' in client.get('/settings').text
+    with TestClient(mod.app, base_url='http://testserver', follow_redirects=False) as other:
+        register(other, 'foreign@example.org')
+        assert other.post('/business/switch', data={'csrf': csrf(other, '/dashboard'), 'business_id': first_id}).status_code == 403
+
+
+def test_http_password_recovery_revokes_old_sessions_and_rejects_replay(platform):
+    client = platform.client
+    register(client, 'recover@example.org')
+    assert verify_latest(client, platform.factory).status_code == 303
+    captured = client.cookies.get('ayo_session')
+    response = client.post('/forgot-password', data={'csrf': csrf(client, '/forgot-password'), 'email': 'recover@example.org'})
+    assert response.status_code == 200 and 'queued' in response.text
+    with platform.factory() as sess:
+        mail = sess.scalar(select(MailOutbox).where(MailOutbox.kind == 'reset_password'))
+        raw_url = json.loads(mod.fernet.decrypt(mail.payload_cipher.encode()))['url']
+    parsed = urlsplit(raw_url)
+    from urllib.parse import parse_qs
+    token = parse_qs(parsed.query)['token'][0]
+    page = client.get(parsed.path + '?' + parsed.query)
+    assert page.headers['referrer-policy'] == 'no-referrer'
+    csrf_value = re.search(r'name="csrf" value="([^"]+)"', page.text).group(1)
+    assert client.post('/reset-password', data={'csrf': csrf_value, 'token': token, 'password': 'ChangedFixturePassword123!'}).status_code == 303
+    with TestClient(mod.app, base_url='http://testserver', follow_redirects=False) as stale:
+        stale.cookies.set('ayo_session', captured)
+        assert stale.get('/dashboard').status_code == 303
+    assert client.post('/login', data={'csrf': csrf(client, '/login'), 'email': 'recover@example.org', 'password': 'ChangedFixturePassword123!'}).status_code == 303
+    assert client.post('/reset-password', data={'csrf': csrf(client, '/dashboard'), 'token': token, 'password': 'AnotherFixturePassword123!'}).status_code == 400
+
+
+def test_local_account_removal_revokes_sessions_and_preserves_nonreusable_slot(platform):
+    from ayo.models import AuthSession, Business, Membership
+    client = platform.client
+    register(client, 'delete-fixture@example.org')
+    captured = client.cookies.get('ayo_session')
+    assert client.post('/security/delete', data={'csrf': csrf(client, '/dashboard'),
+        'password': 'wrong password', 'confirmation': 'DELETE'}).status_code == 403
+    assert client.post('/security/delete', data={'csrf': csrf(client, '/dashboard'),
+        'password': 'FixturePassword123!', 'confirmation': 'DELETE'}).status_code == 303
+    with platform.factory() as sess:
+        user = sess.scalar(select(User))
+        assert user.disabled_at is not None and user.email != 'delete-fixture@example.org'
+        assert sess.scalar(select(AuthSession)) is None
+        assert sess.scalar(select(Membership)) is None
+        assert sess.scalar(select(Business)) is None
+        assert sess.scalar(select(MailOutbox)) is None
+        assert sess.scalar(select(FoundingGrant)).slot == 1
+    with TestClient(mod.app, base_url='http://testserver', follow_redirects=False) as stale:
+        stale.cookies.set('ayo_session', captured)
+        assert stale.get('/dashboard').status_code == 303

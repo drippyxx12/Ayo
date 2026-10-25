@@ -25,8 +25,8 @@ Labels: **LOCAL VERIFIED** means code executed locally with the stated evidence;
 | NG/GH business localization | LOCAL VERIFIED: explicit NG/GH, currencies, timezones, pending-payment contract | No payment connection claimed | Explicit country, NGN/GHS/timezone rules and provider capability checks |
 | Payment integration boundaries | LOCAL VERIFIED CONTRACTS; no provider adapter | BLOCKED LIVE: approved sandbox/provider credentials | Verified webhook/receipt, pending/success/settlement distinction and deduplication |
 | Governed provider writes/outreach | NOT IMPLEMENTED as an executable capability | Not authorized | Exact approval, legal basis/consent, provider scopes, suppression and verified receipts; remain blocked |
-| Syne headings, DM Sans UI, DM Mono metrics | IMPLEMENTED: self-hosted fonts and merchant screens | Local browser verification pending | Self-hosted assets, accessible responsive screens and consistent font roles |
-| CI/dependency/secret checks | LOCAL VERIFIED foundation | GitHub workflow not yet evidenced by a run | Rerun after integrated changes; attach actual remote workflow and commit receipts |
+| Syne headings, DM Sans UI, DM Mono metrics | IMPLEMENTED: self-hosted fonts and merchant screens | Browser verified at 390/768/1440px | Self-hosted assets, accessible responsive screens and consistent font roles |
+| CI/dependency/secret checks | LOCAL VERIFIED foundation | GitHub run 40220523431 passed | Rerun after integrated changes; attach actual remote workflow and commit receipts |
 | Deployment and public availability | No completed deployment | Not authorized by current request | Concrete reviewed deployment approval, production DB/secrets and launch gates |
 
 ## End-to-end completion gate
@@ -36,9 +36,17 @@ Labels: **LOCAL VERIFIED** means code executed locally with the stated evidence;
 | Search a real NG/GH public business | Permitted provider query and actual candidate sources | BLOCKED LIVE |
 | Receive a useful sourced report before signup | Captured evidence and independently checkable citations | IN PROGRESS / BLOCKED LIVE |
 | Register/verify and claim the exact report | Tested HTTP flow against SQLite and real local PostgreSQL; actual email delivery missing | LOCAL VERIFIED WITH FIXTURES |
-| Reopen saved report after login/restart | PostgreSQL persistence, re-login and tenant-isolation tests; browser check follows | LOCAL VERIFIED WITH FIXTURES |
+| Reopen saved report after login/restart | PostgreSQL persistence, re-login, tenant-isolation and browser checks passed | LOCAL VERIFIED WITH FIXTURES |
 | Discover genuine relevant organizations | Actual provider results, deduplication and per-lead source/fit | IN PROGRESS / BLOCKED LIVE |
 
 The overall goal cannot be marked complete until these steps have meaningful integrated test evidence **and** real permitted-source verification. Missing setup must produce truthful errors, never fabricated customers, dashboards, research, leads, AI answers or integration results.
 
 Durable research jobs and an operator-run worker are implemented. Jobs use encrypted input, an expiring lease, bounded retries, session-bound status access and explicit failure states. Public requests do not run crawls. Live fetch remains blocked by source-policy/egress review and credentials.
+
+## Latest evidence checkpoint
+
+**219 tests pass with PostgreSQL enabled**, with no skipped cases and one upstream deprecation warning. Browser workflow tests passed on mobile/tablet/desktop using PostgreSQL and explicit offline provider fixtures, including source-backed reports, account verification via the encrypted test outbox, private saving/reopening and lead qualification. Actual email delivery and actual public-provider evidence remain BLOCKED LIVE.
+
+Password-confirmed local account removal is implemented with shared-ownership protection and a disabled pseudonymous founding ledger. Workspace switching is membership-checked and does not allocate a second founding slot. HTTP password recovery revokes old cookies/sessions. Expired anonymous/security artifacts have a cleanup command; claimed reports and permanent grants are preserved. Verification-mail supersession and request-body bounds are tested. No public deployment or paid call occurred.
+
+Public research now extracts bounded product-name/listed-price/currency observations from returned public markup and identifies publicly linked selling channels. Invalid/nonfinite/oversized prices stay unknown; no inventory, sales or functioning-checkout claim is inferred. HTML and sanitized evidence hashes are retained. These adapter paths remain fixture-tested, not live-provider verified.

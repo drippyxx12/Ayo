@@ -28,6 +28,33 @@ def source(content='Handmade clothing sold online. Delivery across Accra. Contac
     )
 
 
+def test_public_products_prices_and_linked_channels_are_observed_not_sales():
+    html = '''<h1>Fixture clothing shop</h1><script type="application/ld+json">{"@type":"Product","name":"Fixture linen shirt","offers":{"price":"150.00","priceCurrency":"GHS"}}</script><a href="https://wa.me/233000000000">Ask our business</a><a href="https://instagram.com/fixture">Social profile</a>'''
+    handler, seen = crawl_handler({'markdown': 'Fixture clothing shop publishes a shirt listing. Delivery terms need review.',
+        'html': html, 'metadata': {'sourceURL': 'https://merchant.org/', 'statusCode': 200, 'title': 'Fixture clothing shop'}})
+    observed = run(provider(handler).fetch('https://merchant.org/'))
+    assert observed.product_observations[0].name == 'Fixture linen shirt'
+    assert observed.product_observations[0].listed_price == '150.00'
+    assert observed.product_observations[0].currency == 'GHS'
+    assert observed.channel_observations == ('WhatsApp', 'Instagram')
+    assert '233000000000' not in observed.content
+    assert observed.html_source_hash == hashlib.sha256(html.encode()).hexdigest()
+    report = build_report(observed, country='GH')
+    assert any('Fixture linen shirt' in claim.text and 'not verified' in claim.text for claim in report.claims)
+    assert report.shopify_connected is False
+    assert 'html' in [item['type'] for item in json.loads(seen[0].content)['scrapeOptions']['formats']]
+
+
+@pytest.mark.parametrize('price', ['NaN', '-1', '1' * 80, 'not a price'])
+def test_invalid_public_product_price_stays_unknown(price):
+    html = '<script type="application/ld+json">' + json.dumps({'@type': 'Product', 'name': 'Fixture item',
+        'offers': {'price': price, 'priceCurrency': 'NGN'}}) + '</script>'
+    handler, _ = crawl_handler({'markdown': 'Fixture business page with published products. No verified transactions.',
+        'html': html, 'metadata': {'sourceURL': 'https://merchant.org/', 'statusCode': 200}})
+    observed = run(provider(handler).fetch('https://merchant.org/'))
+    assert observed.product_observations[0].listed_price is None
+
+
 def provider(handler, **kwargs):
     return FirecrawlProvider(
         'fixture-api-key-never-live', spend_authorized=True,

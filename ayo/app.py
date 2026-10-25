@@ -31,6 +31,7 @@ from ayo.database import make_engine, session_factory
 from ayo.models import Base, User, Shop, Snapshot, AuthSession
 from ayo.identity import IdentityService, token_hash
 from ayo.money import display_minor, minor_units
+from ayo.http_security import BodyLimitMiddleware
 from ayo.public_research import prepare_public_research
 from ayo.website_research import SiteInputError
 
@@ -69,6 +70,7 @@ DbSession = session_factory(engine)
 if ENV == 'test':
     Base.metadata.create_all(engine)
 app = FastAPI(title='Ayo — Real Merchant Alpha', docs_url=None if ENV == 'production' else '/api-docs')
+app.add_middleware(BodyLimitMiddleware)
 app.add_middleware(SessionMiddleware, secret_key=SESSION_SECRET, session_cookie='ayo_session', max_age=60*60*24*7, same_site='lax', https_only=ORIGIN.startswith('https://'))
 app.mount('/static', StaticFiles(directory=str(ROOT / 'static')), name='static')
 TEMPLATE = Environment(loader=FileSystemLoader(str(ROOT / 'templates')), autoescape=select_autoescape(['html']))
@@ -87,7 +89,8 @@ async def security_headers(request: Request, call_next):
         response.headers['Cache-Control'] = 'private, no-store'
         response.headers['Pragma'] = 'no-cache'
     response.headers['X-Content-Type-Options'] = 'nosniff'
-    response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+    response.headers['Referrer-Policy'] = ('no-referrer' if request.url.path in {'/verify-email', '/reset-password'}
+                                         else 'strict-origin-when-cross-origin')
     response.headers['X-Frame-Options'] = 'DENY'
     response.headers['Content-Security-Policy'] = "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; img-src 'self' data:; style-src 'self'"
     if ORIGIN.startswith('https://'):

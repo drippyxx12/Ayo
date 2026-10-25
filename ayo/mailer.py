@@ -5,12 +5,14 @@ import time
 from urllib.parse import urlencode
 
 import httpx
-from sqlalchemy import select
+from sqlalchemy import select, update
 
 from ayo.models import MailOutbox
 
 
 def queue_identity_mail(session, fernet, user, purpose, token, origin):
+    session.execute(update(MailOutbox).where(MailOutbox.user_id == user.id,
+        MailOutbox.kind == purpose, MailOutbox.status == 'pending').values(status='superseded'))
     path = '/verify-email' if purpose == 'verify_email' else '/reset-password'
     payload = {'url': origin + path + '?' + urlencode({'token': token}), 'purpose': purpose}
     session.add(MailOutbox(user_id=user.id, kind=purpose, recipient=user.email,
@@ -25,6 +27,10 @@ def deliver_one(session, fernet):
     key, sender = os.getenv('RESEND_API_KEY'), os.getenv('MAIL_FROM')
     if not key or not sender:
         raise RuntimeError('Transactional email provider is not configured.')
+    now = time.time()
+    session.execute(update(MailOutbox).where(MailOutbox.status == 'pending',
+        ((MailOutbox.kind == 'reset_password') & (MailOutbox.created_at <= now - 1800)) |
+        ((MailOutbox.kind == 'verify_email') & (MailOutbox.created_at <= now - 86400))).values(status='expired'))
     row = session.scalar(select(MailOutbox).where(MailOutbox.status == 'pending')
                          .order_by(MailOutbox.id).with_for_update(skip_locked=True))
     if row is None:

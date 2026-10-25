@@ -4,6 +4,7 @@ import os
 import secrets
 import time
 from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 
 from fastapi import Depends, Form, HTTPException, Request
 from fastapi.responses import JSONResponse, RedirectResponse
@@ -16,6 +17,7 @@ from ayo.intelligence import IntelligenceContext, IntelligenceError, Intelligenc
 from ayo.leads import LeadError, PipelineEvidence, discover_leads, transition_lead
 from ayo.mailer import queue_identity_mail
 from ayo.jobs import enqueue, get_job
+from ayo.account_deletion import remove_account
 from ayo.models import AuditEvent, Business, IntelligenceRun, Lead, LeadEvent, Membership
 from ayo.public_research import prepare_public_research
 from ayo.report_storage import ReportStore
@@ -40,8 +42,12 @@ def install_routes(mod):
 
     def context(request, sess):
         user = mod.must_user(request, sess)
-        membership = sess.scalar(select(Membership).where(Membership.user_id == user.id)
-                                 .order_by(Membership.business_id))
+        selected = request.session.get('business_id')
+        membership = sess.scalar(select(Membership).where(
+            Membership.user_id == user.id, Membership.business_id == selected)) if selected else None
+        if membership is None:
+            membership = sess.scalar(select(Membership).where(Membership.user_id == user.id)
+                                     .order_by(Membership.business_id))
         if membership is None:
             return user, None
         return user, sess.get(Business, membership.business_id)
@@ -90,6 +96,13 @@ def install_routes(mod):
             opportunities.extend({**item, 'report_id': record.id} for item in data.get('opportunities', []))
         activities = sess.scalars(select(AuditEvent).where(AuditEvent.business_id == business.id)
                                  .order_by(AuditEvent.created_at.desc()).limit(20)).all()
+        labels = {'report.claimed': 'Research saved to this workspace',
+                  'account.registered': 'Your Ayo account was created', 'business.created': 'Business workspace created',
+                  'lead.discovered': 'A sourced prospect was discovered', 'lead.qualified': 'A prospect was qualified after review',
+                  'intelligence.analyzed': 'Ayo analysis recorded'}
+        activities = [{'label': labels.get(event.action, event.action.replace('.', ' · ').replace('_', ' ')),
+                       'display_time': datetime.fromtimestamp(event.created_at, ZoneInfo(business.timezone)).strftime('%d %b %Y · %H:%M %Z')}
+                      for event in activities]
         latest = sess.scalar(select(IntelligenceRun).where(IntelligenceRun.business_id == business.id)
                              .order_by(IntelligenceRun.created_at.desc()))
         notice = ('Your report is ready to save. Verify your email, then reopen it to save it securely.'
@@ -127,6 +140,7 @@ def install_routes(mod):
             response.status_code = 409
             return response
         start_session(request, grant)
+        request.session['business_id'] = registration.business.id
         return RedirectResponse('/dashboard', 303)
 
     @app.get('/login')
@@ -174,11 +188,20 @@ def install_routes(mod):
         user = mod.must_user(request, sess)
         guard(request, csrf, sess)
         try:
-            IdentityService(sess).create_business(user.id, business_name, country)
+            business = IdentityService(sess).create_business(user.id, business_name, country)
             sess.commit()
         except IdentityError as exc:
             sess.rollback()
             return mod.render(request, 'business_setup.html', user=user, error=str(exc))
+        request.session['business_id'] = business.id
+        return RedirectResponse('/dashboard', 303)
+
+    @app.post('/business/switch')
+    def switch_business(request: Request, business_id: str = Form(...), csrf: str = Form(...), sess=Depends(mod.db)):
+        user = mod.must_user(request, sess)
+        guard(request, csrf, sess)
+        IdentityService(sess).require_membership(user.id, business_id)
+        request.session['business_id'] = business_id
         return RedirectResponse('/dashboard', 303)
 
     async def research_url(request, sess, url, country, business_name=''):
@@ -336,8 +359,10 @@ def install_routes(mod):
         sources = {}
         for row in records:
             for source in ResearchReport.model_validate_json(row.report_json).source_documents:
+                excerpt = (source.excerpt + '\n' + source.content[-3000:]
+                           if source.product_observations or source.channel_observations else source.excerpt)
                 sources[source.id] = SourceEvidence(id=source.id, business_id=business.id, url=source.url,
-                                                    excerpt=source.excerpt, observed_at=source.retrieved_at)
+                                                    excerpt=excerpt, observed_at=source.retrieved_at)
         try:
             evidence = tuple(sources.values())[:20]
             ctx = IntelligenceContext(business_id=business.id, actor_business_id=business.id,
@@ -361,8 +386,10 @@ def install_routes(mod):
                      for name, key in [('research', 'FIRECRAWL_API_KEY'), ('Gemini', 'GEMINI_API_KEY'),
                                        ('Claude', 'ANTHROPIC_API_KEY'), ('email', 'RESEND_API_KEY'), ('Shopify', 'SHOPIFY_CLIENT_ID')]}
         providers['payments'] = 'adapter_contract_only_no_live_connection'
+        businesses = sess.scalars(select(Business).join(Membership, Membership.business_id == Business.id)
+                                  .where(Membership.user_id == user.id).order_by(Business.created_at)).all()
         return mod.render(request, 'settings.html', user=user, business=business, provider_status=providers,
-                          founding_slot=IdentityService(sess).entitlement(user.id).founding_slot)
+                          founding_slot=IdentityService(sess).entitlement(user.id).founding_slot, businesses=businesses)
 
     @app.get('/security')
     def security(request: Request, sess=Depends(mod.db)):
@@ -385,6 +412,24 @@ def install_routes(mod):
             raise HTTPException(exc.status_code, str(exc))
         return mod.render(request, 'account_security.html', user=user, business=business,
             message='Verification has been queued. Email delivery requires a configured and authorized mail worker.')
+
+    @app.post('/security/delete')
+    def delete_account(request: Request, password: str = Form(...), confirmation: str = Form(...),
+                       csrf: str = Form(...), sess=Depends(mod.db)):
+        user, business = context(request, sess)
+        guard(request, csrf, sess)
+        IdentityService(sess)._attempt('account-removal', str(user.id), limit=5, window=3600)
+        sess.commit()
+        try:
+            remove_account(sess, user.id, password, confirmation)
+            sess.commit()
+        except IdentityError as exc:
+            sess.rollback()
+            response = mod.render(request, 'account_security.html', user=user, business=business, error=str(exc))
+            response.status_code = exc.status_code
+            return response
+        request.session.clear()
+        return RedirectResponse('/login', 303)
 
     @app.get('/verify-email')
     def verify_email(request: Request, token: str, sess=Depends(mod.db)):
