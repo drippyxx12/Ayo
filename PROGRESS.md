@@ -81,3 +81,11 @@ Full suite after durable jobs, worker recovery, qualification and commerce-secur
 Added typed public product listings and exact listed-price/currency observations from provider-returned public markup, with markup/snapshot hashes and linked-channel observations. Invalid, negative, nonfinite or oversized prices remain unknown rather than being truncated into fake amounts. Public contact identifiers are not retained as channel targets. Reports explicitly distinguish public listings from verified stock, functioning checkout or sales, and AI context includes the bounded retained evidence. The current public format contract was checked against the official documentation without calling a billed runtime API. Five additional fixture tests pass; total suite: **219 passed** with PostgreSQL, zero skipped, one upstream warning. Docker packaging now installs the hashed lock, includes explicit migrations, excludes secret/build-context files and runs as a non-root user; build verification follows.
 
 Container verification passed: the locked-dependency image built successfully, imported the ASGI app as UID 10001, loaded migration head `0003_jobs`, and exposed the documented research/mail/cleanup worker commands. This was a local image/import check, not a deployment or production database proof.
+
+## GitHub review delivery
+
+- Review: https://github.com/drippyxx12/Ayo/pull/1 (draft; not merged or deployed).
+- Verified code milestone: `fc4f8e8f1755d0811492b330f7247a8dc51f50f9` on `codex/africa-platform`.
+- Its source tree `741c990a41a57b2029929edbf7eeb3be985300e5` matches the locally verified tree byte-for-byte, including font licenses and original archive.
+- Current-code GitHub checks passed: https://github.com/drippyxx12/Ayo/actions/runs/40222814711 and https://github.com/drippyxx12/Ayo/actions/runs/40222788012 . The local suite has 219 passing cases with PostgreSQL enabled; no cases were skipped.
+- This final receipt is documentation only. The full goal stays **PARTIALLY COMPLETE** until real permitted NG/GH sources, actual mail delivery and configured model/commerce providers pass the live gates. No production deployment, paid runtime call or external merchant write has been performed.

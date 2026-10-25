@@ -26,7 +26,7 @@ Labels: **LOCAL VERIFIED** means code executed locally with the stated evidence;
 | Payment integration boundaries | LOCAL VERIFIED CONTRACTS; no provider adapter | BLOCKED LIVE: approved sandbox/provider credentials | Verified webhook/receipt, pending/success/settlement distinction and deduplication |
 | Governed provider writes/outreach | NOT IMPLEMENTED as an executable capability | Not authorized | Exact approval, legal basis/consent, provider scopes, suppression and verified receipts; remain blocked |
 | Syne headings, DM Sans UI, DM Mono metrics | IMPLEMENTED: self-hosted fonts and merchant screens | Browser verified at 390/768/1440px | Self-hosted assets, accessible responsive screens and consistent font roles |
-| CI/dependency/secret checks | LOCAL VERIFIED foundation | GitHub run 40220523431 passed | Rerun after integrated changes; attach actual remote workflow and commit receipts |
+| CI/dependency/secret checks | LOCAL VERIFIED foundation | Current-code GitHub runs 40222814711 and 40222788012 passed | Rerun after integrated changes; attach actual remote workflow and commit receipts |
 | Deployment and public availability | No completed deployment | Not authorized by current request | Concrete reviewed deployment approval, production DB/secrets and launch gates |
 
 ## End-to-end completion gate
