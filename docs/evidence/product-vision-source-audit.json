@@ -1,0 +1,259 @@
+{
+  "date": "2026-10-25",
+  "archive": "ayo_codex_FINAL_search_first_africa_500_free_2026-10-25.zip",
+  "archive_sha256": "5b8212c4bf45591a037c454f41683495193766554f9a396c4dc409311b871ae5",
+  "extraction": "Separate temporary directory, safe relative members only; original archive and working source preserved",
+  "specifications": [
+    {
+      "path": "RELEASE_NOTES_2026-10-24.md",
+      "sha256": "5eeb0b370372704d0a2c593c88a35710fa0a672cf30b6109f2accef381f0b662",
+      "working_tree_matches_archive_at_review_start": true
+    },
+    {
+      "path": "README.md",
+      "sha256": "4825bcb22e22b4acdb1c2ed858657402dd62edd92475c557694e4eedc13d579d",
+      "working_tree_matches_archive_at_review_start": false
+    },
+    {
+      "path": "START_CODEX_HERE.md",
+      "sha256": "346dc2cb37f58d879c65bbfd4817705a74ff1bbe4003f06f4d1bd521f569316d",
+      "working_tree_matches_archive_at_review_start": true
+    },
+    {
+      "path": "CODEX_BUILD_TASK.md",
+      "sha256": "052cd2168277ca25b288f64836570541133c6c7ab74f0076eef0767b56d5f360",
+      "working_tree_matches_archive_at_review_start": true
+    },
+    {
+      "path": "RELEASE_NOTES_2026-10-25_SEARCH_FIRST.md",
+      "sha256": "7a8276cfee1c4ce2a9554a449299b3bf3373f357675703a6a767f95f9eb4bd0e",
+      "working_tree_matches_archive_at_review_start": true
+    },
+    {
+      "path": "ARCHITECTURE_MANIFEST.md",
+      "sha256": "164cff3ce1f693b273936f1d9dfacf8c8b708cc38ba83507c2c6c017eb3bd0c2",
+      "working_tree_matches_archive_at_review_start": true
+    },
+    {
+      "path": "FOUNDER_BRIEF.md",
+      "sha256": "29c771a82d384a588aeb142d5814c672a8beeffc3df581183359d0251c1a1089",
+      "working_tree_matches_archive_at_review_start": true
+    },
+    {
+      "path": "WHAT_IS_REAL.md",
+      "sha256": "bb6da8a5ec6c42c5ce8babff3fc1bef19576cc5978281b4d4f7277f51c07f73e",
+      "working_tree_matches_archive_at_review_start": true
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "8bd4fdeb5976730b9ab077850d2d178a527e078a728e4696498e75c1d74f4e84",
+      "working_tree_matches_archive_at_review_start": true
+    },
+    {
+      "path": "GITHUB_AND_CODEX_HANDOFF.md",
+      "sha256": "25f0e7048d583479a11a9aa1ed4d56da3252fd86e3d317943e0cf949456abe5d",
+      "working_tree_matches_archive_at_review_start": true
+    },
+    {
+      "path": "docs/08_UNIFIED_INTELLIGENCE_AND_ACTION_CONTRACTS.md",
+      "sha256": "91edc9e69ea80a8ffbc3247a3ed2f76ca1b035645bdaafc55efb7c960d3877f1",
+      "working_tree_matches_archive_at_review_start": true
+    },
+    {
+      "path": "docs/28_SEARCH_FIRST_CODEX_ENGINEERING_SEQUENCE.md",
+      "sha256": "d3cf0e4525301662ac4a5d7c68f0d0c4f5cfeda600242c6f7bb160f91b4b576b",
+      "working_tree_matches_archive_at_review_start": true
+    },
+    {
+      "path": "docs/15_CODEX_PHASE_PLAYBOOK.md",
+      "sha256": "98710c07218e72e2d6499e419a2168e9e2338d338b708840788661d922fedee5",
+      "working_tree_matches_archive_at_review_start": true
+    },
+    {
+      "path": "docs/01_SOURCE_SECURITY_AUDIT.md",
+      "sha256": "b68919225da675a4341cb7341782c90241e402bf4961181cfc86dafe8566f4aa",
+      "working_tree_matches_archive_at_review_start": true
+    },
+    {
+      "path": "docs/27_PRE_SIGNUP_DATA_SECURITY_AND_CLAIM_HANDOFF.md",
+      "sha256": "d434e15bbaa555104c4af76e35b91638ee63b7df06ddaa30d926eb08edf1e4b4",
+      "working_tree_matches_archive_at_review_start": true
+    },
+    {
+      "path": "docs/16_SKILL_REGISTRY_AND_SECURITY_CONTROLS.md",
+      "sha256": "578548acb6dd791df203803e8fab2357ec7f9bfe1d4222cc2835377a272d9d63",
+      "working_tree_matches_archive_at_review_start": true
+    },
+    {
+      "path": "docs/03_BUILD_RELEASE_TESTS.md",
+      "sha256": "d19bfd4d5f29b241d3099e07aced1febd6305a3f8e1bfd5a42b6f439cd4547e7",
+      "working_tree_matches_archive_at_review_start": true
+    },
+    {
+      "path": "docs/24_FREE_FIRST_500_USER_ENTITLEMENT_CONTRACT.md",
+      "sha256": "43bc93f19389e982fc07336630633a6daad1c68a2e4526ad851791baa2ff023b",
+      "working_tree_matches_archive_at_review_start": true
+    },
+    {
+      "path": "docs/20_LEAD_DISCOVERY_AND_SALES_EXECUTION.md",
+      "sha256": "06f9cf63a1bd7cf012257797d9ea56a04d828542201b059260b838f482789d37",
+      "working_tree_matches_archive_at_review_start": true
+    },
+    {
+      "path": "docs/25_SEARCH_FIRST_DISCOVERY_TO_SIGNUP_CANONICAL.md",
+      "sha256": "f785f82fd00c7e267cba09acb50f2cf7b0843c07822aec3649770856c0c7882e",
+      "working_tree_matches_archive_at_review_start": true
+    },
+    {
+      "path": "docs/26_GEMINI_CLAUDE_ROUTING_AND_PROVIDER_ARCHITECTURE.md",
+      "sha256": "b78c0a303905ba554166677fd2a6160be3ea5fd207c51872d870e09d644ac7ab",
+      "working_tree_matches_archive_at_review_start": true
+    },
+    {
+      "path": "docs/21_COUNTRY_ENGINES_AND_LOCALIZATION.md",
+      "sha256": "ecd638beae12e95e2f23e44d329e26b9accb284cf681ac51c272f92a2b8d0312",
+      "working_tree_matches_archive_at_review_start": true
+    },
+    {
+      "path": "docs/17_REPOSITORY_HANDBOOK_AND_DECISIONS.md",
+      "sha256": "7a9eec4974b3fa0c26adbede93e580dcc20b68ed2698537aae497d48072107b1",
+      "working_tree_matches_archive_at_review_start": true
+    },
+    {
+      "path": "docs/23_IMPLEMENTATION_SLICES_AND_VERIFY_FIRST.md",
+      "sha256": "5001cd515560871afc0a172d1d8a339db1ae51b238703daf486e5e855d5242de",
+      "working_tree_matches_archive_at_review_start": true
+    },
+    {
+      "path": "docs/14_DATA_MODEL_AND_API_CONTRACTS.md",
+      "sha256": "27c09f94dde5fdb68c4bf32332be6e4b2283fe73fda5abf1b563d6caf188fcac",
+      "working_tree_matches_archive_at_review_start": true
+    },
+    {
+      "path": "docs/25_SEARCH_FIRST_ONBOARDING_AND_PRE_SIGNUP_FUNNEL.md",
+      "sha256": "e9a8a3c214146b135117dcb338000ec598b80fef2c14034c64c72d05f05258c5",
+      "working_tree_matches_archive_at_review_start": true
+    },
+    {
+      "path": "docs/10_CODEX_DELIVERY_GATES.md",
+      "sha256": "6af81a6aa881ae146c2f79a71612b3630b7f2a15a5eb7410a70a6b8ea780abd6",
+      "working_tree_matches_archive_at_review_start": true
+    },
+    {
+      "path": "docs/07_AYO_V1_PRODUCT_REQUIREMENTS.md",
+      "sha256": "1dd7bd4bccaddcef35fe519874935607f56bacfc9dec72cf69cbe26e0a78c663",
+      "working_tree_matches_archive_at_review_start": true
+    },
+    {
+      "path": "docs/04_SHOPIFY_APP_CONFIGURATION.md",
+      "sha256": "550391322f8b2e258724bae00820072d5068c690ac5001b4de8062d5d4485e80",
+      "working_tree_matches_archive_at_review_start": true
+    },
+    {
+      "path": "docs/05_DECISIONS_TO_VALIDATE.md",
+      "sha256": "5aba21f41e40ee9ec42da127283d2471c94de321495ac5e0e7b29299938b5955",
+      "working_tree_matches_archive_at_review_start": true
+    },
+    {
+      "path": "docs/11_WEBSITE_INTELLIGENCE_PRODUCT_AND_UX.md",
+      "sha256": "7a47bfdc11dcdf5985c925b02931a9e609476012eaf7a8637e1653bfd9982938",
+      "working_tree_matches_archive_at_review_start": true
+    },
+    {
+      "path": "docs/12_ARCHITECTURE_BLUEPRINT_AND_TRUST_BOUNDARIES.md",
+      "sha256": "319bba471757596fb0decb68d8ba0bc4d9def77e33e2ae513957261d11859d45",
+      "working_tree_matches_archive_at_review_start": true
+    },
+    {
+      "path": "docs/02_SYSTEM_ARCHITECTURE.md",
+      "sha256": "ec2338fbfa6a5edd32c93da934e9849611110c88ae8ab91df71aa8a0706d957a",
+      "working_tree_matches_archive_at_review_start": true
+    },
+    {
+      "path": "docs/22_LEAD_PRIVACY_CONSENT_AND_GOVERNANCE.md",
+      "sha256": "66d8b15db5e5064126d3fb88e4fcc82b85d430422d80ba9199fbd7d0e36c2ec0",
+      "working_tree_matches_archive_at_review_start": true
+    },
+    {
+      "path": "docs/13_WEBSITE_CRAWLER_SECURITY_AND_RESEARCH_PIPELINE.md",
+      "sha256": "e9821ab5c74e98eb12ad72402aa390349f83fb586424dcaef7beef2699634546",
+      "working_tree_matches_archive_at_review_start": true
+    },
+    {
+      "path": "docs/00_EXECUTIVE_DECISION.md",
+      "sha256": "2705b66e5223361ed7203291958148196a131a6694ecbcc7159c36c4e667f3b2",
+      "working_tree_matches_archive_at_review_start": true
+    },
+    {
+      "path": "docs/09_LAUNCH_AND_FREE_500_POLICY.md",
+      "sha256": "21c0c47ea99a5a9cf835625a24e7acd7f4cc3c43370b01e29debd8f113867275",
+      "working_tree_matches_archive_at_review_start": true
+    },
+    {
+      "path": "docs/06_CONNECTED_SHOPIFY_BASELINE.md",
+      "sha256": "bad72a88a722586f9c57a4360dde0686c984bce2c0a45a948e52b84d4dcb8af2",
+      "working_tree_matches_archive_at_review_start": true
+    },
+    {
+      "path": "docs/19_WEBSITE_INTELLIGENCE_SEARCH_AND_CRAWLING.md",
+      "sha256": "a15698f57f21ad2306ff2479caa7c0e9bf16ecbc5ab587b913d630596066b5c0",
+      "working_tree_matches_archive_at_review_start": true
+    },
+    {
+      "path": "docs/18_AFRICA_FIRST_COMMERCE_STRATEGY.md",
+      "sha256": "284ac0ef97118570f6f1f9303aa02943d6af28350a9afa2106f4e08aff82ed12",
+      "working_tree_matches_archive_at_review_start": true
+    },
+    {
+      "path": "architecture/search_first_product_contract.json",
+      "sha256": "7aea26040b8daa761d5d87099d6beea3a1e099b95dcf16ddfbe6207d8d516e79",
+      "working_tree_matches_archive_at_review_start": true
+    },
+    {
+      "path": "architecture/specimen_api_contracts.json",
+      "sha256": "070635ecd43144ebebae7facc968aba92bcff8c216a997984f25dba83da779f8",
+      "working_tree_matches_archive_at_review_start": true
+    },
+    {
+      "path": "architecture/mini_report_schema.json",
+      "sha256": "413509724a53d3f7fb1b3d23d7fa8c16956f34164e7036326e751b6d9d9254ed",
+      "working_tree_matches_archive_at_review_start": true
+    },
+    {
+      "path": "architecture/REVIEW_THIS_FIRST.md",
+      "sha256": "afe371ab230aac602237b211be77a5f1fa0d68fb45bb0fd598b4041af83c1798",
+      "working_tree_matches_archive_at_review_start": true
+    },
+    {
+      "path": "architecture/skill_registry.json",
+      "sha256": "6c7c88ebac0104949710182154b168d924075b2c838144ed71912badb4dbf5f3",
+      "working_tree_matches_archive_at_review_start": true
+    },
+    {
+      "path": "architecture/country_capabilities.json",
+      "sha256": "78b74ff4c52de8bf602369049167d243ca49fe6ea0ca7f14cb13a5dc9fd048c2",
+      "working_tree_matches_archive_at_review_start": true
+    },
+    {
+      "path": "architecture/search_first_journey.json",
+      "sha256": "a14febd48014907224ca3bb659c2e40b772d3aed426229f2f6379063693622fa",
+      "working_tree_matches_archive_at_review_start": true
+    },
+    {
+      "path": "architecture/founding_500_entitlements.json",
+      "sha256": "885154239a5ef8bbf81efe0b4c744e22299890381a071c569c1a91257085a3dd",
+      "working_tree_matches_archive_at_review_start": true
+    },
+    {
+      "path": "architecture/ai_provider_routing.json",
+      "sha256": "25e2937e4583ad211d7ae8d7d4cc6a43465a2da32251ea54ce3d39a8bc14fe11",
+      "working_tree_matches_archive_at_review_start": true
+    }
+  ],
+  "review_scope": "Original root product/engineering handoff, docs/00\u201328 including both25 documents, all eight original architecture JSON contracts; current code/evidence reviewed separately",
+  "notes": [
+    "Original descriptions of unimplemented code are historical; current verification is recorded in FEATURE_STATUS.md and PROGRESS.md.",
+    "Latest user direction requires Gemini in first functional research milestone and full product completion beyond MVP.",
+    "Archive comparisons were captured before adding current full-vision pointers to AGENTS.md and START_CODEX_HERE.md; their original content remains preserved below the new pointers and in the ZIP."
+  ]
+}

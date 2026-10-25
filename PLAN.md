@@ -1,5 +1,7 @@
 # Ayo delivery plan
 
+> Historical execution checkpoint. [PRODUCT_VISION.md](PRODUCT_VISION.md) and [ROADMAP.md](ROADMAP.md) now define the complete product and current milestone dependencies. The minimum search-to-leads workflow below is an intermediate milestone, not full completion. Gemini must be integrated and live-verified in the first functional research milestone, superseding this plan's later model sequencing. The authorized protected preview is documented in PROGRESS; it does not authorize a production release or paid providers.
+
 Updated: 2026-10-25. Overall goal: **PARTIALLY COMPLETE**.
 
 Build one Africa-first commerce intelligence application from the existing FastAPI/SQLAlchemy/Jinja source. Preserve the imported ZIP and working Shopify alpha contracts. The acceptance path is **search a real public business → cited report → register/verify → securely save the report → reopen it in a tenant-isolated dashboard → discover genuinely sourced prospects**. A landing page, provider mock, or successful local test alone does not complete that path.

@@ -2,6 +2,8 @@
 
 **Status: PARTIALLY COMPLETE.** Ayo is one commerce intelligence application for Nigeria and Ghana. It preserves the supplied FastAPI/SQLAlchemy/Jinja source; it is not a framework rewrite. A landing page is not its completion criterion.
 
+Read [PRODUCT_VISION.md](PRODUCT_VISION.md) for the complete product and [ROADMAP.md](ROADMAP.md) for the path beyond the MVP. They consolidate the original architecture package and distinguish required capabilities, current verification, incomplete work and proposed expansion. Gemini must participate in the first functional business-research milestone; the current separate model adapter does not yet satisfy that public-report integration gate.
+
 The current code implements persistent identity and workspaces, source-backed report contracts, a research worker, private merchant screens, sourced leads, and guarded Gemini/Claude-compatible analysis. The full HTTP journey passes against SQLite and real local PostgreSQL with explicit offline provider fixtures. **Real public-business research, model quality, email delivery, Shopify and payments have not been verified live.** No production deployment or charged provider call has been performed.
 
 ## What is implemented
@@ -54,7 +56,7 @@ sh scripts/check-secrets.sh
 
 Set `AYO_TEST_POSTGRES_URL` to a disposable local PostgreSQL database to include migration, concurrent founding-allocation and full HTTP journey checks. Tests use isolated schemas. GitHub CI provisions its own test PostgreSQL service.
 
-The latest integrated suite has **219 passing tests** with PostgreSQL enabled. Browser checks cover 390/768/1440px search → queued research → cited report → signup → verification-token fixture → private save → reopen → sourced lead discovery/qualification. These are fixture-backed application tests, not live business or merchant evidence.
+The latest integrated suite has **222 passing tests** with PostgreSQL enabled. Browser checks cover 390/768/1440px search → queued research → cited report → signup → verification-token fixture → private save → reopen → sourced lead discovery/qualification. These are fixture-backed application tests, not live business or merchant evidence.
 
 ## Delivery records
 
