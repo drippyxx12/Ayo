@@ -27,7 +27,7 @@ Labels: **LOCAL VERIFIED** means code executed locally with the stated evidence;
 | Governed provider writes/outreach | NOT IMPLEMENTED as an executable capability | Not authorized | Exact approval, legal basis/consent, provider scopes, suppression and verified receipts; remain blocked |
 | Syne headings, DM Sans UI, DM Mono metrics | IMPLEMENTED: self-hosted fonts and merchant screens | Browser verified at 390/768/1440px | Self-hosted assets, accessible responsive screens and consistent font roles |
 | CI/dependency/secret checks | LOCAL VERIFIED foundation | Current-code GitHub runs 40222814711 and 40222788012 passed | Rerun after integrated changes; attach actual remote workflow and commit receipts |
-| Deployment and public availability | No completed deployment | Not authorized by current request | Concrete reviewed deployment approval, production DB/secrets and launch gates |
+| Deployment and public availability | Protected development preview READY; actual intake plus labeled screenshot walkthrough | Vercel authentication required; private/provider/account operations disabled | Production DB/secrets, provider setup and real-source workflow remain outstanding |
 
 ## End-to-end completion gate
 
@@ -45,8 +45,8 @@ Durable research jobs and an operator-run worker are implemented. Jobs use encry
 
 ## Latest evidence checkpoint
 
-**219 tests pass with PostgreSQL enabled**, with no skipped cases and one upstream deprecation warning. Browser workflow tests passed on mobile/tablet/desktop using PostgreSQL and explicit offline provider fixtures, including source-backed reports, account verification via the encrypted test outbox, private saving/reopening and lead qualification. Actual email delivery and actual public-provider evidence remain BLOCKED LIVE.
+**222 tests pass with PostgreSQL enabled**, with no skipped cases and one upstream deprecation warning. Browser workflow tests passed on mobile/tablet/desktop using PostgreSQL and explicit offline provider fixtures, including source-backed reports, account verification via the encrypted test outbox, private saving/reopening and lead qualification. Actual email delivery and actual public-provider evidence remain BLOCKED LIVE.
 
-Password-confirmed local account removal is implemented with shared-ownership protection and a disabled pseudonymous founding ledger. Workspace switching is membership-checked and does not allocate a second founding slot. HTTP password recovery revokes old cookies/sessions. Expired anonymous/security artifacts have a cleanup command; claimed reports and permanent grants are preserved. Verification-mail supersession and request-body bounds are tested. No public deployment or paid call occurred.
+Password-confirmed local account removal is implemented with shared-ownership protection and a disabled pseudonymous founding ledger. Workspace switching is membership-checked and does not allocate a second founding slot. HTTP password recovery revokes old cookies/sessions. Expired anonymous/security artifacts have a cleanup command; claimed reports and permanent grants are preserved. Verification-mail supersession and request-body bounds are tested. A protected development preview is now available; no production merchant environment or paid provider call is enabled.
 
 Public research now extracts bounded product-name/listed-price/currency observations from returned public markup and identifies publicly linked selling channels. Invalid/nonfinite/oversized prices stay unknown; no inventory, sales or functioning-checkout claim is inferred. HTML and sanitized evidence hashes are retained. These adapter paths remain fixture-tested, not live-provider verified.

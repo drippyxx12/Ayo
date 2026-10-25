@@ -1,0 +1,24 @@
+{
+  "date": "2026-10-25",
+  "status": "READY",
+  "target": "preview (API target null)",
+  "deployment_id": "dpl_Db1pS8cQTX3zWC8Pnwfe5Lqg6JVH",
+  "url": "https://ayo-development-preview-d0zjhqb59-ayodejiiolatunbosun-7460.vercel.app",
+  "project_id": "prj_MSAogPYHRyET7iRPvJLfWukDDLkC",
+  "protection": "Vercel Authentication on all deployments",
+  "external_services_enabled": false,
+  "database": "empty in-memory; no SQL/commits during preview intake",
+  "full_test_suite": {
+    "passed": 222,
+    "skipped": 0,
+    "postgresql": true
+  },
+  "hosted_authenticated_http": {
+    "/": 200,
+    "/static/tour.html": 200,
+    "/static/ayo.css": 200,
+    "/signup": 503
+  },
+  "walkthrough": "Read-only screenshots of implemented screens, explicitly labeled offline fixtures; not live business/provider evidence",
+  "overall_product_completion": "PARTIALLY COMPLETE"
+}

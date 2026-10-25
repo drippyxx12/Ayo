@@ -229,9 +229,16 @@ def install_routes(mod):
     async def research(request: Request, query: str = Form(''), country: str = Form(''), city: str = Form(''),
                        no_website: bool = Form(False), owner_facts: str = Form(''),
                        csrf: str = Form(...), sess=Depends(mod.db)):
-        guard(request, csrf, sess)
+        if mod.PREVIEW_MODE:
+            mod.form_guard(request, csrf)
+        else:
+            guard(request, csrf, sess)
         try:
             preview = prepare_public_research(query, country, city, no_website, owner_facts)
+            if mod.PREVIEW_MODE:
+                response = mod.render(request, 'research.html', preview=preview)
+                response.status_code = 200 if preview.no_website else 503
+                return response
             if preview.no_website:
                 return mod.render(request, 'research.html', preview=preview, user=mod.session_user(request, sess))
             if preview.input_kind == 'url':
