@@ -29,6 +29,7 @@ import httpx
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from ayo.website_research import SiteInputError, extract_public_page, normalize_public_url
+from ayo.intelligence import IntelligenceResult, PublicResearchContext, SourceEvidence, validate_analysis
 
 COUNTRY_NAMES = {"NG": "Nigeria", "GH": "Ghana"}
 MAX_RESPONSE_BYTES = 1_000_000
@@ -216,6 +217,18 @@ class ResearchReport(ResearchModel):
     created_at: datetime
     website_ownership_verified: Literal[False] = False
     shopify_connected: Literal[False] = False
+    analysis_status: Literal['not_requested', 'pending', 'completed', 'unavailable', 'rejected'] = 'not_requested'
+    analysis: IntelligenceResult | None = None
+    analysis_error_code: str | None = Field(default=None, pattern=r'^[a-z_]{1,80}$')
+
+    def public_analysis_context(self):
+        return PublicResearchContext(country=self.country,
+            question=('Analyze this public business evidence: products, selling channels, buyer journey, '
+                      'positioning and actionable improvements. Distinguish observations, hypotheses '
+                      'and unknowns. Do not invent competitors or private metrics.'),
+            evidence=tuple(SourceEvidence(id=source.id, url=source.url,
+                excerpt=source.content[:4000], observed_at=source.retrieved_at,
+                source_kind='PUBLIC_WEB') for source in self.source_documents[:6]))
 
     @field_validator("target_url")
     @classmethod
@@ -230,6 +243,23 @@ class ResearchReport(ResearchModel):
         for claim in (*self.claims, *self.opportunities):
             if not set(claim.evidence_ids).issubset(ids):
                 raise ValueError("Report cites evidence absent from its source documents")
+        if self.analysis_status == 'completed':
+            if (self.analysis is None or self.analysis.provider != 'gemini' or
+                    not self.analysis.model or self.analysis.status != 'completed' or self.analysis_error_code):
+                raise ValueError('Completed public analysis requires a Gemini result and no error')
+            if not self.analysis.claims and not self.analysis.recommendations:
+                raise ValueError('Completed public analysis requires source-backed findings')
+            if self.analysis.generated_at.tzinfo is None:
+                raise ValueError('AI result timestamp must include timezone')
+            validate_analysis(self.analysis.model_dump(include={'claims', 'recommendations', 'limitations'}),
+                              self.public_analysis_context())
+        elif self.analysis is not None:
+            raise ValueError('Unavailable or unfinished analysis cannot contain a generated result')
+        if self.analysis_status in {'unavailable', 'rejected'}:
+            if not self.analysis_error_code or self.status != 'PARTIAL':
+                raise ValueError('Unavailable AI requires a partial report and a reason')
+        elif self.analysis_error_code:
+            raise ValueError('An unfinished or completed analysis cannot contain a failure code')
         return self
 
 
@@ -565,6 +595,6 @@ def build_report(source: SourceDocument, *, country: str = "", business_name: st
             "Coverage is one permitted public page, not the full website or product catalog.",
             "Public page statements are unverified merchant claims; ownership and store authorization are separate.",
             "Robots compliance and controlled egress were requested from the configured hosted provider; independent vendor acceptance remains required.",
-            "Recommendations are deterministic hypotheses, not generated AI responses or verified business outcomes.",
+            "Source-observation opportunities are rules-based hypotheses. Any Gemini analysis is labeled separately; no business outcomes have been verified.",
         ), created_at=_now(),
     )

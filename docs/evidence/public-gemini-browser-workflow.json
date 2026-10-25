@@ -1,0 +1,32 @@
+[
+  {
+    "width": 390,
+    "flow": "search > committed evidence > offline Gemini analysis > cited report > signup > email-token fixture > private save > reopen > lead discovery > qualification",
+    "workspace_switch_and_local_account_removal": true,
+    "postgresql": true,
+    "provider": "offline source and model fixtures only; no real API call",
+    "fonts_verified": true,
+    "horizontal_overflow": false,
+    "page_errors": []
+  },
+  {
+    "width": 768,
+    "flow": "search > committed evidence > offline Gemini analysis > cited report > signup > email-token fixture > private save > reopen > lead discovery > qualification",
+    "workspace_switch_and_local_account_removal": true,
+    "postgresql": true,
+    "provider": "offline source and model fixtures only; no real API call",
+    "fonts_verified": true,
+    "horizontal_overflow": false,
+    "page_errors": []
+  },
+  {
+    "width": 1440,
+    "flow": "search > committed evidence > offline Gemini analysis > cited report > signup > email-token fixture > private save > reopen > lead discovery > qualification",
+    "workspace_switch_and_local_account_removal": true,
+    "postgresql": true,
+    "provider": "offline source and model fixtures only; no real API call",
+    "fonts_verified": true,
+    "horizontal_overflow": false,
+    "page_errors": []
+  }
+]

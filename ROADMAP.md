@@ -1,6 +1,6 @@
 # Ayo — roadmap to the complete platform
 
-Version: 2026-10-25. Overall status: **PARTIALLY COMPLETE; required live acceptance BLOCKED**. Product scope is [PRODUCT_VISION.md](PRODUCT_VISION.md). This roadmap replaces narrow MVP-only sequencing as the delivery destination; [PLAN.md](PLAN.md) remains an earlier execution checkpoint. Working code is preserved. No application feature development is part of this vision-documentation checkpoint.
+Version: 2026-10-25. Overall status: **PARTIALLY COMPLETE; required live acceptance BLOCKED**. Product scope is [PRODUCT_VISION.md](PRODUCT_VISION.md). This roadmap replaces narrow MVP-only sequencing as the delivery destination; [PLAN.md](PLAN.md) remains an earlier execution checkpoint. Working code is preserved. The public-Gemini implementation checkpoint follows the separately committed full-vision documentation baseline.
 
 ## 1. Delivery rules and status
 
@@ -20,11 +20,11 @@ Changes must record scope, capability IDs, migration/API effects, permissions, e
 
 The original ZIP, extracted working source and test history are retained. This checkpoint re-extracted **49 original specification documents/manifests** separately and reviewed docs 00–28, both 25 documents, founder/agent/build instructions and eight architecture JSON contracts. [Source inventory/hash receipt](docs/evidence/product-vision-source-audit.json). Historical Emergent source remains unavailable; no blind replacement/consolidation is assumed.
 
-Last recorded verified application baseline: **222 tests passed with local PostgreSQL, zero skipped**, one upstream warning; responsive offline workflow evidence at 390/768/1440px, local container/dependency/security checks and GitHub review delivery. This documentation-only checkpoint does not claim a newly run application suite. See [PROGRESS](PROGRESS.md), [offline browser receipt](docs/evidence/offline-browser-workflow.json), [restricted preview receipt](docs/evidence/protected-preview.json).
+Last recorded verified application baseline: **256 tests passed with local PostgreSQL, zero skipped**, one upstream warning; responsive offline workflow evidence at 390/768/1440px, local container/dependency/security checks and GitHub review delivery. The latest run includes the early Gemini pipeline and explicit offline source/model fixtures; no real API result is claimed. See [PROGRESS](PROGRESS.md), [offline browser receipt](docs/evidence/offline-browser-workflow.json), [restricted preview receipt](docs/evidence/protected-preview.json).
 
-Current services include identity/membership/session lifecycle, founding allocation, migrations, encrypted research jobs/mail outbox, bounded source/report contracts, claim isolation, deterministic single-page reports, lead discovery/qualification contracts, merchant screens and separate Gemini/Claude analysis adapters. They are predominantly **VERIFIED LOCAL WITH FIXTURES**. The protected preview serves intake and labeled screenshot evidence only; accounts and external providers remain disabled.
+Current services include identity/membership/session lifecycle, founding allocation, migrations, encrypted research jobs/mail outbox, bounded source/report contracts, claim isolation, deterministic single-page reports, lead discovery/qualification contracts, merchant screens and Gemini synthesis after a committed hidden evidence checkpoint, plus compatible private-analysis adapters. They are predominantly **VERIFIED LOCAL WITH FIXTURES**. The protected preview serves intake and labeled screenshot evidence only; accounts and external providers remain disabled.
 
-**Important gap:** the public report worker currently calls deterministic `ResearchService.research`; the model gateway is used separately for saved-workspace analysis. The existence of a Gemini adapter does not satisfy the first Gemini-assisted research milestone. Wiring and validating Gemini into the early report path is unfinished implementation as well as blocked live testing.
+**M2 implementation checkpoint:** the worker now commits/re-reads public source evidence, requests Gemini synthesis with a public-only context, validates citations again on publication, and persists provider/model/policy/usage with the report. Hidden checkpoints cannot be read or claimed. Missing/rejected/timeout output is explicitly partial. This path passed offline REST and PostgreSQL HTTP/browser tests; a real permitted source/Gemini call and independent source acceptance are still BLOCKED LIVE.
 
 ## 3. Dependency map and milestone boundaries
 
@@ -80,12 +80,12 @@ M0–M1 foundations may be tightened alongside later slices. Founding entitlemen
 
 **Covers:** C02–C04, C06, C16–C18. **Depends on:** M1 boundaries, safe acquisition and approved provider setup. **Status:** PARTIAL IMPLEMENTATION + BLOCKED LIVE.
 
-**Already implemented:** name/link/market/city intake, candidate-selection interface, no-website labeled descriptions; fixed-host Firecrawl search/fetch adapter, explicit source/spend gates, bounded public extraction and dated hashed evidence; leased research jobs; deterministic observed/inferred/unknown report; separate structured Gemini/Claude gateway with citation checks.
+**Already implemented:** name/link/market/city intake, candidate-selection interface, no-website labeled descriptions; fixed-host Firecrawl search/fetch adapter, explicit source/spend gates, bounded public extraction and dated hashed evidence; leased research jobs; deterministic source observations plus Gemini synthesis after committed evidence, public-only context, absolute inference deadline, persisted model metadata and repeated source validation. Optional Claude remains separate for later evaluated private analysis.
 
 **Remaining implementation, before calling this milestone functional:**
 
-1. Wire **Gemini** into the initial public research worker/report pipeline after actual evidence retrieval/storage. Use a bounded public-evidence context, not an invented private tenant or model-controlled URL. Persist provider/model/version, usage, timestamps and validated source links with the report.
-2. Validate structured observations, inference, uncertainty and recommendations against acquired sources. Reject unsupported citations/financial claims/action claims. A missing/invalid/unavailable model produces a truthful partial/unavailable state; never silently label a rules-only report Gemini-assisted.
+1. **Implemented locally:** Gemini is wired into the initial report worker after committed evidence, with bounded public-only context and persisted model/policy/usage/citations. Obtain the real authorized provider/source proof before this milestone passes; fixture output is not that proof.
+2. **Implemented locally:** structured observations/citations are revalidated on publication; unsupported observations/financial/action claims are rejected. Missing, invalid, unavailable or timed-out inference leaves an explicit partial report. Extend source-quality/semantic evaluation on actual NG/GH evidence before live acceptance.
 3. Enforce independent acquisition/inference budgets, failure/retry boundaries, input limits, safe provider-data disclosure and job progress. Choose reviewed model IDs. Retain compatible model interfaces for optional Claude without routing private data silently.
 4. Complete policy acceptance for permitted sources and controlled provider egress/redirect/robots handling. Configuration flags are operator attestations, not evidence that the vendor prevents SSRF or honors access policies.
 5. Verify disambiguation with real Nigerian/Ghanaian businesses, public social/marketplace failures and no-online-presence fallback. No fabricated domain/contact or ownership assumption.
@@ -100,7 +100,7 @@ M0–M1 foundations may be tightened alongside later slices. Founding entitlemen
 
 **Already implemented:** anonymous report TTL/capabilities, one-use verified-account claim, persistence/private report/dashboard reopen, genuine-provider candidate contracts, domain/profile-aware lead deduplication, cited fit and merchant qualification, tenant access tests. Founding grants do not count extra workspaces.
 
-**Remaining:** integrate Gemini-assisted report persistence/rendering from M2; complete owner-provided profile persistence/corrections and no-site onboarding; validate optional organization-only lead preview before signup; improve business/offer/audience capture and research-source quality. Qualification must stay distinct from contact eligibility and sales.
+**Already integrated locally:** Gemini-assisted report persistence/rendering through signup/claim/reopen. **Remaining:** complete owner-provided profile persistence/corrections and no-site onboarding; validate optional organization-only lead preview before signup; improve business/offer/audience capture and research-source quality. Qualification must stay distinct from contact eligibility and sales.
 
 **Exit evidence:** a new user independently searches/selects a real public business, receives a cited Gemini-assisted report **before login**, registers/verifies through delivered mail, saves the exact report, logs out/in and reopens it, then discovers real relevant organizations with inspectable sources. Repeat NG/GH cases and wrong-user/replay/expiry/ambiguous/no-results/blocked-social/no-site cases; Shopify can be skipped throughout. Include no fake leads/messages/metrics and all-feature founding access. Retain redacted IDs/receipts and a reviewer walkthrough.
 
@@ -191,7 +191,7 @@ Only this acceptance can support a production-ready/full-platform claim for the 
 | C01 Identity/team/workspaces | M1, M3, M10 | Core local tests; team administration and production identity incomplete. |
 | C02 Discovery/no-site onboarding | M2–M4 | Intake/candidates fixtures; independent real matching/no-site persistence unverified. |
 | C03 Safe acquisition | M1, M2, M4, M10 | Hosted adapter/queue tests; live egress/source policy not established. |
-| C04 Gemini reports | M2, M4, M5 | Initial deterministic report + separate model adapter; integration still required. |
+| C04 Gemini reports | M2, M4, M5 | Public worker integration locally verified; real Gemini/source and multi-page analysis outstanding. |
 | C05 Saved research/ownership | M3, M4 | Claim/reopen local tests; domain proof/history/export incomplete. |
 | C06 Unified tools/planning | M2, M5, M7, M9 | Read-only model gateway; full registry/tool orchestration absent. |
 | C07 Merchant application | M3, M5, M7–M10 | Research/dashboard/leads/settings screens; full Work/Grow/Business incomplete. |
@@ -225,7 +225,7 @@ E01–E04 require founder acceptance of concrete inclusion or deferral before as
 | Blocker | Needed to clear it | Authorized work that can proceed without it |
 | --- | --- | --- |
 | Research credential/source/egress/spend | Server-side key or approved provider; permitted exact sources; verified network/redirect/robots controls; explicit bounded budget | Evidence/schema/worker/citation and adversarial tests; honest unavailable states. |
-| Gemini real-call proof | Secure key, available pinned model, accepted data policy and authorized usage limit | Wire source-bound model synthesis into early research with offline contract tests; no simulated live claim. |
+| Gemini real-call proof | Secure key, available pinned model, accepted data policy and authorized usage limit | Early source-bound synthesis is implemented/tested; extend real-source evaluations when authorized, never simulate live proof. |
 | Verification/recovery mail | Verified sender/domain, secure Resend or approved equivalent credential, actual delivery authorization | Outbox/error/recovery/retention tests and sender setup instructions. |
 | Persistent hosted merchant application | Approved API/worker/DB deployment, durable secrets, backups, monitoring and production policy | Local PostgreSQL, migrations, deployment packaging/runbooks; existing preview remains restricted. |
 | Commerce/payment/outbound integration | Ayo-specific app/sandbox/sender permissions, relevant scopes/consent, approved real test operations | Business-scoped domain models, adapters, policies, typed failures and offline tests; keep external action disabled. |
@@ -238,4 +238,4 @@ No keys are requested in chat. Existing connector access is not runtime provider
 
 For each milestone retain: capability IDs; implementation/commit; migration and rollback; environment; real vs fixture classification; source/provider/model/policy versions; tested permission/consent; test command/result; relevant redacted job/report/approval/receipt IDs; reviewer; remaining risks and whether the exit passed. Status files should show **implementation** and **live acceptance** separately.
 
-Immediate sequence after this documentation checkpoint: finish feasible M1 security/team/cost controls; implement the M2 public-evidence-to-Gemini report path with tests; configure missing providers only through authorized secure settings; obtain the real M2 receipts; then validate M3 without Shopify. Advance through full research, unified tools, optional commerce, Work, sales operations, monitoring and production assurance. A provider blocker does not erase later requirements or turn the MVP into completion.
+Immediate sequence after this documentation checkpoint: finish feasible M1 security/team/cost controls; the M2 public-evidence-to-Gemini report path now has local tests; configure missing providers only through authorized secure settings; obtain the real M2 receipts; then validate M3 without Shopify. Advance through full research, unified tools, optional commerce, Work, sales operations, monitoring and production assurance. A provider blocker does not erase later requirements or turn the MVP into completion.

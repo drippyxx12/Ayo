@@ -2,7 +2,7 @@
 
 **Status: PARTIALLY COMPLETE.** Ayo is one commerce intelligence application for Nigeria and Ghana. It preserves the supplied FastAPI/SQLAlchemy/Jinja source; it is not a framework rewrite. A landing page is not its completion criterion.
 
-Read [PRODUCT_VISION.md](PRODUCT_VISION.md) for the complete product and [ROADMAP.md](ROADMAP.md) for the path beyond the MVP. They consolidate the original architecture package and distinguish required capabilities, current verification, incomplete work and proposed expansion. Gemini must participate in the first functional business-research milestone; the current separate model adapter does not yet satisfy that public-report integration gate.
+Read [PRODUCT_VISION.md](PRODUCT_VISION.md) for the complete product and [ROADMAP.md](ROADMAP.md) for the path beyond the MVP. They consolidate the original architecture package and distinguish required capabilities, current verification, incomplete work and proposed expansion. Gemini must participate in the first functional business-research milestone; the initial worker now persists evidence before Gemini synthesis, while real provider acceptance remains blocked.
 
 The current code implements persistent identity and workspaces, source-backed report contracts, a research worker, private merchant screens, sourced leads, and guarded Gemini/Claude-compatible analysis. The full HTTP journey passes against SQLite and real local PostgreSQL with explicit offline provider fixtures. **Real public-business research, model quality, email delivery, Shopify and payments have not been verified live.** No production deployment or charged provider call has been performed.
 
@@ -10,7 +10,7 @@ The current code implements persistent identity and workspaces, source-backed re
 
 - Public search-first name/URL/social/marketplace intake, explicit candidate selection, and a clearly unverified no-website owner-description path. No Shopify requirement.
 - A fixed-host Firecrawl adapter with server-only keys, explicit spend and source-policy gates, bounded hosted crawl requests, robots compliance requests, source hashes/excerpts/timestamps, public product/price and linked-channel observations, and validated citations. No arbitrary URL fetching from the web process.
-- Durable encrypted research jobs, leases, bounded recovery and honest queued/running/failed states. Deterministic reports distinguish observed facts, hypotheses, unknowns and source coverage.
+- Durable encrypted research jobs commit a hidden source checkpoint before Gemini synthesis. Validated public analysis is persisted with citations/model/policy/usage; missing or rejected AI yields an explicitly partial report. Leases fence stale publication and crash recovery reuses evidence without recrawling.
 - PostgreSQL-ready relational models and three explicit Alembic migrations. Existing alpha account/store/snapshot data is preserved by tested upgrade paths.
 - Hashed database sessions, server revocation, persisted throttling, normalized accounts, business memberships, email verification/reset capabilities, encrypted transactional outbox and recovery that revokes old sessions.
 - Browser-bound, expiring, single-use report claims into verified accounts; private dashboard, reports, opportunities, activity, lead records and workspace switching.
@@ -56,7 +56,7 @@ sh scripts/check-secrets.sh
 
 Set `AYO_TEST_POSTGRES_URL` to a disposable local PostgreSQL database to include migration, concurrent founding-allocation and full HTTP journey checks. Tests use isolated schemas. GitHub CI provisions its own test PostgreSQL service.
 
-The latest integrated suite has **222 passing tests** with PostgreSQL enabled. Browser checks cover 390/768/1440px search → queued research → cited report → signup → verification-token fixture → private save → reopen → sourced lead discovery/qualification. These are fixture-backed application tests, not live business or merchant evidence.
+The latest integrated suite has **256 passing tests** with PostgreSQL enabled. Browser checks cover 390/768/1440px search → committed evidence → offline Gemini synthesis → cited report → signup → verification-token fixture → private save → reopen → sourced lead discovery/qualification. These are fixture-backed application tests, not live business or merchant evidence.
 
 ## Delivery records
 

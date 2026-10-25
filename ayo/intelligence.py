@@ -68,6 +68,25 @@ class IntelligenceContext(BaseModel):
         return self
 
 
+class PublicResearchContext(BaseModel):
+    """Anonymous research carries public evidence, never a synthetic tenant."""
+    model_config = ConfigDict(frozen=True, extra='forbid')
+    country: Literal['', 'NG', 'GH'] = ''
+    question: str = Field(min_length=1, max_length=1000)
+    evidence: tuple[SourceEvidence, ...] = Field(default=(), max_length=6)
+
+    @model_validator(mode='after')
+    def public_only(self):
+        if any(e.business_id is not None or e.source_kind not in {'PUBLIC_WEB', 'PUBLIC_PROFILE'}
+               for e in self.evidence):
+            raise ValueError('Anonymous research accepts only public, business-unscoped evidence')
+        if len({e.id for e in self.evidence}) != len(self.evidence):
+            raise ValueError('Evidence identifiers must be unique')
+        if sum(len(e.excerpt) for e in self.evidence) > 24_000:
+            raise ValueError('Evidence exceeds the public context budget')
+        return self
+
+
 class IntelligenceClaim(BaseModel):
     model_config = ConfigDict(frozen=True, extra='forbid')
     text: str = Field(min_length=1, max_length=800)
@@ -91,10 +110,11 @@ class StructuredAnalysis(BaseModel):
 
 
 class IntelligenceResult(StructuredAnalysis):
+    policy_version: Literal['evidence-v1'] = 'evidence-v1'
     status: Literal['completed', 'insufficient_evidence']
-    provider: str
-    model: str
-    summary: str
+    provider: str = Field(min_length=1, max_length=40)
+    model: str = Field(max_length=100)
+    summary: str = Field(max_length=2000)
     generated_at: datetime
     usage: dict[str, int] = Field(default_factory=dict)
 
@@ -135,7 +155,7 @@ _FINANCIAL_NUMBER = re.compile(
 _EXECUTION_CLAIM = re.compile(r'\b(?:i|we|ayo)\s+(?:have\s+|has\s+)?(?:sent|contacted|approved|executed|purchased|changed|launched|charged)\b', re.I)
 
 
-def validate_analysis(raw: dict, context: IntelligenceContext) -> StructuredAnalysis:
+def validate_analysis(raw: dict, context: IntelligenceContext | PublicResearchContext) -> StructuredAnalysis:
     """Reject hallucinated citations, fake observations and action outcomes."""
     try:
         analysis = StructuredAnalysis.model_validate(raw)
@@ -260,9 +280,9 @@ class ClaudeProvider(_HTTPModel):
         return _decode_json(text), counts
 
 
-def provider_from_env() -> ModelProvider:
+def provider_from_env(provider_name: str | None = None) -> ModelProvider:
     """No automatic vendor fallback and no implicit authorization to spend."""
-    name = os.getenv('AYO_AI_PROVIDER', 'gemini').lower()
+    name = provider_name or os.getenv('AYO_AI_PROVIDER', 'gemini').lower()
     if name not in {'gemini', 'claude'}:
         raise IntelligenceError('provider_not_configured', 'Select a supported AI provider on the server.')
     key = os.getenv('GEMINI_API_KEY' if name == 'gemini' else 'ANTHROPIC_API_KEY', '')
@@ -282,14 +302,26 @@ class IntelligenceOrchestrator:
     async def analyze(self, context: IntelligenceContext) -> IntelligenceResult:
         # Revalidate copied/model_construct input, not just ordinary construction.
         context = IntelligenceContext.model_validate(context.model_dump())
+        return await self._analyze(context, self.provider)
+
+    async def analyze_public(self, context: PublicResearchContext) -> IntelligenceResult:
+        context = PublicResearchContext.model_validate(context.model_dump())
+        provider = self.provider
+        if context.evidence:
+            provider = provider or provider_from_env('gemini')
+            if provider.name != 'gemini':
+                raise IntelligenceError('public_provider_not_supported', 'Initial public research requires Gemini; no alternate provider was called.')
+        return await self._analyze(context, provider)
+
+    async def _analyze(self, context, provider) -> IntelligenceResult:
         if not context.evidence:
             return IntelligenceResult(status='insufficient_evidence', provider='none', model='',
                 summary='There is not enough source evidence to analyze this business yet.',
                 limitations=('No source-backed claims or recommendations were generated.',),
                 generated_at=datetime.now(timezone.utc))
-        provider = self.provider or provider_from_env()
+        provider = provider or provider_from_env()
         payload = {'question': context.question, 'selected_market': context.country,
-            'currency': 'NGN' if context.country == 'NG' else 'GHS',
+            'currency': {'NG': 'NGN', 'GH': 'GHS'}.get(context.country),
             'evidence': [{'id': e.id, 'url': e.url, 'excerpt': e.excerpt, 'classification': e.source_kind,
                           'observed_at': e.observed_at.isoformat()} for e in context.evidence]}
         raw, usage = await provider.complete(SYSTEM_POLICY, payload)
@@ -297,6 +329,8 @@ class IntelligenceOrchestrator:
         limitations = tuple(dict.fromkeys((*analysis.limitations,
             'Recommendations are proposals for merchant review; no external action has been performed.',
             'Public website evidence does not establish private sales, profit, ownership or marketing consent.')))
+        if isinstance(context, PublicResearchContext):
+            limitations += ('AI analysis covers at most six retained public excerpts of up to 4,000 characters each.',)
         return IntelligenceResult(**analysis.model_dump(exclude={'limitations'}), limitations=limitations,
             status='completed', provider=provider.name, model=provider.model,
             summary=f'Ayo prepared {len(analysis.claims)} source-labeled findings and {len(analysis.recommendations)} recommendations for review.',

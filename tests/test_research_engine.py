@@ -270,7 +270,8 @@ def test_public_report_expresses_unknowns_without_fake_sales_or_ai():
     assert report.status == 'PARTIAL'
     assert any(c.kind == 'UNKNOWN' and 'Revenue' in c.text for c in report.claims)
     assert all(o.classification == 'INFERRED' for o in report.opportunities)
-    assert any('not generated AI responses' in limitation for limitation in report.limitations)
+    assert report.analysis_status == 'not_requested' and report.analysis is None
+    assert any('rules-based hypotheses' in limitation for limitation in report.limitations)
     assert any('currency label GHS' in c.text for c in report.claims)
     assert not hasattr(report, 'revenue')
 

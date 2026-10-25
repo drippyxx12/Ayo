@@ -8,6 +8,7 @@ from ayo.identity import IdentityError, token_hash
 from ayo.models import ResearchJob
 from ayo.report_storage import ReportStore
 from ayo.research import ResearchError, ResearchService, _public_url
+from ayo.public_intelligence import enrich_report
 
 
 def enqueue(session, fernet, *, url, country, business_name, anonymous_id):
@@ -29,7 +30,7 @@ def get_job(session, job_id, anonymous_id):
     return row
 
 
-async def process_one(factory, fernet, research_factory=ResearchService.from_env, clock=time.time):
+async def process_one(factory, fernet, research_factory=ResearchService.from_env, clock=time.time, *, analysis_provider=None):
     """A lease fences stale workers; failed work never produces success/report data."""
     now = clock()
     with factory() as session:
@@ -44,25 +45,51 @@ async def process_one(factory, fernet, research_factory=ResearchService.from_env
             session.commit()
             return True
         row.status, row.attempts, row.lease_until = 'running', row.attempts + 1, now + 120
-        job_id, attempt, cipher = row.id, row.attempts, row.payload_cipher
+        job_id, attempt, cipher, report_id = row.id, row.attempts, row.payload_cipher, row.report_id
         session.commit()
+
+    def current(row):
+        return (row is not None and row.status == 'running' and row.attempts == attempt and
+                row.lease_until is not None and row.lease_until > clock())
+
     report, error = None, None
     try:
         payload = json.loads(fernet.decrypt(cipher.encode()))
-        report = await research_factory().research(payload['url'], country=payload['country'], business_name=payload['business_name'])
+        if report_id is None:
+            evidence_report = await research_factory().research(payload['url'], country=payload['country'], business_name=payload['business_name'])
+            with factory() as session:
+                row = session.scalar(select(ResearchJob).where(ResearchJob.id == job_id).with_for_update())
+                if not current(row):
+                    return True
+                checkpoint = ReportStore(session, clock).stage_preview(evidence_report, payload['anonymous_id'])
+                report_id, row.report_id = checkpoint.id, checkpoint.id
+                row.lease_until = clock() + 60
+                session.commit()  # Immutable sources exist durably BEFORE inference.
+        with factory() as session:
+            row = session.scalar(select(ResearchJob).where(ResearchJob.id == job_id).with_for_update())
+            if not current(row):
+                return True
+            evidence_report = ReportStore(session, clock).pending_preview(report_id, payload['anonymous_id'])
+            row.lease_until = clock() + 60
+            session.commit()
+        # No database transaction spans the model HTTP request. A crash resumes
+        # the committed evidence checkpoint instead of re-fetching the business.
+        report = await enrich_report(evidence_report, analysis_provider)
     except ResearchError as exc:
         error = exc.code
+    except IdentityError:
+        error = 'evidence_unavailable'
     except Exception:
         # The UI and logs never receive provider bodies, keys, raw HTML or PII.
         error = 'research_failed'
     with factory() as session:
         row = session.scalar(select(ResearchJob).where(ResearchJob.id == job_id).with_for_update())
-        if row.status != 'running' or row.attempts != attempt:
+        if not current(row):
             return True
         if report is None:
             row.status, row.error_code = 'failed', error
         else:
-            record, claim = ReportStore(session, clock).save_preview(report, payload['anonymous_id'])
+            record, claim = ReportStore(session, clock).finalize_preview(report_id, report, payload['anonymous_id'])
             row.status, row.report_id = 'succeeded', record.id
             row.claim_cipher = fernet.encrypt(claim.encode()).decode()
         row.finished_at, row.lease_until = clock(), None

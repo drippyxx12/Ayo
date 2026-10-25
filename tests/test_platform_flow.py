@@ -7,6 +7,7 @@ import json
 import os
 import re
 import secrets
+import httpx
 from datetime import datetime, timezone
 from types import SimpleNamespace
 from urllib.parse import urlsplit
@@ -18,8 +19,8 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.schema import CreateSchema, DropSchema
 
 from ayo import app as mod
-from ayo.models import Base, FoundingGrant, Lead, MailOutbox, ResearchReportRecord, User
-from ayo.research import BusinessCandidate, ResearchService, SourceDocument
+from ayo.models import Base, FoundingGrant, Lead, MailOutbox, ReportClaim, ResearchJob, ResearchReportRecord, User
+from ayo.research import BusinessCandidate, ResearchReport, ResearchService, SourceDocument
 
 
 class FixtureProvider:
@@ -86,6 +87,40 @@ def verify_latest(client, factory):
     return client.get(link.path + '?' + link.query)
 
 
+def gemini_fixture(factory):
+    """Actual REST adapter with OFFLINE HTTP; verify committed evidence first."""
+    from ayo.identity import IdentityError
+    from ayo.intelligence import GeminiProvider
+    from ayo.report_storage import ReportStore
+
+    def handler(request):
+        assert request.url.host == 'generativelanguage.googleapis.com'
+        payload = json.loads(json.loads(request.content)['contents'][0]['parts'][0]['text'])
+        assert 'business_id' not in payload and payload['selected_market'] == 'GH'
+        source = payload['evidence'][0]
+        with factory() as session:
+            job = session.scalar(select(ResearchJob).where(ResearchJob.status == 'running'))
+            checkpoint = session.get(ResearchReportRecord, job.report_id)
+            assert checkpoint.status == 'PENDING_ANALYSIS'
+            stored = ResearchReport.model_validate_json(checkpoint.report_json)
+            assert source['id'] == stored.source_documents[0].id
+            assert source['excerpt'] in stored.source_documents[0].content
+            assert session.scalar(select(ReportClaim)) is None
+            anonymous_id = json.loads(mod.fernet.decrypt(job.payload_cipher.encode()))['anonymous_id']
+            with pytest.raises(IdentityError):
+                ReportStore(session).accessible(checkpoint.id, anonymous_id=anonymous_id)
+        quote = 'Fixture Clothing Shop sells handmade clothing online.'
+        analysis = {'claims': [{'text': quote, 'quote': quote, 'kind': 'OBSERVED',
+                               'evidence_ids': [source['id']]}],
+                    'recommendations': [{'text': 'Review delivery information clarity on product pages.',
+                        'evidence_ids': [source['id']], 'permission_required': 'merchant_review'}],
+                    'limitations': ['Offline fixture response; not a real Gemini call.']}
+        return httpx.Response(200, json={'candidates': [{'finishReason': 'STOP',
+            'content': {'parts': [{'text': json.dumps(analysis)}]}}],
+            'usageMetadata': {'promptTokenCount': 80, 'candidatesTokenCount': 60, 'totalTokenCount': 140}})
+    return GeminiProvider('offline-fixture-key', 'offline-gemini-fixture', transport=httpx.MockTransport(handler))
+
+
 def test_search_report_register_verify_save_reopen_and_lead_discovery(platform):
     client, factory = platform.client, platform.factory
     response = client.post('/research', data={'query': 'Fixture clothing business', 'country': 'GH', 'csrf': csrf(client)})
@@ -97,12 +132,15 @@ def test_search_report_register_verify_save_reopen_and_lead_discovery(platform):
     assert 'queued' in client.get(job_path).text.lower()
     import asyncio
     from ayo.jobs import process_one
-    assert asyncio.run(process_one(factory, mod.fernet, mod.app.state.research_factory))
+    assert asyncio.run(process_one(factory, mod.fernet, mod.app.state.research_factory,
+                                  analysis_provider=gemini_fixture(factory)))
     finished = client.get(job_path)
     assert finished.status_code == 303
     report_path = finished.headers['location']
     public_report = client.get(report_path)
     assert 'Fixture Clothing Shop' in public_report.text and 'fixture-source' in public_report.text
+    assert 'data-analysis-status="completed"' in public_report.text
+    assert 'offline-gemini-fixture' in public_report.text
     claim = re.search(r'name="claim_token" value="([^"]+)"', public_report.text)
     # Anonymous CTAs lead to registration; the capability stays in the signed
     # HttpOnly session, then a verified account can consume it atomically.
@@ -118,6 +156,11 @@ def test_search_report_register_verify_save_reopen_and_lead_discovery(platform):
     assert home.status_code == 200 and 'Fixture Clothing Shop' in home.text
     saved = client.get(report_path)
     assert saved.status_code == 200 and 'Part of your business memory' in saved.text
+    assert 'offline-gemini-fixture' in saved.text
+    with factory() as sess:
+        report = ResearchReport.model_validate_json(sess.scalar(select(ResearchReportRecord)).report_json)
+        assert report.analysis_status == 'completed' and report.analysis.provider == 'gemini'
+        assert report.analysis.usage['totalTokenCount'] == 140
     response = client.post('/leads/discover', data={'csrf': csrf(client, '/dashboard'),
         'query': 'clothing boutiques', 'country': 'GH', 'city': 'Accra'})
     assert response.status_code == 303, response.text
@@ -151,7 +194,8 @@ def test_search_report_register_verify_save_reopen_and_lead_discovery(platform):
         assert replay.get('/dashboard').status_code == 303
     token = csrf(client, '/login')
     assert client.post('/login', data={'csrf': token, 'email': 'owner@example.org', 'password': 'FixturePassword123!'}).status_code == 303
-    assert client.get(report_path).status_code == 200
+    reopened = client.get(report_path)
+    assert reopened.status_code == 200 and 'offline-gemini-fixture' in reopened.text
 
 
 def test_claim_rejects_other_browser_expiry_and_replay(platform):
