@@ -1,0 +1,24 @@
+{
+  "verified_at": "2026-10-25T23:38:37Z",
+  "deployment_id": "dpl_FHxr7kjKUjVhvUAcyccB6JmptXBC",
+  "url": "https://ayo-development-preview-5icko1nq4-ayodejiiolatunbosun-7460.vercel.app",
+  "state": "READY",
+  "target": "preview (API target null)",
+  "protection": "Vercel Authentication on all deployments",
+  "source_application_commit": "a5a2fd78ddeebdc83bba2cfb7f0080111701d6b1",
+  "interactive_scope": "Public intake only; no account/private/provider/storage operation",
+  "walkthrough": "Separate read-only offline screenshots; not a substitute for interactive app link",
+  "hosted_http": {
+    "/": 200,
+    "/static/tour.html": 200,
+    "/signup": 503
+  },
+  "local_viewports": [
+    390,
+    768,
+    1440
+  ],
+  "preview_restriction_tests_passed": 11,
+  "full_application_suite": "Previous code checkpoint 256 passed with PostgreSQL/offline source and model fixtures; not rerun for preview-only changes",
+  "overall_platform_status": "PARTIALLY COMPLETE"
+}

@@ -37,9 +37,11 @@ VERCEL = {
 }
 
 
-def build(evidence: Path, output: Path) -> None:
+def build(evidence: Path, output: Path, screenshot_prefix: str = 'gemini') -> None:
     """Copy only explicit runtime files and labeled offline screenshot evidence."""
     evidence = evidence.resolve(strict=True)
+    if screenshot_prefix not in {'gemini', 'platform'}:
+        raise ValueError('Select an existing labeled Gemini or original platform evidence set.')
     output = output.absolute()
     if output.exists() or output.is_symlink():
         raise ValueError('Output must be an explicitly new directory; refusing to overwrite.')
@@ -58,7 +60,7 @@ def build(evidence: Path, output: Path) -> None:
     for screen in SCREENS:
         for width, variant in [(390, 'mobile'), (1440, 'desktop')]:
             files[Path(f'static/tour-assets/{screen}-{variant}.png')] = (
-                evidence / f'platform-{screen}-{width}.png'
+                evidence / f'{screenshot_prefix}-{screen}-{width}.png'
             )
     files[Path('requirements.txt')] = ROOT / 'requirements.lock'
     for source in files.values():
@@ -94,9 +96,11 @@ def main() -> None:
                         help='Existing labeled offline workflow screenshots, never merchant captures.')
     parser.add_argument('--output', type=Path, required=True,
                         help='New output directory; existing directories are never overwritten.')
+    parser.add_argument('--screenshot-prefix', choices=('gemini', 'platform'), default='gemini',
+                        help='Labeled evidence set; Gemini is the current report implementation.')
     args = parser.parse_args()
     try:
-        build(args.evidence_dir, args.output)
+        build(args.evidence_dir, args.output, args.screenshot_prefix)
     except (OSError, ValueError) as error:
         parser.exit(2, f'Preview build refused: {error}\n')
 

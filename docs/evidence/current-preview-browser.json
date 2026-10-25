@@ -1,0 +1,26 @@
+[
+  {
+    "width": 390,
+    "checkpoint": "M2 public Gemini pipeline; live verification blocked",
+    "images": "current offline Gemini screenshots, content hashes match",
+    "overflow": false,
+    "page_errors": [],
+    "data_collection_forms": 0
+  },
+  {
+    "width": 768,
+    "checkpoint": "M2 public Gemini pipeline; live verification blocked",
+    "images": "current offline Gemini screenshots, content hashes match",
+    "overflow": false,
+    "page_errors": [],
+    "data_collection_forms": 0
+  },
+  {
+    "width": 1440,
+    "checkpoint": "M2 public Gemini pipeline; live verification blocked",
+    "images": "current offline Gemini screenshots, content hashes match",
+    "overflow": false,
+    "page_errors": [],
+    "data_collection_forms": 0
+  }
+]

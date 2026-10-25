@@ -1,5 +1,7 @@
 ## Start with the complete product, not an MVP endpoint
 
+Start every resumed session with [MEMORY.md](MEMORY.md). Update that file before stopping and tell the founder where work stopped, what is next and what is blocked. It is the current project handoff; PROGRESS keeps the historical evidence.
+
 Read [PRODUCT_VISION.md](PRODUCT_VISION.md) and [ROADMAP.md](ROADMAP.md), then [FEATURE_STATUS.md](FEATURE_STATUS.md) and [PROGRESS.md](PROGRESS.md). The original requirements below are preserved, with historical implementation statements. Latest founder direction requires Gemini in the first real research milestone and independent verification of the full end-state before completion. The MVP and the first customer V1 are separate milestones on that roadmap. Missing providers remain blocked honestly; do not substitute screenshots or fixtures for real research or sales evidence.
 
 ## Highest-priority founder update — 25 October 2026: SEARCH-FIRST, not signup-first

@@ -49,6 +49,8 @@ The latest application checkpoint has **256 passing tests with local PostgreSQL,
 
 ## Hosted preview and evidence limits
 
-A protected development deployment is READY: [screen walkthrough](https://ayo-development-preview-d0zjhqb59-ayodejiiolatunbosun-7460.vercel.app/static/tour.html), [receipt](docs/evidence/protected-preview.json). It forces an empty in-memory database, no preview intake SQL/provider calls and disabled accounts/private/provider routes. Its merchant screens are **read-only screenshots using labeled offline fixtures**. It is not a hosted full product or any real business/model/lead/payment proof.
+Current process/next action: [MEMORY.md](MEMORY.md). The direct [browser preview](https://ayo-development-preview-5icko1nq4-ayodejiiolatunbosun-7460.vercel.app/) opens the restricted interactive intake; account/private/provider functionality remains disabled. The gallery below is separate screen evidence.
+
+A protected development deployment is READY: [screen walkthrough](https://ayo-development-preview-5icko1nq4-ayodejiiolatunbosun-7460.vercel.app/static/tour.html), [receipt](docs/evidence/protected-preview.json). It forces an empty in-memory database, no preview intake SQL/provider calls and disabled accounts/private/provider routes. Its merchant screens are **read-only screenshots using labeled offline fixtures**. It is not a hosted full product or any real business/model/lead/payment proof.
 
 Latest browser evidence: [public-source-to-Gemini fixture journey](docs/evidence/public-gemini-browser-workflow.json). No live Ayo public research, Gemini/Claude response, delivered registration mail, merchant store installation, payment, send, reply, conversion or measured uplift is claimed. Missing credentials and policies are in [RUNBOOK](RUNBOOK.md) and [ROADMAP blockers](ROADMAP.md#6-actual-blockers-and-independent-work).

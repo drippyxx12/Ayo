@@ -2,6 +2,8 @@
 
 **Status: PARTIALLY COMPLETE.** Ayo is one commerce intelligence application for Nigeria and Ghana. It preserves the supplied FastAPI/SQLAlchemy/Jinja source; it is not a framework rewrite. A landing page is not its completion criterion.
 
+**Current stopping point:** [MEMORY.md](MEMORY.md) records the latest milestone, preview, verified work, blockers and next action. Read it first when returning to the project; it is updated at each handoff.
+
 Read [PRODUCT_VISION.md](PRODUCT_VISION.md) for the complete product and [ROADMAP.md](ROADMAP.md) for the path beyond the MVP. They consolidate the original architecture package and distinguish required capabilities, current verification, incomplete work and proposed expansion. Gemini must participate in the first functional business-research milestone; the initial worker now persists evidence before Gemini synthesis, while real provider acceptance remains blocked.
 
 The current code implements persistent identity and workspaces, source-backed report contracts, a research worker, private merchant screens, sourced leads, and guarded Gemini/Claude-compatible analysis. The full HTTP journey passes against SQLite and real local PostgreSQL with explicit offline provider fixtures. **Real public-business research, model quality, email delivery, Shopify and payments have not been verified live.** No production deployment or charged provider call has been performed.
