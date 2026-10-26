@@ -4,7 +4,7 @@ Updated 26 October 2026. **DRAFT FOR REVIEW; no provider call, charge, deploymen
 
 ## 1. Exact configuration target
 
-Use the **managed Cloud Environment attached to this conversation**, with the existing checkout `/workspace/ayo`, branch `codex/africa-platform`. Current observation: environment spec111, running/connected, current observations, enforced HTTP policy, **no secret bindings or runtime variables**. The environment is identified by `ccarenv_b64_Y2NhcmVudl8zYTg4OTE4ZmUwY2M4MTkxYmRjZjBlYWEzMWIwM2NhNQ`. Recheck the selected environment after configuration; this identifier is a receipt, not permission to reuse a detached instance.
+Use the **managed Cloud Environment attached to this conversation**, with the existing checkout `/workspace/ayo`, branch `codex/africa-platform`. Current observation: environment spec124, running/connected, current observations, enforced HTTP policy, **no secret bindings or runtime variables**. The environment is identified by `ccarenv_b64_Y2NhcmVudl8zYTg4OTE4ZmUwY2M4MTkxYmRjZjBlYWEzMWIwM2NhNQ`. Recheck the selected environment after configuration; this identifier is a receipt, not permission to reuse a detached instance.
 
 Open that environment's configuration controls and add **secret environment-variable bindings** `GEMINI_API_KEY` and `FIRECRAWL_API_KEY`. Enter values only in those secret controls. I can inspect readiness but have no tool that writes secret values to this environment. No key value belongs in chat, Git, CI, browser variables, shell history, a URL or a screenshot. Use a replacement if a real credential was previously disclosed.
 

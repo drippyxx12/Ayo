@@ -6,7 +6,7 @@
   "authorized_charge_usd_now": "0.00",
   "environment": {
     "target": "attached managed Cloud Environment; private server and worker in /workspace/ayo",
-    "observed_spec_revision": "111",
+    "observed_spec_revision": "124",
     "runtime_configured": false,
     "public_deployment_authorized": false,
     "preview_is_live_test_backend": false
@@ -53,7 +53,16 @@
     "mode_after_review": "public_only_reviewed",
     "private_analysis_allowed": false,
     "data": "bounded sanitized permitted public organization/product text only",
-    "excluded": ["account identities", "personal or confidential information", "customer/order data", "owner private facts", "credentials", "session/claim links", "raw unreviewed HTML", "thought summaries"],
+    "excluded": [
+      "account identities",
+      "personal or confidential information",
+      "customer/order data",
+      "owner private facts",
+      "credentials",
+      "session/claim links",
+      "raw unreviewed HTML",
+      "thought summaries"
+    ],
     "unpaid_gemini_training_and_human_review": "requires founder acceptance; public availability alone does not establish permissible data",
     "source_access_review_approved": false,
     "approved_hosts": [],
@@ -61,9 +70,26 @@
     "outreach_allowed": false
   },
   "planned_cases": [
-    {"market": "NG", "business_query": "Konga", "proposed_host_to_review": "www.konga.com", "business_identity_and_host_verified_live": false},
-    {"market": "GH", "business_query": "Skin Gourmet", "proposed_host_to_review": "skingourmet.com", "business_identity_and_host_verified_live": false}
+    {
+      "market": "NG",
+      "business_query": "Konga",
+      "proposed_host_to_review": "www.konga.com",
+      "business_identity_and_host_verified_live": false
+    },
+    {
+      "market": "GH",
+      "business_query": "Skin Gourmet",
+      "proposed_host_to_review": "skingourmet.com",
+      "business_identity_and_host_verified_live": false
+    }
   ],
-  "required_reviews": ["key project/model/region eligibility and account billing", "provider data terms", "actual Firecrawl plan/credits and no automatic purchases", "source identity/robots/terms/egress and exact hosts", "operator review and same-window budget expiry", "separate explicit permission for the exact two-business test"],
+  "required_reviews": [
+    "key project/model/region eligibility and account billing",
+    "provider data terms",
+    "actual Firecrawl plan/credits and no automatic purchases",
+    "source identity/robots/terms/egress and exact hosts",
+    "operator review and same-window budget expiry",
+    "separate explicit permission for the exact two-business test"
+  ],
   "expected_failure_behavior": "Stop on source denial, ambiguous identity, insufficient evidence, safety/failure/timeout or exhausted local cap. Keep partial evidence and conservative debits; never fabricate success or expand the budget."
 }

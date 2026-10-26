@@ -1,6 +1,6 @@
 # Ayo project memory and stopping point
 
-Updated: 2026-10-26 14:05 UTC. Overall platform: **PARTIALLY COMPLETE**.
+Updated: 2026-10-26 14:10 UTC. Overall platform: **PARTIALLY COMPLETE**.
 
 ## Persistent working preference
 
@@ -22,7 +22,7 @@ This checkpoint adds safe non-arming preparation modes, exact model/input/output
 
 ## GitHub/review state
 
-Repository [drippyxx12/Ayo](https://github.com/drippyxx12/Ayo), branch `codex/africa-platform`, [draft PR #1](https://github.com/drippyxx12/Ayo/pull/1), not merged. Published M2 code: `187877b71f3bf7e5e5bb3712d945799e22aa8a29`, tree `688f8bc9d8452dd8502120ad0819159d8d2ef4e0` matches the tested local tree. GitHub CI completed successfully: [40285670027](https://github.com/drippyxx12/Ayo/actions/runs/40285670027) and [40285664336](https://github.com/drippyxx12/Ayo/actions/runs/40285664336). Both ran against that exact published code. Local code commit `798e60e0be589ae88a3108b4d93b850830a1dc05` has different ancestry; remote receipts identify delivered work. Original ZIP/source remain preserved.
+Repository [drippyxx12/Ayo](https://github.com/drippyxx12/Ayo), branch `codex/africa-platform`, [draft PR #1](https://github.com/drippyxx12/Ayo/pull/1), not merged. Published secure-setup code: `091c51113f5af7493833626f3e38909c6f162b25`, tree `4a70c4129e004f10c759bbd6d0ca4ba307cc1aa5` exactly matches the tested local tree. GitHub checks [40336619789](https://github.com/drippyxx12/Ayo/actions/runs/40336619789) and [40336611896](https://github.com/drippyxx12/Ayo/actions/runs/40336611896) completed successfully against that code. Local commit `158efb3708bdd2254d039bff42a4292aafccf50d` has different ancestry; remote receipts identify delivered code. Original ZIP/source remain preserved.
 
 ## Direct preview
 
@@ -32,10 +32,10 @@ Interactive scope is public intake with honest unavailable states. Accounts/priv
 
 ## Blockers and exact next action
 
-Observed runtime spec 111 has no configured app secrets/runtime variables. Offline `python scripts/check-provider-readiness.py --mode prepare --scope provider` and account scope exit 2, zero network requests, live_verified:false. This is an expected configuration blocker, not a live test failure. Never use/repeat a credential pasted in chat; replacements belong in runtime secret configuration.
+Observed runtime spec 124 has no configured app secrets/runtime variables. Offline `python scripts/check-provider-readiness.py --mode prepare --scope provider` and account scope exit 2, zero network requests, live_verified:false. This is an expected configuration blocker, not a live test failure. Never use/repeat a credential pasted in chat; replacements belong in runtime secret configuration.
 
 Secure setup: GEMINI_API_KEY, explicit available GEMINI_MODEL, FIRECRAWL_API_KEY; reviewed AI data policy, source/robots/terms/egress policy and exact hosts; unexpired reviewed per-operation reservations and request/provider/scope daily dollar/call caps; separately approved provider calls and total spend. Full account acceptance also needs durable hosted PostgreSQL/API/worker, SESSION_SECRET/TOKEN_ENCRYPTION_KEY, HTTPS APP_ORIGIN, verified Resend sender/domain and separately authorized transactional mail. Exact variables and planned independent NG/GH journey: [M2 runbook](docs/M2_LIVE_TEST_RUNBOOK.md). No public deployment/spending permission is implied.
 
-**Stopped at:** Secure setup/review package and safety guards locally verified; publishing this increment/CI next. Live acceptance remains open. **Next:** publish this increment, then bind secrets/nonsecret variables in the attached managed runtime, complete policy/billing/source review and obtain separate authorization for controlled real NG/GH acceptance with independent source-to-claim review. **Blocked by:** secure provider/runtime configuration, policy/model/pricing review, explicit provider-test spend and actual mail/hosting setup. Invoice reconciliation, broader research and later full-product milestones remain incomplete.
+**Stopped at:** Secure setup/review package and safety guards published and CI-verified. Live acceptance remains open. **Next:** bind secrets/nonsecret variables in the attached managed runtime, complete policy/billing/source review and obtain separate authorization for controlled real NG/GH acceptance with independent source-to-claim review. **Blocked by:** secure provider/runtime configuration, policy/model/pricing review, explicit provider-test spend and actual mail/hosting setup. Invoice reconciliation, broader research and later full-product milestones remain incomplete.
 
 Current preparation guide: [M2_SECURE_SETUP](docs/M2_SECURE_SETUP.md); draft [founder review](config/m2-live-test-review.json). Current authorization 0 calls/USD0. Proposed conservative reservation ceiling USD 3 for 2 Gemini + 4 source operations in one UTC window is not spending approval or an invoice. Provider/account checks are both blocked on absent actual bindings/reviews. No provider/model/key-validation or paid API call was executed.

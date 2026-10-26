@@ -1,0 +1,33 @@
+{
+  "code_commit": "091c51113f5af7493833626f3e38909c6f162b25",
+  "tree": "4a70c4129e004f10c759bbd6d0ca4ba307cc1aa5",
+  "branch": "codex/africa-platform",
+  "pull_request": "https://github.com/drippyxx12/Ayo/pull/1",
+  "ci": [
+    {
+      "url": "https://github.com/drippyxx12/Ayo/actions/runs/40336619789",
+      "result": "success"
+    },
+    {
+      "url": "https://github.com/drippyxx12/Ayo/actions/runs/40336611896",
+      "result": "success"
+    }
+  ],
+  "offline_tests": {
+    "passed": 521,
+    "failed": 0,
+    "skipped": 0,
+    "provider_mode": "offline_fixtures",
+    "database": "real_local_postgresql_and_sqlite"
+  },
+  "runtime_recheck": {
+    "spec": "124",
+    "observations_current": true,
+    "secret_bindings": 0,
+    "runtime_variables": 0
+  },
+  "provider_api_calls": 0,
+  "configuration_activated": false,
+  "deployment_changed": false,
+  "overall_status": "PARTIALLY_COMPLETE"
+}
