@@ -29,6 +29,9 @@ def configured(monkeypatch):
     values = {
         'GEMINI_API_KEY': 'offline-fixture-gemini-value',
         'GEMINI_MODEL': 'offline-fixture-model',
+        'AYO_GEMINI_BUDGET_MODEL': 'offline-fixture-model',
+        'AYO_GEMINI_BUDGET_MAX_INPUT_BYTES': '32768', 'AYO_GEMINI_BUDGET_MAX_OUTPUT_TOKENS': '1500',
+        'AYO_GEMINI_BUDGET_THINKING_LEVEL': 'provider_default',
         'FIRECRAWL_API_KEY': 'offline-fixture-firecrawl-value',
         'AYO_PROVIDER_SPEND_AUTHORIZED': '1',
         'AYO_AI_DATA_POLICY': 'reviewed',
@@ -149,3 +152,97 @@ def test_cli_reports_disabled_spending_as_blocked(configured):
     assert completed.returncode == 2
     assert statuses(json.loads(completed.stdout))['spend_authorization'] == 'blocked'
     assert not completed.stderr
+
+
+def prepared(monkeypatch):
+    monkeypatch.setenv('AYO_PROVIDER_SPEND_AUTHORIZED', '0')
+    monkeypatch.setenv('AYO_MAIL_SEND_AUTHORIZED', '0')
+
+
+def test_prepare_mode_passes_with_disabled_switches_without_calls_or_secret_output(configured, monkeypatch):
+    prepared(monkeypatch)
+    def fail(*_args, **_kwargs):
+        raise AssertionError('Preparation must never contact a network or database service')
+    monkeypatch.setattr(socket.socket, 'connect', fail)
+    monkeypatch.setattr(socket, 'getaddrinfo', fail)
+    monkeypatch.setattr(httpx.Client, 'request', fail)
+    monkeypatch.setattr(httpx.AsyncClient, 'request', fail)
+    result = readiness.check_readiness('prepare')
+    assert result['readiness_mode'] == 'prepare'
+    assert result['provider_preparation_ready'] and result['account_preparation_ready']
+    assert result['provider_configuration_ready'] and result['account_journey_configuration_ready']
+    assert result['live_verified'] is False and result['network_requests_made'] == 0
+    assert os.getenv('AYO_PROVIDER_SPEND_AUTHORIZED') == '0'
+    assert os.getenv('AYO_MAIL_SEND_AUTHORIZED') == '0'
+    encoded = json.dumps(result)
+    for name in ('GEMINI_API_KEY', 'GEMINI_MODEL', 'FIRECRAWL_API_KEY', 'SESSION_SECRET',
+                 'TOKEN_ENCRYPTION_KEY', 'DATABASE_URL', 'APP_ORIGIN', 'RESEND_API_KEY', 'MAIL_FROM'):
+        assert configured[name] not in encoded
+
+
+@pytest.mark.parametrize(('name', 'value', 'check'), [
+    ('AYO_PROVIDER_SPEND_AUTHORIZED', '1', 'provider_spending_disabled'),
+    ('AYO_MAIL_SEND_AUTHORIZED', '1', 'mail_delivery_disabled'),
+    ('AYO_PROVIDER_SPEND_AUTHORIZED', '', 'provider_spending_disabled'),
+    ('AYO_MAIL_SEND_AUTHORIZED', '', 'mail_delivery_disabled'),
+])
+def test_prepare_mode_requires_both_switches_explicitly_disabled(configured, monkeypatch, name, value, check):
+    prepared(monkeypatch)
+    monkeypatch.setenv(name, value)
+    result = readiness.check_readiness('prepare')
+    assert not result['provider_preparation_ready'] and not result['account_preparation_ready']
+    assert statuses(result)[check] == 'blocked'
+    assert result['live_verified'] is False
+
+
+def test_provider_preparation_does_not_require_account_or_mail_configuration(configured, monkeypatch):
+    prepared(monkeypatch)
+    for name in ('RESEND_API_KEY', 'MAIL_FROM', 'DATABASE_URL', 'SESSION_SECRET', 'TOKEN_ENCRYPTION_KEY', 'APP_ORIGIN'):
+        monkeypatch.delenv(name)
+    result = readiness.check_readiness('prepare')
+    assert result['provider_preparation_ready']
+    assert not result['account_preparation_ready']
+    assert statuses(result, 'application_checks')['transactional_mail_configuration'] == 'blocked'
+    assert statuses(result)['mail_delivery_disabled'] == 'configured'
+
+
+@pytest.mark.parametrize('scope', ['provider', 'account'])
+def test_prepare_cli_is_offline_and_leaves_delivery_switches_disabled(configured, monkeypatch, scope):
+    prepared(monkeypatch)
+    completed = subprocess.run([sys.executable, str(SCRIPT), '--mode', 'prepare', '--scope', scope],
+                               cwd=SCRIPT.parent.parent, capture_output=True, text=True, timeout=15)
+    assert completed.returncode == 0
+    result = json.loads(completed.stdout)
+    assert result['readiness_mode'] == 'prepare' and result['live_verified'] is False
+    assert result['network_requests_made'] == 0
+    assert os.getenv('AYO_PROVIDER_SPEND_AUTHORIZED') == '0'
+    assert os.getenv('AYO_MAIL_SEND_AUTHORIZED') == '0'
+    assert all(configured[name] not in completed.stdout + completed.stderr for name in (
+        'GEMINI_API_KEY', 'GEMINI_MODEL', 'FIRECRAWL_API_KEY', 'DATABASE_URL', 'TOKEN_ENCRYPTION_KEY', 'RESEND_API_KEY'))
+
+
+def test_provider_scope_cli_distinguishes_provider_prep_from_account_prep(configured, monkeypatch):
+    prepared(monkeypatch)
+    monkeypatch.delenv('RESEND_API_KEY')
+    command = [sys.executable, str(SCRIPT), '--mode', 'prepare']
+    for scope, expected in [('provider', 0), ('account', 2)]:
+        completed = subprocess.run([*command, '--scope', scope], cwd=SCRIPT.parent.parent,
+                                   capture_output=True, text=True, timeout=15)
+        assert completed.returncode == expected
+        assert not completed.stderr
+        result = json.loads(completed.stdout)
+        assert result['provider_preparation_ready']
+        assert not result['account_preparation_ready']
+
+
+def test_armed_mode_never_masquerades_as_safe_preparation(configured):
+    result = readiness.check_readiness('armed')
+    assert result['provider_configuration_ready']
+    assert result['account_journey_configuration_ready']
+    assert result['provider_preparation_ready'] is False
+    assert result['account_preparation_ready'] is False
+
+
+def test_unknown_readiness_mode_is_rejected_without_configuration_values(configured):
+    with pytest.raises(ValueError, match='Select prepare or armed readiness mode'):
+        readiness.check_readiness('unreviewed-mode')

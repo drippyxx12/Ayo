@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "status": "DRAFT_FOR_FOUNDER_REVIEW",
+  "authorizes_calls": false,
+  "authorized_calls_now": 0,
+  "authorized_charge_usd_now": "0.00",
+  "environment": {
+    "target": "attached managed Cloud Environment; private server and worker in /workspace/ayo",
+    "observed_spec_revision": "111",
+    "runtime_configured": false,
+    "public_deployment_authorized": false,
+    "preview_is_live_test_backend": false
+  },
+  "model_proposal": {
+    "id": "gemini-3.5-flash-lite",
+    "status_in_public_documentation": "stable",
+    "project_access_verified": false,
+    "api": "v1beta.generateContent",
+    "input_max_utf8_bytes_including_system": 32768,
+    "output_max_tokens": 1500,
+    "thinking_level": "MINIMAL",
+    "include_thoughts": false,
+    "candidate_count": 1,
+    "temperature": 0,
+    "tools": [],
+    "input_usd_per_million_tokens_documented": "0.30",
+    "output_usd_per_million_tokens_including_thinking_documented": "2.50",
+    "pricing_checked_date": "2026-10-26",
+    "invoice_guaranteed": false
+  },
+  "future_reservation_proposal": {
+    "currency": "USD",
+    "unit": "microUSD",
+    "gemini_per_call": 1000000,
+    "gemini_global_day_budget": 2000000,
+    "gemini_global_day_calls": 2,
+    "firecrawl_search_per_call": 250000,
+    "firecrawl_fetch_per_call": 250000,
+    "firecrawl_global_day_budget": 1000000,
+    "firecrawl_global_day_calls": 4,
+    "per_journey_budget": 1500000,
+    "per_journey_calls": 3,
+    "total_conservative_reservation_ceiling": 3000000,
+    "scope_day_caps_equal_provider_day_caps": true,
+    "validity": "One reviewed UTC day; expires no later than its next UTC midnight. No renewal or retry allocation is authorized.",
+    "actual_vendor_invoice_cost": "UNKNOWN",
+    "firecrawl_plan_and_credit_conversion_review": "PENDING",
+    "published_firecrawl_base_credits_for_two_searches_and_two_single_pages": 6,
+    "base_credit_estimate_is_not_an_invoice_or_access_permission": true,
+    "policy_approved": false
+  },
+  "data_policy_proposal": {
+    "mode_after_review": "public_only_reviewed",
+    "private_analysis_allowed": false,
+    "data": "bounded sanitized permitted public organization/product text only",
+    "excluded": ["account identities", "personal or confidential information", "customer/order data", "owner private facts", "credentials", "session/claim links", "raw unreviewed HTML", "thought summaries"],
+    "unpaid_gemini_training_and_human_review": "requires founder acceptance; public availability alone does not establish permissible data",
+    "source_access_review_approved": false,
+    "approved_hosts": [],
+    "bypass_login_robots_or_access_walls": false,
+    "outreach_allowed": false
+  },
+  "planned_cases": [
+    {"market": "NG", "business_query": "Konga", "proposed_host_to_review": "www.konga.com", "business_identity_and_host_verified_live": false},
+    {"market": "GH", "business_query": "Skin Gourmet", "proposed_host_to_review": "skingourmet.com", "business_identity_and_host_verified_live": false}
+  ],
+  "required_reviews": ["key project/model/region eligibility and account billing", "provider data terms", "actual Firecrawl plan/credits and no automatic purchases", "source identity/robots/terms/egress and exact hosts", "operator review and same-window budget expiry", "separate explicit permission for the exact two-business test"],
+  "expected_failure_behavior": "Stop on source denial, ambiguous identity, insufficient evidence, safety/failure/timeout or exhausted local cap. Keep partial evidence and conservative debits; never fabricate success or expand the budget."
+}

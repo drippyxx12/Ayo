@@ -18,6 +18,7 @@ from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 
 from ayo.models import ProviderBudgetAccount, ProviderBudgetLock, ProviderUsageReservation
+from ayo.provider_config import MODEL_INPUT_MAX_BYTES, model_budget_fingerprint, valid_model_id
 
 
 class BudgetError(Exception):
@@ -43,8 +44,12 @@ class BudgetPolicy:
     scope_daily_call_limit: int
     policy_version: str
     policy_valid_until: int
+    configuration_fingerprint: str = ''
 
     def __post_init__(self):
+        if not isinstance(self.configuration_fingerprint, str) or (self.configuration_fingerprint and
+                not re.fullmatch(r'[0-9a-f]{64}', self.configuration_fingerprint)):
+            raise BudgetError('invalid_budget_input', 'Invalid reviewed provider configuration.')
         if not all(isinstance(value, str) and re.fullmatch(r'[a-z][a-z0-9_]{0,29}', value)
                    for value in (self.provider, self.operation)):
             raise BudgetError('invalid_budget_input', 'Invalid provider budget identity.')
@@ -79,6 +84,25 @@ class BudgetPolicy:
                       if isinstance(env[name], str) and re.fullmatch(r'[0-9]{1,13}', env[name])}
             if len(values) != len(fields):
                 raise ValueError
+            if provider in {'gemini', 'claude'} and operation == 'analyze':
+                actual_model = env['GEMINI_MODEL' if provider == 'gemini' else 'ANTHROPIC_MODEL']
+                reviewed_model = env[prefix + 'BUDGET_MODEL']
+                input_bytes = int(env[prefix + 'BUDGET_MAX_INPUT_BYTES'])
+                output_tokens = int(env[prefix + 'BUDGET_MAX_OUTPUT_TOKENS'])
+                actual_output = int(env.get('GEMINI_MAX_OUTPUT_TOKENS' if provider == 'gemini' else 'ANTHROPIC_MAX_OUTPUT_TOKENS', '1500'))
+                actual_thinking = (env.get('GEMINI_THINKING_LEVEL', '') or 'provider_default') if provider == 'gemini' else 'provider_default'
+                reviewed_thinking = env[prefix + 'BUDGET_THINKING_LEVEL'] if provider == 'gemini' else 'provider_default'
+                if (not valid_model_id(actual_model) or actual_model != reviewed_model
+                        or input_bytes != MODEL_INPUT_MAX_BYTES or not 64 <= output_tokens <= 4000 or output_tokens != actual_output
+                        or type(env[prefix + 'BUDGET_MAX_INPUT_BYTES']) is not str
+                        or type(env[prefix + 'BUDGET_MAX_OUTPUT_TOKENS']) is not str
+                        or not re.fullmatch(r'[0-9]{1,6}', env[prefix + 'BUDGET_MAX_INPUT_BYTES'])
+                        or not re.fullmatch(r'[0-9]{1,6}', env[prefix + 'BUDGET_MAX_OUTPUT_TOKENS'])
+                        or reviewed_thinking not in {'provider_default', 'MINIMAL', 'LOW', 'MEDIUM', 'HIGH'}
+                        or reviewed_thinking != actual_thinking):
+                    raise ValueError
+                values['configuration_fingerprint'] = model_budget_fingerprint(provider, actual_model,
+                    input_bytes, output_tokens, None if reviewed_thinking == 'provider_default' else reviewed_thinking)
             policy = cls(provider=provider, operation=operation, policy_version=env[prefix + 'BUDGET_POLICY_VERSION'], **values)
         except (KeyError, ValueError, TypeError, BudgetError):
             raise BudgetError('budget_not_configured', 'Provider budget configuration is incomplete or invalid.') from None

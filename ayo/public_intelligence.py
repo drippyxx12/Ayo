@@ -42,6 +42,8 @@ async def enrich_report(report: ResearchReport, provider: ModelProvider | None =
             'budget_exceeded': 'model_budget_exceeded',
             'budget_policy_changed': 'model_budget_policy_changed',
             'budget_storage_unavailable': 'model_budget_storage_unavailable',
+            'budget_configuration_mismatch': 'model_budget_configuration_mismatch',
+            'model_input_budget_exceeded': 'model_input_budget_exceeded',
             'dispatch_already_reserved': 'model_dispatch_already_reserved',
         }.get(exc.code, 'model_unavailable')
         return ResearchReport.model_validate({**report.model_dump(), 'status': 'PARTIAL',

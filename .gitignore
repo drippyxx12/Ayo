@@ -2,6 +2,7 @@
 .env
 .env.*
 !.env.example
+!.env.m2-prepare.example
 *.pem
 *.key
 *.p12

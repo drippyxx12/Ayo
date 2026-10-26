@@ -20,8 +20,13 @@ from ayo.research import FirecrawlProvider, ResearchError
 
 def configure(monkeypatch, *, calls=4, amount=100):
     # Artificial numbers exercise authorization arithmetic, never vendor rates.
+    monkeypatch.setenv('AYO_PROVIDER_SPEND_AUTHORIZED', '1')
     monkeypatch.setenv('AYO_REQUEST_BUDGET_MICROUSD', str(amount))
     monkeypatch.setenv('AYO_REQUEST_CALL_LIMIT', str(calls))
+    for key, value in {'GEMINI_MODEL': 'offline-model', 'AYO_GEMINI_BUDGET_MODEL': 'offline-model',
+            'AYO_GEMINI_BUDGET_MAX_INPUT_BYTES': '32768', 'AYO_GEMINI_BUDGET_MAX_OUTPUT_TOKENS': '1500',
+            'AYO_GEMINI_BUDGET_THINKING_LEVEL': 'provider_default', 'GEMINI_THINKING_LEVEL': ''}.items():
+        monkeypatch.setenv(key, value)
     for provider, operations in [('GEMINI', ('ANALYZE',)), ('FIRECRAWL', ('SEARCH', 'FETCH'))]:
         for suffix, value in [('DAILY_BUDGET_MICROUSD', '1000'), ('DAILY_CALL_LIMIT', '100'),
                 ('SCOPE_DAILY_BUDGET_MICROUSD', '1000'), ('SCOPE_DAILY_CALL_LIMIT', '100'),

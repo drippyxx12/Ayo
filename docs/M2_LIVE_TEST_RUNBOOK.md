@@ -2,6 +2,8 @@
 
 Status: **PARTIALLY COMPLETE. No live provider workflow is certified by this runbook.** The automated regression suite uses labeled offline fixtures. The existing protected preview has provider calls, merchant accounts and persistence disabled; it cannot perform this acceptance journey. No deployment, spending or outreach is authorized by these instructions.
 
+Current secure setup target, model, draft limits and founder-review policies: [M2_SECURE_SETUP.md](M2_SECURE_SETUP.md). Use preparation mode with both switches 0; no key value belongs in chat. The existing test plan remains unexecuted.
+
 ## Configuration and authorization gates
 
 Configure replacement credentials through the runtime secret manager, shared by the web and worker processes. Never paste keys into chat, commit them, include them in a URL, or put them in screenshots or command history. Rotate any real credential already pasted into chat. A connected personal app or chat subscription does not supply Ayo API authorization.
@@ -13,7 +15,7 @@ Required provider secrets and server settings:
 | `GEMINI_API_KEY` | A Gemini Developer API project key with separately approved API access. Presence/basic syntax can be checked offline; validity cannot. |
 | `GEMINI_MODEL` | An explicit evaluated model identifier available to that project, supporting the selected `generateContent` JSON response configuration. Do not assume a model named in old examples is available. No default model is silently selected. |
 | `FIRECRAWL_API_KEY` | A separately authorized Firecrawl API key supporting the v2 search/crawl operations used by Ayo. |
-| `AYO_AI_DATA_POLICY=reviewed` | Operator attestation after reviewing the chosen Gemini account/tier's retention, training, processing locations and permitted public-source data. The flag itself is not proof of review or compliance. |
+| `AYO_AI_DATA_POLICY=public_only_reviewed` | Operator attestation after reviewing the chosen Gemini account/tier's retention, training, processing locations and permitted public-source data. This mode blocks private workspace inference; broader private-data use requires a separate review. The flag itself is not proof of review or compliance. |
 | `AYO_RESEARCH_EGRESS_POLICY=provider_managed_verified` | Operator acceptance of the provider's network, redirect, robots/terms and source-access controls. Ayo does not locally fetch arbitrary submitted URLs. This attestation does not independently prove the provider's controls. |
 | `AYO_RESEARCH_APPROVED_HOSTS` | Comma-separated exact public hosts approved for this test. Include separately approved redirect/www hosts only when needed; no wildcard or access-wall bypass. Search discovery does not grant permission to crawl a candidate. |
 | `AYO_PROVIDER_SPEND_AUTHORIZED` | Keep `0` while preparing. Only set `1` after the founder separately authorizes the test providers, target sources, maximum calls and maximum conservative budget. Credentials alone are not spend approval. |
@@ -26,6 +28,7 @@ The production budget validator requires **all** of these settings. Values must 
 - `AYO_FIRECRAWL_SEARCH_RESERVATION_MICROUSD`, `AYO_FIRECRAWL_FETCH_RESERVATION_MICROUSD`.
 - `AYO_GEMINI_DAILY_BUDGET_MICROUSD`, `AYO_GEMINI_DAILY_CALL_LIMIT`, `AYO_GEMINI_SCOPE_DAILY_BUDGET_MICROUSD`, `AYO_GEMINI_SCOPE_DAILY_CALL_LIMIT`.
 - `AYO_GEMINI_BUDGET_POLICY_VERSION`, `AYO_GEMINI_BUDGET_POLICY_VALID_UNTIL`, `AYO_GEMINI_ANALYZE_RESERVATION_MICROUSD`.
+- Exact model binding: `AYO_GEMINI_BUDGET_MODEL`, `AYO_GEMINI_BUDGET_MAX_INPUT_BYTES=32768`, `AYO_GEMINI_BUDGET_MAX_OUTPUT_TOKENS` and `AYO_GEMINI_BUDGET_THINKING_LEVEL`, matching `GEMINI_MODEL`, `GEMINI_MAX_OUTPUT_TOKENS` and `GEMINI_THINKING_LEVEL` (or `provider_default`). Configuration changes invalidate the review before dispatch.
 
 Amounts are positive integer USD micro-units: one micro-unit is USD 0.000001. Policy expiry is a future Unix UTC timestamp. Policy versions identify a retained operator review of pricing, model, token/byte/page limits and a conservative upper bound for each operation. Include thinking/output charges, the actual provider plan and any minimum credit cost. The application reserves before dispatch, records usage where available and retains the configured conservative debit after failure or ambiguous timeout. These amounts are **budget accounting**, not a claim to have measured provider invoice costs. Check the provider's own project billing limits too; those limits and quota resets can differ from Ayo's daily window. Active request/provider-day/scope-day bucket caps are immutable. A mid-window cap change fails closed; retain counters and wait for the next UTC window or perform an explicitly reviewed migration. Never delete ledger/buckets to regain authorization. Do not lower or reuse a reviewed policy to disguise prior spend.
 
@@ -43,10 +46,10 @@ For the complete account journey also configure:
 From the repository root, after installing the pinned dependencies:
 
 ```sh
-python scripts/check-provider-readiness.py
+python scripts/check-provider-readiness.py --mode prepare --scope provider
 ```
 
-This script does not load `.env` files, connect to a database, call a model-list endpoint, validate a key remotely or make any network request. It prints fixed check IDs/statuses, never configuration values, hashes or key fragments. Exit `0` means the provider/account configuration passes the offline checks; exit `2` means settings are missing, inconsistent, expired or intentionally disabled. Both outcomes report `live_verified: false`.
+This script does not load `.env` files, connect to a database, call a model-list endpoint, validate a key remotely or make any network request. It prints fixed check IDs/statuses, never configuration values, hashes or key fragments. Preparation requires provider and mail switches explicitly `0`. Exit `0` means the selected provider configuration scope passes; use `--scope account` to include account/mail configuration. Exit `2` means settings are missing, inconsistent, expired, unreviewed or switches are not disabled. Legacy/default `--mode armed --scope account` checks an already authorized configuration without enabling it. Both outcomes report `live_verified: false`.
 
 A pass does not prove that a key works, a model is available, a source permits retrieval, email is delivered or the database is reachable. Verify those only in the separately authorized controlled test. A missing credential is a blocker to live calls, not a reason to substitute a fixture as live success.
 

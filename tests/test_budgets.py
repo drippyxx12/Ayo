@@ -12,6 +12,7 @@ from sqlalchemy.schema import CreateSchema, DropSchema
 
 from ayo.budgets import BudgetError, BudgetPolicy, UsageLedger
 from ayo.models import Base, ProviderBudgetAccount, ProviderUsageReservation
+from ayo.provider_config import MODEL_INPUT_MAX_BYTES, model_budget_fingerprint
 
 
 NOW = 1_800_000_000
@@ -35,6 +36,9 @@ def config():
         'AYO_GEMINI_SCOPE_DAILY_BUDGET_MICROUSD': '100', 'AYO_GEMINI_SCOPE_DAILY_CALL_LIMIT': '10',
         'AYO_GEMINI_BUDGET_POLICY_VERSION': 'offline-fixture-v1',
         'AYO_GEMINI_BUDGET_POLICY_VALID_UNTIL': str(NOW + 86400),
+        'GEMINI_MODEL': 'offline-model', 'AYO_GEMINI_BUDGET_MODEL': 'offline-model',
+        'AYO_GEMINI_BUDGET_MAX_INPUT_BYTES': '32768', 'AYO_GEMINI_BUDGET_MAX_OUTPUT_TOKENS': '1500',
+        'AYO_GEMINI_BUDGET_THINKING_LEVEL': 'provider_default',
     }
 
 
@@ -69,7 +73,8 @@ def reserve(ledger, dispatch_id='one', *, scope_id='anonymous.hash', request_id=
 
 
 def test_offline_policy_configuration_is_strict_and_expiring():
-    assert BudgetPolicy.from_env('gemini', 'analyze', environ=config(), clock=lambda: NOW) == replace(policy(), policy_valid_until=NOW + 86400)
+    assert BudgetPolicy.from_env('gemini', 'analyze', environ=config(), clock=lambda: NOW) == replace(policy(), policy_valid_until=NOW + 86400,
+        configuration_fingerprint=model_budget_fingerprint('gemini', 'offline-model', MODEL_INPUT_MAX_BYTES, 1500))
     for key, value in [('AYO_REQUEST_CALL_LIMIT', '0'), ('AYO_REQUEST_BUDGET_MICROUSD', '-1'),
         ('AYO_GEMINI_ANALYZE_RESERVATION_MICROUSD', '1.5'),
         ('AYO_GEMINI_BUDGET_POLICY_VERSION', 'unreviewed\ntext'),

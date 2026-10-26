@@ -21,7 +21,7 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_valida
 
 from ayo.budgets import BudgetError
 from ayo.provider_usage import metered_operation
-from ayo.provider_config import valid_api_key, valid_model_id
+from ayo.provider_config import MODEL_INPUT_MAX_BYTES, model_budget_fingerprint, valid_api_key, valid_model_id
 
 
 class IntelligenceError(ValueError):
@@ -198,20 +198,37 @@ def validate_analysis(raw: dict, context: IntelligenceContext | PublicResearchCo
 
 class _HTTPModel:
     def __init__(self, api_key: str, model: str, *, transport: httpx.AsyncBaseTransport | None = None,
-                 max_output_tokens: int = 1500, dispatch_budget=metered_operation):
+                 max_output_tokens: int = 1500, dispatch_budget=metered_operation, thinking_level: str | None = None):
         if not valid_api_key(api_key) or not valid_model_id(model):
             raise IntelligenceError('provider_not_configured', 'A server API key and explicit model identifier are required.')
-        if not 64 <= max_output_tokens <= 4000:
+        if type(max_output_tokens) is not int or not 64 <= max_output_tokens <= 4000:
             raise ValueError('Model output budget must be between 64 and 4000 tokens')
         self._api_key = api_key
         self.model = model
         self.transport = transport
         self.max_output_tokens = max_output_tokens
         self.dispatch_budget = dispatch_budget
+        if thinking_level is not None and (self.name != 'gemini' or thinking_level not in {'MINIMAL', 'LOW', 'MEDIUM', 'HIGH'}):
+            raise IntelligenceError('provider_not_configured', 'Select a documented thinking configuration for the evaluated Gemini model.')
+        self.thinking_level = thinking_level
+
+    def _model_text(self, system, context):
+        try:
+            if not isinstance(system, str) or not isinstance(context, dict):
+                raise ValueError
+            text = json.dumps(context, ensure_ascii=False, allow_nan=False, separators=(',', ':'))
+            size = len(system.encode('utf-8')) + len(text.encode('utf-8'))
+        except (ValueError, TypeError, RecursionError, UnicodeError):
+            raise IntelligenceError('model_input_invalid', 'The model input could not be serialized safely.') from None
+        if size > MODEL_INPUT_MAX_BYTES:
+            raise IntelligenceError('model_input_budget_exceeded', 'The source context exceeds the reviewed model-input byte limit.')
+        return text
 
     async def _post(self, url: str, headers: dict, body: dict) -> dict:
         try:
-            async with self.dispatch_budget(self.name, 'analyze') as debit, asyncio.timeout(35.0), httpx.AsyncClient(timeout=35.0, follow_redirects=False, transport=self.transport) as client:
+            fingerprint = model_budget_fingerprint(self.name, self.model, MODEL_INPUT_MAX_BYTES,
+                                                  self.max_output_tokens, self.thinking_level)
+            async with self.dispatch_budget(self.name, 'analyze', fingerprint) as debit, asyncio.timeout(35.0), httpx.AsyncClient(timeout=35.0, follow_redirects=False, transport=self.transport) as client:
                 async with client.stream('POST', url, headers=headers, json=body) as response:
                     if response.status_code == 429:
                         raise IntelligenceError('provider_rate_limited', 'The AI provider is temporarily rate limited.')
@@ -265,13 +282,17 @@ class GeminiProvider(_HTTPModel):
     name = 'gemini'
 
     async def complete(self, system: str, context: dict) -> tuple[dict, dict[str, int]]:
+        text_context = self._model_text(system, context)
+        generation = {'responseMimeType': 'application/json', 'candidateCount': 1,
+                      'maxOutputTokens': self.max_output_tokens, 'temperature': 0}
+        if self.thinking_level:
+            generation['thinkingConfig'] = {'thinkingLevel': self.thinking_level, 'includeThoughts': False}
         result = await self._post(
             f'https://generativelanguage.googleapis.com/v1beta/models/{self.model}:generateContent',
             {'x-goog-api-key': self._api_key, 'Content-Type': 'application/json'},
             {'systemInstruction': {'parts': [{'text': system}]},
-             'contents': [{'role': 'user', 'parts': [{'text': json.dumps(context)}]}],
-             'generationConfig': {'responseMimeType': 'application/json', 'candidateCount': 1,
-                                  'maxOutputTokens': self.max_output_tokens, 'temperature': 0}},
+             'contents': [{'role': 'user', 'parts': [{'text': text_context}]}],
+             'generationConfig': generation},
         )
         feedback = result.get('promptFeedback')
         if isinstance(feedback, dict) and feedback.get('blockReason'):
@@ -298,11 +319,12 @@ class ClaudeProvider(_HTTPModel):
     name = 'claude'
 
     async def complete(self, system: str, context: dict) -> tuple[dict, dict[str, int]]:
+        text_context = self._model_text(system, context)
         result = await self._post(
             'https://api.anthropic.com/v1/messages',
             {'x-api-key': self._api_key, 'anthropic-version': '2023-06-01', 'Content-Type': 'application/json'},
             {'model': self.model, 'max_tokens': self.max_output_tokens, 'temperature': 0, 'system': system,
-             'messages': [{'role': 'user', 'content': json.dumps(context)}]},
+             'messages': [{'role': 'user', 'content': text_context}]},
         )
         try:
             blocks = result['content']
@@ -328,10 +350,15 @@ def provider_from_env(provider_name: str | None = None) -> ModelProvider:
         raise IntelligenceError('provider_not_configured', 'AI analysis requires a configured API key and evaluated model.')
     if os.getenv('AYO_PROVIDER_SPEND_AUTHORIZED') != '1':
         raise IntelligenceError('provider_spend_not_authorized', 'AI provider calls are disabled until the owner authorizes API spending.')
-    if os.getenv('AYO_AI_DATA_POLICY') != 'reviewed':
+    if os.getenv('AYO_AI_DATA_POLICY') not in {'reviewed', 'public_only_reviewed'}:
         raise IntelligenceError('provider_data_policy_not_reviewed', 'Review provider data handling before enabling AI analysis.')
     adapter = GeminiProvider if name == 'gemini' else ClaudeProvider
-    return adapter(key, model)
+    try:
+        output_tokens = int(os.getenv('GEMINI_MAX_OUTPUT_TOKENS' if name == 'gemini' else 'ANTHROPIC_MAX_OUTPUT_TOKENS', '1500'))
+        return adapter(key, model, max_output_tokens=output_tokens,
+                       thinking_level=(os.getenv('GEMINI_THINKING_LEVEL') or None) if name == 'gemini' else None)
+    except (ValueError, TypeError):
+        raise IntelligenceError('provider_not_configured', 'The evaluated model configuration is invalid.') from None
 
 
 class IntelligenceOrchestrator:
@@ -339,6 +366,8 @@ class IntelligenceOrchestrator:
         self.provider = provider
 
     async def analyze(self, context: IntelligenceContext) -> IntelligenceResult:
+        if os.getenv('AYO_AI_DATA_POLICY') == 'public_only_reviewed':
+            raise IntelligenceError('private_analysis_not_authorized', 'This provider policy permits public research only; private workspace analysis requires separate data review.')
         # Revalidate copied/model_construct input, not just ordinary construction.
         context = IntelligenceContext.model_validate(context.model_dump())
         return await self._analyze(context, self.provider)

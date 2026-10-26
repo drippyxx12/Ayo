@@ -8,6 +8,7 @@ from contextlib import asynccontextmanager, contextmanager
 from contextvars import ContextVar
 from dataclasses import dataclass, field
 import secrets
+import os
 from sqlalchemy.exc import SQLAlchemyError
 
 from ayo.budgets import BudgetError, BudgetPolicy, UsageLedger
@@ -53,7 +54,7 @@ def budget_context(factory, *, scope_id: str, request_id: str, dispatch_prefix: 
 
 
 @asynccontextmanager
-async def metered_operation(provider: str, operation: str):
+async def metered_operation(provider: str, operation: str, configuration_fingerprint: str | None = None):
     """Reserve in its own committed transaction before any chargeable POST.
 
     Each dispatch is distinct. Re-entering the same worker-attempt sequence
@@ -63,7 +64,12 @@ async def metered_operation(provider: str, operation: str):
     scope = _active.get()
     if scope is None:
         raise BudgetError('budget_not_configured', 'Provider dispatch requires a persistent server budget context.')
+    if os.getenv('AYO_PROVIDER_SPEND_AUTHORIZED') != '1':
+        raise BudgetError('provider_spend_not_authorized', 'Provider calls are disabled until the exact test is separately authorized.')
     policy = BudgetPolicy.from_env(provider, operation)
+    if operation == 'analyze' and (not configuration_fingerprint or
+            policy.configuration_fingerprint != configuration_fingerprint):
+        raise BudgetError('budget_configuration_mismatch', 'The model configuration differs from the reviewed budget; dispatch is blocked.')
     scope.sequence += 1
     dispatch_id = f'{scope.dispatch_prefix}:{scope.sequence}:{provider}:{operation}'
     try:
