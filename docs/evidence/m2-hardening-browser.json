@@ -1,0 +1,88 @@
+{
+  "timestamp": "2026-10-26T07:20:55.259699+00:00",
+  "mode": "offline_browser_fixtures",
+  "database": "actual_local_postgresql_isolated_schema",
+  "provider_network_calls": 0,
+  "mail_delivery": "fixture_outbox_token_only",
+  "live_provider_verified": false,
+  "checks": [
+    {
+      "width": 390,
+      "market": "NG",
+      "queued_retry_progress": "passed",
+      "source_gemini_fixture_report": "passed",
+      "fixture_account_verify_claim_relogin_reopen": "passed",
+      "registration_mode": "new_fixture_account",
+      "fixture_leads_qualification": "passed",
+      "stored_report_unchanged": true,
+      "overflow": false,
+      "page_errors": 0,
+      "fonts": "passed"
+    },
+    {
+      "width": 390,
+      "market": "GH",
+      "queued_retry_progress": "passed",
+      "source_gemini_fixture_report": "passed",
+      "fixture_account_verify_claim_relogin_reopen": "passed",
+      "registration_mode": "new_fixture_account",
+      "fixture_leads_qualification": "passed",
+      "stored_report_unchanged": true,
+      "overflow": false,
+      "page_errors": 0,
+      "fonts": "passed"
+    },
+    {
+      "width": 768,
+      "market": "NG",
+      "queued_retry_progress": "passed",
+      "source_gemini_fixture_report": "passed",
+      "fixture_account_verify_claim_relogin_reopen": "passed",
+      "registration_mode": "new_fixture_account",
+      "fixture_leads_qualification": "passed",
+      "stored_report_unchanged": true,
+      "overflow": false,
+      "page_errors": 0,
+      "fonts": "passed"
+    },
+    {
+      "width": 768,
+      "market": "GH",
+      "queued_retry_progress": "passed",
+      "source_gemini_fixture_report": "passed",
+      "fixture_account_verify_claim_relogin_reopen": "passed",
+      "registration_mode": "new_fixture_account",
+      "fixture_leads_qualification": "passed",
+      "stored_report_unchanged": true,
+      "overflow": false,
+      "page_errors": 0,
+      "fonts": "passed"
+    },
+    {
+      "width": 1440,
+      "market": "NG",
+      "queued_retry_progress": "passed",
+      "source_gemini_fixture_report": "passed",
+      "fixture_account_verify_claim_relogin_reopen": "passed",
+      "registration_mode": "new_fixture_account",
+      "fixture_leads_qualification": "passed",
+      "stored_report_unchanged": true,
+      "overflow": false,
+      "page_errors": 0,
+      "fonts": "passed"
+    },
+    {
+      "width": 1440,
+      "market": "GH",
+      "queued_retry_progress": "passed",
+      "source_gemini_fixture_report": "passed",
+      "fixture_account_verify_claim_relogin_reopen": "passed",
+      "registration_mode": "expected_signup_throttle_then_existing_fixture_account",
+      "fixture_leads_qualification": "passed",
+      "stored_report_unchanged": true,
+      "overflow": false,
+      "page_errors": 0,
+      "fonts": "passed"
+    }
+  ]
+}

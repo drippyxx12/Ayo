@@ -12,7 +12,7 @@ from html.parser import HTMLParser
 from ipaddress import ip_address
 import json
 import re
-from urllib.parse import urljoin, urlsplit, urlunsplit
+from urllib.parse import parse_qsl, unquote, urlencode, quote, urljoin, urlsplit, urlunsplit
 
 
 class SiteInputError(ValueError):
@@ -48,6 +48,8 @@ def normalize_public_url(text: str) -> str:
     are deliberately refused. A later secure fetcher must ALSO validate DNS,
     actual destination IP, TLS, response redirect chains and robots.txt.
     """
+    if not isinstance(text, str):
+        raise SiteInputError('Enter a valid public website address.')
     text = text.strip()
     if not text or len(text) > 2048 or any(ord(c) < 32 or ord(c) == 127 for c in text):
         raise SiteInputError('Enter a valid public website address.')
@@ -81,10 +83,33 @@ def normalize_public_url(text: str) -> str:
         else:
             raise SiteInputError('Public IP literals are not supported. Enter a domain.')
         path = parsed.path or '/'
-        if '\\' in path:
+        # Check the path the origin may actually interpret, including nested
+        # encodings. Never forward encoded controls, separators or dot-segment
+        # aliases that could evade the public-page policy downstream.
+        for _ in range(5):
+            if re.search(r'%(?![0-9a-fA-F]{2})', path):
+                raise SiteInputError('Invalid website path encoding.')
+            decoded = unquote(path, errors='strict')
+            if decoded == path:
+                break
+            path = decoded
+        else:
+            raise SiteInputError('Excessively encoded website path.')
+        if ('\\' in path or ';' in path or any(ord(c) < 32 or ord(c) == 127 for c in path)
+                or any(segment in {'.', '..'} for segment in path.split('/'))):
             raise SiteInputError('Unsupported website path.')
+        path = quote(path, safe="/!$&'()*+,-._~:@")
+        query = ''
+        # This public profile endpoint identifies businesses by a query value.
+        # Dropping every query conflates unrelated profiles. Retain only its
+        # validated identity, never tracking/authentication query parameters.
+        if host in {'facebook.com', 'www.facebook.com', 'm.facebook.com'} and path == '/profile.php' and parsed.query:
+            identities = [value for key, value in parse_qsl(parsed.query) if key == 'id']
+            if len(identities) != 1 or not re.fullmatch(r'[0-9]{1,30}', identities[0]):
+                raise SiteInputError('Enter a public Facebook profile with its numeric identity.')
+            query = urlencode({'id': identities[0]})
         netloc = host if port is None or (parsed.scheme == 'https' and port == 443) or (parsed.scheme == 'http' and port == 80) else f'{host}:{port}'
-        return urlunsplit((parsed.scheme.lower(), netloc, path, '', ''))
+        return urlunsplit((parsed.scheme.lower(), netloc, path, query, ''))
     except (ValueError, UnicodeError) as exc:
         if isinstance(exc, SiteInputError):
             raise

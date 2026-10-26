@@ -9,6 +9,7 @@ Anthropic Messages documentation on 2026-10-25. Adapters are not live-verified.
 """
 from __future__ import annotations
 
+import asyncio
 from datetime import datetime, timezone
 import json
 import os
@@ -17,6 +18,10 @@ from typing import Literal, Protocol
 
 import httpx
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
+
+from ayo.budgets import BudgetError
+from ayo.provider_usage import metered_operation
+from ayo.provider_config import valid_api_key, valid_model_id
 
 
 class IntelligenceError(ValueError):
@@ -192,8 +197,9 @@ def validate_analysis(raw: dict, context: IntelligenceContext | PublicResearchCo
 
 
 class _HTTPModel:
-    def __init__(self, api_key: str, model: str, *, transport: httpx.AsyncBaseTransport | None = None, max_output_tokens: int = 1500):
-        if not api_key or not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9._-]{1,100}', model):
+    def __init__(self, api_key: str, model: str, *, transport: httpx.AsyncBaseTransport | None = None,
+                 max_output_tokens: int = 1500, dispatch_budget=metered_operation):
+        if not valid_api_key(api_key) or not valid_model_id(model):
             raise IntelligenceError('provider_not_configured', 'A server API key and explicit model identifier are required.')
         if not 64 <= max_output_tokens <= 4000:
             raise ValueError('Model output budget must be between 64 and 4000 tokens')
@@ -201,13 +207,18 @@ class _HTTPModel:
         self.model = model
         self.transport = transport
         self.max_output_tokens = max_output_tokens
+        self.dispatch_budget = dispatch_budget
 
     async def _post(self, url: str, headers: dict, body: dict) -> dict:
         try:
-            async with httpx.AsyncClient(timeout=35.0, follow_redirects=False, transport=self.transport) as client:
+            async with self.dispatch_budget(self.name, 'analyze') as debit, asyncio.timeout(35.0), httpx.AsyncClient(timeout=35.0, follow_redirects=False, transport=self.transport) as client:
                 async with client.stream('POST', url, headers=headers, json=body) as response:
                     if response.status_code == 429:
                         raise IntelligenceError('provider_rate_limited', 'The AI provider is temporarily rate limited.')
+                    if response.status_code in {401, 403}:
+                        raise IntelligenceError('provider_authorization_failed', 'The AI provider rejected the configured credentials or permissions.')
+                    if response.status_code in {502, 503, 504}:
+                        raise IntelligenceError('provider_service_unavailable', 'The AI provider is temporarily unavailable.')
                     if response.status_code != 200:
                         raise IntelligenceError('provider_failure', 'The AI provider did not accept the analysis request.')
                     chunks, size = [], 0
@@ -216,14 +227,28 @@ class _HTTPModel:
                         if size > 150_000:
                             raise IntelligenceError('provider_response_too_large', 'The AI response exceeded the configured budget.')
                         chunks.append(chunk)
-            result = json.loads(b''.join(chunks))
-            if not isinstance(result, dict):
-                raise ValueError('Invalid response')
-            return result
-        except (httpx.HTTPError, ValueError) as exc:
+                result = json.loads(b''.join(chunks))
+                if not isinstance(result, dict):
+                    raise ValueError('Invalid response')
+                debit.usage.update(_usage_counts(result.get('usageMetadata') if self.name == 'gemini' else result.get('usage'), self.name))
+                return result
+        except BudgetError as exc:
+            raise IntelligenceError(exc.code, str(exc)) from exc
+        except (httpx.HTTPError, TimeoutError, ValueError, RecursionError) as exc:
             if isinstance(exc, IntelligenceError):
                 raise
+            if isinstance(exc, (TimeoutError, httpx.TimeoutException)):
+                raise IntelligenceError('provider_timeout', 'The AI provider exceeded its bounded time limit.') from exc
             raise IntelligenceError('provider_failure', 'The AI provider could not return a valid analysis.') from exc
+
+
+def _usage_counts(usage, provider):
+    """Numeric provider receipts only; bools, arbitrary metadata and USD omitted."""
+    allowed = ('promptTokenCount', 'candidatesTokenCount', 'totalTokenCount',
+               'thoughtsTokenCount', 'cachedContentTokenCount', 'toolUsePromptTokenCount') if provider == 'gemini' else ('input_tokens', 'output_tokens', 'cache_creation_input_tokens', 'cache_read_input_tokens')
+    if not isinstance(usage, dict):
+        return {}
+    return {k: usage[k] for k in allowed if type(usage.get(k)) is int and 0 <= usage[k] <= 1_000_000_000}
 
 
 def _decode_json(text: str) -> dict:
@@ -232,7 +257,7 @@ def _decode_json(text: str) -> dict:
         if not isinstance(value, dict):
             raise ValueError('Not an object')
         return value
-    except (ValueError, TypeError) as exc:
+    except (ValueError, TypeError, RecursionError) as exc:
         raise IntelligenceError('invalid_model_output', 'AI did not return the required JSON object.') from exc
 
 
@@ -245,16 +270,26 @@ class GeminiProvider(_HTTPModel):
             {'x-goog-api-key': self._api_key, 'Content-Type': 'application/json'},
             {'systemInstruction': {'parts': [{'text': system}]},
              'contents': [{'role': 'user', 'parts': [{'text': json.dumps(context)}]}],
-             'generationConfig': {'responseMimeType': 'application/json', 'maxOutputTokens': self.max_output_tokens, 'temperature': 0}},
+             'generationConfig': {'responseMimeType': 'application/json', 'candidateCount': 1,
+                                  'maxOutputTokens': self.max_output_tokens, 'temperature': 0}},
         )
+        feedback = result.get('promptFeedback')
+        if isinstance(feedback, dict) and feedback.get('blockReason'):
+            raise IntelligenceError('model_safety_blocked', 'Gemini blocked this analysis under its safety policy.')
         try:
+            if not isinstance(result['candidates'], list) or len(result['candidates']) != 1:
+                raise ValueError('Ambiguous response')
             candidate = result['candidates'][0]
-            if candidate.get('finishReason') != 'STOP':
+            if not isinstance(candidate, dict) or candidate.get('finishReason') != 'STOP':
                 raise ValueError('Incomplete response')
-            text = ''.join(part['text'] for part in candidate['content']['parts'] if 'text' in part)
-            usage = result.get('usageMetadata', {})
-            counts = {k: int(usage[k]) for k in ('promptTokenCount', 'candidatesTokenCount', 'totalTokenCount') if k in usage and isinstance(usage[k], int) and usage[k] >= 0}
-        except (KeyError, IndexError, TypeError, ValueError) as exc:
+            parts = candidate['content']['parts']
+            if not isinstance(parts, list) or not parts or any(
+                    not isinstance(part, dict) or set(part) - {'text', 'thoughtSignature'}
+                    or not isinstance(part.get('text'), str) for part in parts):
+                raise ValueError('Nontext or thought/tool response')
+            text = ''.join(part['text'] for part in parts)
+            counts = _usage_counts(result.get('usageMetadata'), self.name)
+        except (KeyError, IndexError, TypeError, ValueError, AttributeError) as exc:
             raise IntelligenceError('provider_failure', 'Gemini returned an incomplete analysis.') from exc
         return _decode_json(text), counts
 
@@ -270,11 +305,13 @@ class ClaudeProvider(_HTTPModel):
              'messages': [{'role': 'user', 'content': json.dumps(context)}]},
         )
         try:
-            if result.get('stop_reason') != 'end_turn' or any(b.get('type') != 'text' for b in result['content']):
+            blocks = result['content']
+            if (result.get('stop_reason') != 'end_turn' or not isinstance(blocks, list) or not blocks
+                    or any(not isinstance(b, dict) or b.get('type') != 'text'
+                           or not isinstance(b.get('text'), str) for b in blocks)):
                 raise ValueError('Nontext or incomplete response')
-            text = ''.join(block['text'] for block in result['content'])
-            usage = result.get('usage', {})
-            counts = {k: int(usage[k]) for k in ('input_tokens', 'output_tokens') if k in usage and isinstance(usage[k], int) and usage[k] >= 0}
+            text = ''.join(block['text'] for block in blocks)
+            counts = _usage_counts(result.get('usage'), self.name)
         except (KeyError, TypeError, ValueError) as exc:
             raise IntelligenceError('provider_failure', 'Claude returned an incomplete analysis.') from exc
         return _decode_json(text), counts
@@ -291,6 +328,8 @@ def provider_from_env(provider_name: str | None = None) -> ModelProvider:
         raise IntelligenceError('provider_not_configured', 'AI analysis requires a configured API key and evaluated model.')
     if os.getenv('AYO_PROVIDER_SPEND_AUTHORIZED') != '1':
         raise IntelligenceError('provider_spend_not_authorized', 'AI provider calls are disabled until the owner authorizes API spending.')
+    if os.getenv('AYO_AI_DATA_POLICY') != 'reviewed':
+        raise IntelligenceError('provider_data_policy_not_reviewed', 'Review provider data handling before enabling AI analysis.')
     adapter = GeminiProvider if name == 'gemini' else ClaudeProvider
     return adapter(key, model)
 

@@ -1,58 +1,39 @@
 # Ayo project memory and stopping point
 
-Updated: 2026-10-25 23:38 UTC. Overall platform: **PARTIALLY COMPLETE**.
+Updated: 2026-10-26 07:23 UTC. Overall platform: **PARTIALLY COMPLETE**.
 
 ## Persistent working preference
 
-The founder wants a direct browser link, not screenshot links, and a clear account of where work stopped. Always give the actual app URL first, state which features can be used, and label any screenshot walkthrough as separate evidence. Read this file at the start of every session. Before pausing or ending a session, update the current step, last verified evidence, code/PR reference, preview scope, blockers and exact next action. Append historical evidence to PROGRESS.md; keep this file as the current handoff. End work-session summaries with a brief **Stopped at / Next / Blocked by** statement. This is repository-backed project memory, not a claim about account-wide ChatGPT memory.
+Read this handoff at session start; update it before pausing/ending work. Keep exact milestone, verification, GitHub code/CI/PR, actual browser-preview scope, blockers and next action current; retain history in PROGRESS.md. The founder wants a direct browser link, not screenshot links. End summaries with **Stopped at / Next / Blocked by**. This is repository memory, not account-wide ChatGPT memory. Never retain credentials or personal merchant data.
 
-## Current step and stopping point
+## Current step
 
-- **M2: early public Gemini research pipeline is implemented and verified locally with explicit offline fixtures.** Real-source/Gemini acceptance has not passed.
-- The worker commits hidden evidence before inference, uses a public-only Gemini context, revalidates citations on publication, and retains model/policy/usage metadata. Pending evidence is unreadable and unclaimable. Missing/rejected/timed-out AI remains explicitly partial.
-- This handoff: refreshed the protected browser preview and saved persistent project memory. The new deployment is READY and hosted checks passed; no merchant backend/provider was enabled.
-- The full C01–C18 end-state remains in PRODUCT_VISION.md and ROADMAP.md. MVP and customer V1 are intermediate milestones.
+M2 provider/research hardening is implemented and verified locally; **real-source/Gemini acceptance remains open**. No full-product completion is claimed. C01–C18/M0–M10 remain in PRODUCT_VISION.md/ROADMAP.md; M3 MVP is intermediate.
 
-## Last verified evidence
+This checkpoint adds committed pre-dispatch provider reservations, cross-provider request caps and provider/scope daily dollar/call caps; strict policy expiry and numeric usage; current Firecrawl contract/NG/GH/source identity/access/deadline defenses; reviewed AI-data gate and malformed/safety/thought/token response handling; persisted job progress/definitive-rejection backoff and ambiguous-dispatch fences; lead profile identity fixes. Evidence is still committed before Gemini. Budget debits are reviewed conservative upper bounds, not measured invoices, and remain held on unknown outcomes.
 
-- **256 tests passed**, zero skipped, with actual local PostgreSQL and offline source/model fixtures; one upstream deprecation warning.
-- SQLite/PostgreSQL HTTP tests exercise the actual Gemini REST adapter through a mock transport, then report → signup → fixture verification → claim → logout/login/reopen → lead discovery/qualification.
-- Chromium passed 390/768/1440px fixture workflows, font checks, overflow checks and page-error checks. Evidence: `docs/evidence/public-gemini-browser-workflow.json`.
-- Code CI passed: [40244375756](https://github.com/drippyxx12/Ayo/actions/runs/40244375756) and [40244371760](https://github.com/drippyxx12/Ayo/actions/runs/40244371760). Ruff, whitespace and secret scans passed.
-- No real research/model/mail/store/payment/outreach/sale outcome was verified. Local browser servers were stopped and temporary session settings removed.
+## Actual verification
 
-## Source and review references
+- **495 tests passed**, zero failed/skipped, real local PostgreSQL17 plus SQLite and explicit offline source/model/mail fixtures. One upstream Starlette/httpx deprecation warning.
+- Migration 0004 budget parity/roundtrip and legacy preservation; concurrent caps/idempotency; cross-provider shared request limits; database lock deadlines; lost-worker/no-second-model-dispatch; hostile sources/claims and account/tenant/first 500 regressions passed.
+- Ruff, dependency consistency/audit, whitespace and redacted working-tree/history secret scans passed; 87 local documentation links resolve and full capability/milestone coverage is preserved.
+- Chromium NG/GH at 390/768/1440px passed progress/retry, report, save/relogin/reopen, leads, fonts/no overflow/page errors. Five fresh fixture accounts; sixth signup correctly throttled and reused a verified fixture account. `docs/evidence/m2-hardening-browser.json`; reproduce with optional `scripts/verify-m2-browser.py` against disposable PostgreSQL.
+- Only official public API documentation/GitHub checks were read live. No real Firecrawl/Gemini analysis, delivered email, merchant connection, payment, outreach or sale was verified. Local browser server stopped and test schema removed.
 
-- Repository: [drippyxx12/Ayo](https://github.com/drippyxx12/Ayo). Review: [draft PR #1](https://github.com/drippyxx12/Ayo/pull/1); not merged.
-- Remote review branch: `codex/africa-platform`. Latest verified code: `a5a2fd78ddeebdc83bba2cfb7f0080111701d6b1`.
-- Latest published evidence receipt before this task: `7ffb2ae71d200e8d07f5ad22f2f7b52c9349b869`.
-- Local branch `codex/search-first-foundation` has different commit ancestry/SHAs. Remote receipts above identify published code; do not infer a push from a local commit.
-- The original ZIP and source hashes are preserved. Historical Emergent/builder sources remain unavailable and unmerged.
+## GitHub/review state
 
-## Preview scope
+Repository [drippyxx12/Ayo](https://github.com/drippyxx12/Ayo), remote branch `codex/africa-platform`, [draft PR #1](https://github.com/drippyxx12/Ayo/pull/1), not merged. Before this change, remote HEAD 0861f7a0ee811db80cad9ed9fc4c0949a414c397 / tree 0edf8945dfc92d536df78cdfca60ec29d3cb5b8c matched local source. Actual checks 40245841660/40245838011 succeeded. Current hardening changes await commit/publication and fresh CI receipt; do not infer a push from a local SHA. Local historical ancestry differs from GitHub's connector-created commits. Original ZIP/source remain preserved.
 
-- Direct browser link: [Open Ayo development preview](https://ayo-development-preview-5icko1nq4-ayodejiiolatunbosun-7460.vercel.app/). Vercel Authentication may require the founder to sign in with the authorized account.
-- Deployment: `dpl_FHxr7kjKUjVhvUAcyccB6JmptXBC`, target preview, READY; all-deployment Vercel Authentication remains enabled.
-- Interactive scope: public business intake with honest unavailable states. Registration, private workspace, provider calls and persistence are disabled in this preview. It is not the full hosted merchant application.
-- Separate optional evidence: `/static/tour.html` shows current labeled offline Gemini screenshots plus a Where we stopped panel; never substitute it for a requested interactive app link.
-- Latest preview checks: hosted intake/tour 200, signup correctly disabled 503; local gallery at 390/768/1440px loads all current image hashes, no overflow/page errors, no credential/data collection forms. Existing preview restrictions: 11 tests passed. No backend-code change or broad suite rerun in this refresh.
-- Current screenshots: `/workspace/ayo-evidence/gemini-*.png`. Preview builder: `scripts/build-preview.py --screenshot-prefix gemini`; source: `preview/`. Receipt: `docs/evidence/current-preview-hosted.json`.
+## Direct preview
 
-## Next concrete actions
+[Open protected Ayo development preview](https://ayo-development-preview-5icko1nq4-ayodejiiolatunbosun-7460.vercel.app/). Vercel Authentication may require the authorized founder account. Deployment dpl_FHxr7kjKUjVhvUAcyccB6JmptXBC remains the previously verified preview; it was not updated this session.
 
-1. On resuming, read this memory and preserve the direct preview URL/scope; do not restart completed source/vision work.
-2. Clear M2 live setup through secure runtime settings: permitted source provider, available Gemini model, reviewed source/egress/data policies and explicitly authorized usage limit. Never paste keys in chat or copy connector secrets into app runtime.
-3. Run an authorized real NG business and GH business through evidence → Gemini → cited report, with independent source checks and redacted receipts.
-4. Configure authorized transactional mail and persistent hosted identity before accepting M3 signup/save/reopen/leads live. Continue full roadmap requirements after these gates; never call the MVP finished Ayo.
+Interactive scope is public intake with honest unavailable states. Accounts/private workspace/storage/provider calls are disabled there. Separate `/static/tour.html` is labeled historical offline screenshot evidence, not an interactive merchant app or the latest M2 backend. No current backend was deployed.
 
-## Blockers and invariants
+## Blockers and exact next action
 
-- The observed runtime has no configured application secrets/provider variables. Actual research/Gemini calls and email delivery remain blocked. Production DB/worker/secrets, source acceptance, budget approval and independent operational/privacy reviews remain outstanding.
-- Keep one unified Africa-first Ayo; Nigeria/Ghana, NGN/GHS, public research before signup and optional Shopify. Preserve Syne headings, DM Sans UI, DM Mono metrics and the editorial palette.
-- First 500 distinct legitimate user accounts receive all released/future Ayo features free; no repeated slot per business or automatic expiry/billing. Provider fees and permissions are separate.
-- No fabricated facts, leads, customers, sends or sales; no unauthorized outreach, merchant writes, public production deployment or spending. Existing protected-preview authorization covers the requested scoped preview only.
-- Enriched report JSON needs compatible web/worker readers. Previous strict readers reject new fields; follow RUNBOOK before an approved rollout/rollback.
+Observed runtime spec 104 has no configured app secrets/runtime variables. Offline `python scripts/check-provider-readiness.py` exits 2, zero network requests, live_verified:false. This is an expected configuration blocker, not a live test failure. Never use/repeat a credential pasted in chat; replacements belong in runtime secret configuration.
 
-## Do not restart completed work
+Secure setup: GEMINI_API_KEY, explicit available GEMINI_MODEL, FIRECRAWL_API_KEY; reviewed AI data policy, source/robots/terms/egress policy and exact hosts; unexpired reviewed per-operation reservations and request/provider/scope daily dollar/call caps; separately approved provider calls and total spend. Full account acceptance also needs durable hosted PostgreSQL/API/worker, SESSION_SECRET/TOKEN_ENCRYPTION_KEY, HTTPS APP_ORIGIN, verified Resend sender/domain and separately authorized transactional mail. Exact variables and planned independent NG/GH journey: [M2 runbook](docs/M2_LIVE_TEST_RUNBOOK.md). No public deployment/spending permission is implied.
 
-Use existing code, migrations, tests and receipts. Do not re-import/overwrite the ZIP, rewrite the framework, recreate the preview project or duplicate PR #1. Do not rerun broad tests without changes or a new concern. Consult PRODUCT_VISION.md, ROADMAP.md, FEATURE_STATUS.md, PROGRESS.md and RUNBOOK.md for scope, evidence and operational detail.
+**Stopped at:** M2 hardening locally verified, publishing changes/CI next. **Next:** commit to existing branch/PR, record actual CI; then authorized controlled real NG/GH acceptance with independent source-to-claim review. **Blocked by:** secure provider/runtime configuration, policy/model/pricing review, explicit provider-test spend and actual mail/hosting setup. Invoice reconciliation, broader research and later full-product milestones remain incomplete.

@@ -23,6 +23,8 @@ def configured_url():
 def make_engine(url=None):
     url = normalize_url(url) if url else configured_url()
     options = {'pool_pre_ping': True}
+    if url.startswith('postgresql+'):
+        options.update(connect_args={'connect_timeout': 5}, pool_timeout=5)
     if url.startswith('sqlite:'):
         options['connect_args'] = {'check_same_thread': False, 'timeout': 30}
         if url in {'sqlite://', 'sqlite:///:memory:'}:

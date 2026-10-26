@@ -228,3 +228,51 @@ class ResearchJob(Base):
     error_code = Column(String(80), nullable=True)
     created_at = Column(Float, nullable=False, default=time.time)
     finished_at = Column(Float, nullable=True)
+
+
+class ProviderBudgetLock(Base):
+    """One database lock serializes cross-provider budget reservations."""
+    __tablename__ = 'provider_budget_lock'
+    __table_args__ = (CheckConstraint('id = 1', name='ck_provider_budget_lock'),)
+    id = Column(Integer, primary_key=True)
+
+
+class ProviderBudgetAccount(Base):
+    """Hashed bucket keys carry no URLs, names, emails or provider secrets."""
+    __tablename__ = 'provider_budget_accounts'
+    __table_args__ = (
+        CheckConstraint('reserved_microusd >= 0 AND calls >= 0', name='ck_budget_account_nonnegative'),
+        CheckConstraint('limit_microusd > 0 AND call_limit > 0', name='ck_budget_account_limits'),
+        CheckConstraint('reserved_microusd <= limit_microusd AND calls <= call_limit', name='ck_budget_account_capacity'),
+    )
+    key_hash = Column(String(64), primary_key=True)
+    kind = Column(String(30), nullable=False)
+    window_day = Column(Integer, nullable=False)
+    limit_microusd = Column(BigInteger, nullable=False)
+    call_limit = Column(Integer, nullable=False)
+    reserved_microusd = Column(BigInteger, nullable=False, default=0)
+    calls = Column(Integer, nullable=False, default=0)
+    updated_at = Column(Float, nullable=False)
+
+
+class ProviderUsageReservation(Base):
+    """Conservative authorization debit; never mislabeled as invoiced spend."""
+    __tablename__ = 'provider_usage_reservations'
+    __table_args__ = (
+        UniqueConstraint('dispatch_hash', name='uq_provider_usage_dispatch'),
+        CheckConstraint('reserved_microusd > 0', name='ck_provider_usage_reservation'),
+        CheckConstraint("outcome IN ('reserved','succeeded','failed','uncertain')", name='ck_provider_usage_outcome'),
+    )
+    id = Column(String(64), primary_key=True, default=opaque_id)
+    dispatch_hash = Column(String(64), nullable=False)
+    scope_hash = Column(String(64), nullable=False, index=True)
+    request_hash = Column(String(64), nullable=False, index=True)
+    provider = Column(String(30), nullable=False)
+    operation = Column(String(30), nullable=False)
+    policy_version = Column(String(100), nullable=False)
+    policy_hash = Column(String(64), nullable=False)
+    reserved_microusd = Column(BigInteger, nullable=False)
+    outcome = Column(String(20), nullable=False, default='reserved')
+    usage_json = Column(Text, nullable=False, default='{}')
+    created_at = Column(Float, nullable=False, index=True)
+    settled_at = Column(Float, nullable=True)

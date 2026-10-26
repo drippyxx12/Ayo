@@ -1,12 +1,14 @@
 """Bounded deletion of expired anonymous/security artifacts, never user grants."""
 import time
 from sqlalchemy import delete
-from ayo.models import AuthAttempt, AuthSession, IdentityToken, MailOutbox, ReportClaim, ResearchJob, ResearchReportRecord
+from ayo.models import AuditEvent, AuthAttempt, AuthSession, IdentityToken, MailOutbox, ReportClaim, ResearchJob, ResearchReportRecord
 
 
 def cleanup_expired(session, now=None):
     now = time.time() if now is None else now
     queries = [
+        delete(AuditEvent).where(AuditEvent.resource_type == 'research_job',
+                                 AuditEvent.business_id.is_(None), AuditEvent.created_at <= now - 86400),
         delete(ResearchJob).where(ResearchJob.created_at <= now - 86400),
         delete(ReportClaim).where(ReportClaim.expires_at <= now),
         delete(ResearchReportRecord).where(ResearchReportRecord.business_id.is_(None),

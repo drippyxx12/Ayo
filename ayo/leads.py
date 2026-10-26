@@ -63,17 +63,32 @@ class SearchProvider(Protocol):
 
 _ORG_SIGNALS = re.compile(
     r'\b(?:business|company|boutique|store|shop|wholesal\w*|retail\w*|distributor\w*|supplier\w*|manufacturer\w*|brand|enterprise\w*|commerce|stockist\w*|marketplace)\b', re.I)
-_PROFILE_HOSTS = {'instagram.com', 'facebook.com', 'tiktok.com', 'x.com', 'jiji.ng', 'jiji.com.gh', 'tonaton.com', 'jumia.com.ng', 'jumia.com.gh'}
+_PROFILE_HOSTS = {'instagram.com', 'facebook.com', 'linkedin.com', 'tiktok.com', 'x.com', 'jiji.ng', 'jiji.com.gh', 'tonaton.com', 'jumia.com.ng', 'jumia.com.gh'}
 _QUERY_STOP = {'the', 'and', 'for', 'with', 'from', 'find', 'ghana', 'nigeria', 'business', 'businesses', 'shop', 'shops', 'store', 'stores'}
 
 
 def identity_key(url: str) -> str:
-    """Domain dedupe, preserving distinct businesses on shared profile hosts."""
+    """Domain/profile dedupe without conflating hosted organization identities.
+
+    The shared public URL parser removes tracking queries and preserves only a
+    validated Facebook numeric identity. This remains a discovery heuristic,
+    not proof that two aliases belong to the same organization or merchant.
+    """
     normalized = normalize_public_url(url)
     parsed = urlsplit(normalized)
     host = parsed.hostname.removeprefix('www.')
+    if host == 'm.facebook.com':
+        host = 'facebook.com'
     if host in _PROFILE_HOSTS:
-        return host + parsed.path.rstrip('/').casefold()
+        path = parsed.path.rstrip('/').casefold()
+        if host == 'facebook.com' and path == '/profile.php' and not parsed.query:
+            raise SiteInputError('A Facebook profile needs its public numeric identity.')
+        if host == 'linkedin.com':
+            parts = path.strip('/').split('/')
+            if len(parts) >= 2 and parts[0] == 'company':
+                # The about/jobs/posts tabs of one company are not new leads.
+                path = '/company/' + parts[1]
+        return host + path + ('?' + parsed.query if parsed.query else '')
     return host
 
 
@@ -133,7 +148,7 @@ async def discover_leads(
         except SiteInputError:
             continue
         # Individual professional profiles are not organization lead records.
-        if 'linkedin.com' in key and '/in/' in urlsplit(url).path:
+        if urlsplit(url).hostname.removeprefix('www.') == 'linkedin.com' and urlsplit(url).path.casefold().startswith('/in/'):
             continue
         if key in seen:
             continue

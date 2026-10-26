@@ -58,7 +58,7 @@ sh scripts/check-secrets.sh
 
 Set `AYO_TEST_POSTGRES_URL` to a disposable local PostgreSQL database to include migration, concurrent founding-allocation and full HTTP journey checks. Tests use isolated schemas. GitHub CI provisions its own test PostgreSQL service.
 
-The latest integrated suite has **256 passing tests** with PostgreSQL enabled. Browser checks cover 390/768/1440px search → committed evidence → offline Gemini synthesis → cited report → signup → verification-token fixture → private save → reopen → sourced lead discovery/qualification. These are fixture-backed application tests, not live business or merchant evidence.
+The latest integrated suite has **495 passing tests** with PostgreSQL enabled. Browser checks cover 390/768/1440px search → committed evidence → offline Gemini synthesis → cited report → signup → verification-token fixture → private save → reopen → sourced lead discovery/qualification. These are fixture-backed application tests, not live business or merchant evidence.
 
 ## Delivery records
 
@@ -69,3 +69,5 @@ The latest integrated suite has **256 passing tests** with PostgreSQL enabled. B
 - [Latest repository audit](docs/LATEST_REPOSITORY_AUDIT.md): original source and architecture audit.
 
 The original ZIP and its SHA-256/file manifest are preserved. Older architecture documents contain historical requirements and unimplemented targets; the current status files and latest founder instructions take precedence.
+
+M2 provider setup: [controlled live-test runbook](docs/M2_LIVE_TEST_RUNBOOK.md). Run `python scripts/check-provider-readiness.py` for a safe offline configuration check. It never verifies live credentials or authorizes spending. Durable reservations are conservative authorization debits, not measured provider invoices.

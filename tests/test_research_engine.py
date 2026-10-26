@@ -1,5 +1,6 @@
 """Offline provider contract tests; fixtures never become production fallback data."""
 import asyncio
+from contextlib import nullcontext
 from datetime import datetime, timezone
 import hashlib
 import json
@@ -7,6 +8,7 @@ import json
 import httpx
 import pytest
 from pydantic import ValidationError
+from ayo.provider_usage import OperationUsage
 
 from ayo.research import (
     BusinessCandidate, FirecrawlProvider, ResearchError, ResearchReport,
@@ -56,6 +58,9 @@ def test_invalid_public_product_price_stays_unknown(price):
 
 
 def provider(handler, **kwargs):
+    # Explicit offline transport and budget stub; production defaults stay
+    # metered/fail-closed even under ENVIRONMENT=test.
+    kwargs.setdefault('dispatch_budget', lambda *_args: nullcontext(OperationUsage()))
     return FirecrawlProvider(
         'fixture-api-key-never-live', spend_authorized=True,
         egress_policy_verified=True, approved_hosts=('merchant.org',),
@@ -121,7 +126,7 @@ def test_search_is_real_provider_index_data_deduplicated_and_location_explicit()
         seen.append(request)
         assert request.url == 'https://api.firecrawl.dev/v2/search'
         body = json.loads(request.content)
-        assert body == {'query': 'Clothing stockists', 'limit': 5, 'sources': ['web'], 'location': 'Accra, Ghana'}
+        assert body == {'query': 'Clothing stockists', 'limit': 5, 'sources': ['web'], 'timeout': 10000, 'location': 'Accra, Ghana', 'country': 'GH'}
         return httpx.Response(200, json={'success': True, 'data': {'web': [
             {'title': 'Actual indexed business', 'url': 'https://merchant.org', 'description': 'A public indexed description'},
             {'title': 'Duplicate', 'url': 'https://merchant.org/', 'description': 'same canonical URL'},

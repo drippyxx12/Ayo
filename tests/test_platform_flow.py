@@ -3,6 +3,7 @@
 These tests verify application behavior, not a live business or vendor grant.
 """
 import hashlib
+from contextlib import nullcontext
 import json
 import os
 import re
@@ -21,6 +22,7 @@ from sqlalchemy.schema import CreateSchema, DropSchema
 from ayo import app as mod
 from ayo.models import Base, FoundingGrant, Lead, MailOutbox, ReportClaim, ResearchJob, ResearchReportRecord, User
 from ayo.research import BusinessCandidate, ResearchReport, ResearchService, SourceDocument
+from ayo.provider_usage import OperationUsage
 
 
 class FixtureProvider:
@@ -87,7 +89,7 @@ def verify_latest(client, factory):
     return client.get(link.path + '?' + link.query)
 
 
-def gemini_fixture(factory):
+def gemini_fixture(factory, country='GH'):
     """Actual REST adapter with OFFLINE HTTP; verify committed evidence first."""
     from ayo.identity import IdentityError
     from ayo.intelligence import GeminiProvider
@@ -96,7 +98,7 @@ def gemini_fixture(factory):
     def handler(request):
         assert request.url.host == 'generativelanguage.googleapis.com'
         payload = json.loads(json.loads(request.content)['contents'][0]['parts'][0]['text'])
-        assert 'business_id' not in payload and payload['selected_market'] == 'GH'
+        assert 'business_id' not in payload and payload['selected_market'] == country
         source = payload['evidence'][0]
         with factory() as session:
             job = session.scalar(select(ResearchJob).where(ResearchJob.status == 'running'))
@@ -118,14 +120,16 @@ def gemini_fixture(factory):
         return httpx.Response(200, json={'candidates': [{'finishReason': 'STOP',
             'content': {'parts': [{'text': json.dumps(analysis)}]}}],
             'usageMetadata': {'promptTokenCount': 80, 'candidatesTokenCount': 60, 'totalTokenCount': 140}})
-    return GeminiProvider('offline-fixture-key', 'offline-gemini-fixture', transport=httpx.MockTransport(handler))
+    return GeminiProvider('offline-fixture-key', 'offline-gemini-fixture', transport=httpx.MockTransport(handler),
+                          dispatch_budget=lambda *_args: nullcontext(OperationUsage()))
 
 
-def test_search_report_register_verify_save_reopen_and_lead_discovery(platform):
+@pytest.mark.parametrize('market', ['NG', 'GH'])
+def test_search_report_register_verify_save_reopen_and_lead_discovery(platform, market):
     client, factory = platform.client, platform.factory
-    response = client.post('/research', data={'query': 'Fixture clothing business', 'country': 'GH', 'csrf': csrf(client)})
+    response = client.post('/research', data={'query': 'Fixture clothing business', 'country': market, 'csrf': csrf(client)})
     assert response.status_code == 200 and 'Fixture Clothing Shop' in response.text
-    response = client.post('/research/select', data={'url': 'https://fixture-clothing.org/', 'country': 'GH',
+    response = client.post('/research/select', data={'url': 'https://fixture-clothing.org/', 'country': market,
         'business_name': 'Fixture Clothing Shop', 'csrf': csrf(client)})
     assert response.status_code == 303, response.text
     job_path = response.headers['location']
@@ -133,7 +137,7 @@ def test_search_report_register_verify_save_reopen_and_lead_discovery(platform):
     import asyncio
     from ayo.jobs import process_one
     assert asyncio.run(process_one(factory, mod.fernet, mod.app.state.research_factory,
-                                  analysis_provider=gemini_fixture(factory)))
+                                  analysis_provider=gemini_fixture(factory, market)))
     finished = client.get(job_path)
     assert finished.status_code == 303
     report_path = finished.headers['location']

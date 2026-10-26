@@ -8,8 +8,8 @@ from sqlalchemy import create_engine, func, select
 from sqlalchemy.orm import sessionmaker
 
 from ayo.identity import IdentityError
-from ayo.jobs import enqueue, get_job, process_one
-from ayo.models import Base, ReportClaim, ResearchJob, ResearchReportRecord
+from ayo.jobs import enqueue, get_job, job_progress, process_one
+from ayo.models import AuditEvent, Base, ReportClaim, ResearchJob, ResearchReportRecord
 from ayo.research import ResearchError, ResearchReport, SourceDocument, build_report
 
 
@@ -66,6 +66,22 @@ def test_queued_payload_has_only_bounded_input_and_no_plaintext_capability(jobs)
         assert get_job(session, job.id, 'a' * 48).id == job.id
         with pytest.raises(ResearchError):
             enqueue(session, fernet, url='http://127.0.0.1/', country='NG', business_name='Fixture', anonymous_id='a' * 48)
+
+
+def test_lost_source_worker_without_checkpoint_is_not_automatically_recrawled(jobs):
+    factory, fernet = jobs
+    job_id = queued(jobs)
+    with factory() as session:
+        job = session.get(ResearchJob, job_id)
+        job.status, job.attempts, job.lease_until = 'running', 1, time.time()-1
+        session.commit()
+    def no_dispatch():
+        raise AssertionError('An uncertain previous crawl must not be billed again')
+    assert asyncio.run(process_one(factory, fernet, no_dispatch))
+    with factory() as session:
+        job = session.get(ResearchJob, job_id)
+        assert job.status == 'failed' and job.error_code == 'source_outcome_uncertain'
+        assert job.attempts == 1 and job.report_id is None
 
 
 class EvidenceFixture:
@@ -208,3 +224,149 @@ def test_publication_cannot_swap_source_identity_after_checkpoint(jobs):
         session.rollback()
         assert session.get(ResearchReportRecord, row.id).status == 'PENDING_ANALYSIS'
         assert session.scalar(select(ReportClaim)) is None
+
+
+def test_persisted_progress_tracks_real_checkpoints_without_payloads(jobs):
+    factory, fernet = jobs
+    job_id = queued(jobs)
+
+    def inspect_actual_inference_stage():
+        with factory() as session:
+            assert [event['stage'] for event in job_progress(session, job_id, 'a' * 48)] == [
+                'queued', 'fetching', 'evidence_stored', 'analyzing']
+            events = session.scalars(select(AuditEvent).where(AuditEvent.resource_id == job_id)).all()
+            serialized = ' '.join(event.details_json for event in events)
+            assert 'fixture-business' not in serialized
+            assert 'anonymous' not in serialized and 'source' not in serialized
+            assert all(event.business_id is None and event.actor_user_id is None for event in events)
+
+    asyncio.run(process_one(factory, fernet, EvidenceFixture,
+        analysis_provider=GeminiFixture(inspect_actual_inference_stage)))
+    with factory() as session:
+        progress = job_progress(session, job_id, 'a' * 48)
+        assert progress[-1]['stage'] == 'partial'
+        assert progress[-1]['attempt'] == 1
+        assert progress[-1]['datetime'].endswith('+00:00')
+        assert 'UTC' in progress[-1]['display_time']
+        with pytest.raises(IdentityError, match='not found'):
+            job_progress(session, job_id, 'b' * 48)
+        with pytest.raises(IdentityError, match='not found'):
+            job_progress(session, job_id, None)
+
+
+@pytest.mark.parametrize('error_code', ['provider_rate_limited', 'provider_service_unavailable'])
+def test_definitive_source_rejections_retry_after_backoff_and_stop_at_three(jobs, error_code):
+    factory, fernet = jobs
+    job_id = queued(jobs)
+    with factory() as session:
+        current_time = [session.get(ResearchJob, job_id).created_at + 1]
+    calls = []
+
+    class RejectedSource:
+        async def research(self, *_args, **_kwargs):
+            calls.append(error_code)
+            raise ResearchError(error_code, 'Offline fixture provider rejection')
+
+    for attempt, wait in [(1, 15), (2, 30), (3, None)]:
+        assert asyncio.run(process_one(factory, fernet, RejectedSource, clock=lambda: current_time[0]))
+        with factory() as session:
+            job = session.get(ResearchJob, job_id)
+            assert job.attempts == attempt
+            assert job.report_id is None and job.claim_cipher is None
+            assert job.error_code == error_code
+            if wait:
+                assert job.status == 'queued' and job.finished_at is None
+                assert job.lease_until == current_time[0] + wait
+                event = job_progress(session, job_id, 'a' * 48)[-1]
+                assert event['stage'] == 'retry_scheduled' and event['retry_at'].endswith('UTC')
+            else:
+                assert job.status == 'failed' and job.finished_at == current_time[0]
+                assert job.lease_until is None
+                assert job_progress(session, job_id, 'a' * 48)[-1]['stage'] == 'failed'
+        if wait:
+            assert not asyncio.run(process_one(factory, fernet, RejectedSource, clock=lambda: current_time[0]))
+            current_time[0] += wait - 1
+            assert not asyncio.run(process_one(factory, fernet, RejectedSource, clock=lambda: current_time[0]))
+            current_time[0] += 1
+    assert len(calls) == 3
+    assert not asyncio.run(process_one(factory, fernet, RejectedSource, clock=lambda: current_time[0]))
+
+
+@pytest.mark.parametrize('error_code', [
+    'provider_failure', 'research_timeout', 'source_unavailable', 'provider_authorization_failed',
+    'provider_malformed', 'provider_unsafe_redirect', 'source_policy_not_approved',
+])
+def test_ambiguous_or_permanent_source_failures_do_not_retry(jobs, error_code):
+    factory, fernet = jobs
+    job_id = queued(jobs)
+
+    class FailedSource:
+        async def research(self, *_args, **_kwargs):
+            raise ResearchError(error_code, 'Offline fixture failure')
+
+    assert asyncio.run(process_one(factory, fernet, FailedSource))
+    with factory() as session:
+        job = session.get(ResearchJob, job_id)
+        assert job.status == 'failed' and job.attempts == 1
+        assert job.lease_until is None and job.report_id is None
+        assert job_progress(session, job_id, 'a' * 48)[-1]['stage'] == 'failed'
+    assert not asyncio.run(process_one(factory, fernet, FailedSource))
+
+
+def test_model_rejection_publishes_partial_without_automatic_provider_retry(jobs):
+    from ayo.intelligence import IntelligenceError
+    factory, fernet = jobs
+    job_id = queued(jobs)
+
+    class RejectedGemini(GeminiFixture):
+        async def complete(self, *_args, **_kwargs):
+            raise IntelligenceError('provider_rate_limited', 'Offline fixture model rejection')
+
+    assert asyncio.run(process_one(factory, fernet, EvidenceFixture, analysis_provider=RejectedGemini()))
+    with factory() as session:
+        job = session.get(ResearchJob, job_id)
+        report = ResearchReport.model_validate_json(session.get(ResearchReportRecord, job.report_id).report_json)
+        assert job.status == 'succeeded' and job.attempts == 1
+        assert report.analysis_status == 'unavailable' and report.analysis_error_code == 'model_rate_limited'
+        assert job_progress(session, job_id, 'a' * 48)[-1]['stage'] == 'partial'
+    assert not asyncio.run(process_one(factory, fernet, EvidenceFixture, analysis_provider=RejectedGemini()))
+
+
+def test_progress_displays_only_bounded_server_defined_metadata(jobs):
+    factory, _fernet = jobs
+    job_id = queued(jobs)
+    with factory() as session:
+        for index in range(30):
+            session.add(AuditEvent(action='research_job.fetching', resource_type='research_job',
+                resource_id=job_id, details_json=json.dumps({'stage': 'fetching', 'attempt': 1,
+                    'source': 'https://private.invalid/<script>', 'label': '<script>untrusted</script>'})))
+        session.add_all([
+            AuditEvent(action='research_job.unknown', resource_type='research_job', resource_id=job_id,
+                details_json='{"stage":"unknown","attempt":1}'),
+            AuditEvent(action='research_job.failed', resource_type='research_job', resource_id=job_id,
+                details_json='not JSON'),
+            AuditEvent(action='research_job.failed', resource_type='research_job', resource_id=job_id,
+                details_json='{"stage":"failed","attempt":true}'),
+            AuditEvent(action='research_job.failed', resource_type='research_job', resource_id=job_id,
+                details_json='{"stage":"failed","attempt":99}'),
+        ])
+        session.commit()
+        progress = job_progress(session, job_id, 'a' * 48)
+        assert 1 <= len(progress) <= 24
+        assert {event['stage'] for event in progress} == {'fetching'}
+        assert 'private.invalid' not in json.dumps(progress) and '<script>' not in json.dumps(progress)
+
+
+def test_unknown_source_error_does_not_store_or_render_arbitrary_error_code(jobs):
+    factory, fernet = jobs
+    job_id = queued(jobs)
+
+    class UnsafeError:
+        async def research(self, *_args, **_kwargs):
+            raise ResearchError('https://private.invalid/token=not-a-token', 'Untrusted provider body')
+
+    assert asyncio.run(process_one(factory, fernet, UnsafeError))
+    with factory() as session:
+        job = session.get(ResearchJob, job_id)
+        assert job.error_code == 'research_failed'
+        assert 'private.invalid' not in json.dumps(job_progress(session, job_id, 'a' * 48))

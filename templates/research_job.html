@@ -1,3 +1,37 @@
 {% extends "base.html" %}
 {% block title %}Research status — Ayo{% endblock %}
-{% block body %}<main class="wrap research-page" id="main-content"><div class="eyebrow">PUBLIC RESEARCH / {{ job.status|upper }}</div><h1>{{ 'Research needs attention.' if job.status == 'failed' else 'Evidence takes a moment.' }}</h1>{% if job.status == 'failed' %}<p class="research-lead">This research could not be completed. No completed report is available.</p><p class="quiet">Reason: {{ job.error_code|replace('_',' ') }}. Provider access, permitted sources and a running worker are required.</p><a class="pill" href="/">Start another search ↗</a>{% else %}<p class="research-lead">{{ 'Your research is queued for a worker.' if job.status == 'queued' else 'The research worker is retrieving permitted evidence and checking Gemini analysis.' }} No report is complete yet.</p><p class="quiet">Refresh this page to check the persisted job status. Worker progress is based on actual processing.</p><a class="pill" href="/research/jobs/{{ job.id }}">Check research status ↗</a>{% endif %}</main>{% endblock %}
+{% block body %}
+<main class="wrap research-page" id="main-content">
+  <div class="eyebrow">PUBLIC RESEARCH / {{ job.status|upper }}</div>
+  <h1>{{ 'Research needs attention.' if job.status == 'failed' else 'Evidence takes a moment.' }}</h1>
+  <div role="status" aria-live="polite">
+    {% if job.status == 'failed' %}
+      <p class="research-lead">This research could not be completed. No completed report is available.</p>
+      <p class="quiet">Reason: {{ job.error_code|replace('_',' ') }}. Provider access, permitted sources and a running worker are required.</p>
+    {% elif job.status == 'queued' and job.attempts %}
+      <p class="research-lead">The source provider was temporarily unavailable. A bounded retry is waiting for its scheduled time. No report is complete yet.</p>
+    {% else %}
+      <p class="research-lead">{{ 'Your research is queued for a worker.' if job.status == 'queued' else 'The research worker is retrieving permitted evidence and checking Gemini analysis.' }} No report is complete yet.</p>
+    {% endif %}
+  </div>
+  {% if progress %}
+    <section aria-labelledby="research-progress-title">
+      <h2 id="research-progress-title">Recorded progress</h2>
+      <ol class="activity-list">
+        {% for event in progress %}
+          <li><div><p><strong>{{ event.label }}</strong>{% if event.attempt %} · Attempt {{ event.attempt }} of 3{% endif %}</p>
+            <time class="quiet" datetime="{{ event.datetime }}">{{ event.display_time }}</time>
+            {% if event.retry_at %}<p class="quiet">Next attempt no earlier than {{ event.retry_at }}.</p>{% endif %}
+          </div></li>
+        {% endfor %}
+      </ol>
+    </section>
+  {% endif %}
+  {% if job.status == 'failed' %}
+    <a class="pill" href="/">Start another search ↗</a>
+  {% else %}
+    <p class="quiet">Refresh this page to check the persisted job status. These milestones record actual processing; they do not estimate a completion percentage.</p>
+    <a class="pill" href="/research/jobs/{{ job.id }}">Check research status ↗</a>
+  {% endif %}
+</main>
+{% endblock %}

@@ -6,7 +6,7 @@ from sqlalchemy import create_engine, select
 from sqlalchemy.orm import sessionmaker
 from ayo.identity import IdentityService
 from ayo.mailer import deliver_one, queue_identity_mail
-from ayo.models import Base, FoundingGrant, MailOutbox, ResearchReportRecord
+from ayo.models import AuditEvent, Base, FoundingGrant, MailOutbox, ResearchReportRecord
 from ayo.retention import cleanup_expired
 
 
@@ -48,3 +48,16 @@ def test_identity_mail_is_encrypted_and_supersedes_old_tickets_without_sending(s
     monkeypatch.delenv('AYO_MAIL_SEND_AUTHORIZED', raising=False)
     with pytest.raises(RuntimeError, match='not been authorized'):
         deliver_one(store, fernet)
+
+
+def test_anonymous_job_progress_expires_without_deleting_merchant_audit(store):
+    now = time.time()
+    store.add_all([
+        AuditEvent(action='research_job.queued', resource_type='research_job', resource_id='old', created_at=now-90000),
+        AuditEvent(action='research_job.fetching', resource_type='research_job', resource_id='new', created_at=now-10),
+        AuditEvent(action='report.claimed', resource_type='report', resource_id='saved', created_at=now-90000),
+    ])
+    store.commit()
+    cleanup_expired(store, now)
+    store.commit()
+    assert {event.resource_id for event in store.scalars(select(AuditEvent))} == {'new', 'saved'}

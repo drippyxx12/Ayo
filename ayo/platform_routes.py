@@ -12,11 +12,12 @@ from pydantic import ValidationError
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
-from ayo.identity import IdentityError, IdentityService
+from ayo.identity import IdentityError, IdentityService, token_hash
 from ayo.intelligence import IntelligenceContext, IntelligenceError, IntelligenceOrchestrator, SourceEvidence
 from ayo.leads import LeadError, PipelineEvidence, discover_leads, transition_lead
 from ayo.mailer import queue_identity_mail
-from ayo.jobs import enqueue, get_job
+from ayo.jobs import enqueue, get_job, job_progress
+from ayo.provider_usage import budget_context
 from ayo.account_deletion import remove_account
 from ayo.models import AuditEvent, Business, IntelligenceRun, Lead, LeadEvent, Membership
 from ayo.public_research import prepare_public_research
@@ -207,9 +208,10 @@ def install_routes(mod):
     async def research_url(request, sess, url, country, business_name=''):
         app.state.research_factory()  # Fail before queueing if configuration is absent.
         anonymous_id = request.session.setdefault('anonymous_id', secrets.token_urlsafe(32))
+        request_id = request.session.setdefault('research_request_id', secrets.token_urlsafe(24))
         IdentityService(sess)._attempt('research-submit', client_key(request), limit=10, window=3600)
         job = enqueue(sess, mod.fernet, url=url, country=country, business_name=business_name,
-                      anonymous_id=anonymous_id)
+                      anonymous_id=anonymous_id, request_id=request_id)
         sess.commit()
         return RedirectResponse('/research/jobs/' + job.id, 303)
 
@@ -223,7 +225,8 @@ def install_routes(mod):
             request.session['pending_claim'] = mod.fernet.decrypt(job.claim_cipher.encode()).decode()
             request.session['pending_report'] = job.report_id
             return RedirectResponse('/research/' + job.report_id, 303)
-        return mod.render(request, 'research_job.html', job=job, user=mod.session_user(request, sess))
+        return mod.render(request, 'research_job.html', job=job, user=mod.session_user(request, sess),
+                          progress=job_progress(sess, job.id, request.session.get('anonymous_id')))
 
     @app.post('/research')
     async def research(request: Request, query: str = Form(''), country: str = Form(''), city: str = Form(''),
@@ -241,11 +244,15 @@ def install_routes(mod):
                 return response
             if preview.no_website:
                 return mod.render(request, 'research.html', preview=preview, user=mod.session_user(request, sess))
+            anonymous_id = request.session.setdefault('anonymous_id', secrets.token_urlsafe(32))
+            request_id = secrets.token_urlsafe(24)
+            request.session['research_request_id'] = request_id
             if preview.input_kind == 'url':
                 return await research_url(request, sess, preview.query, country)
             IdentityService(sess)._attempt('business-search', client_key(request), limit=20, window=3600)
             sess.commit()
-            candidates = await app.state.research_factory().search(preview.query, country=country, city=city)
+            with budget_context(mod.DbSession, scope_id='anonymous:' + token_hash(anonymous_id), request_id=request_id):
+                candidates = await app.state.research_factory().search(preview.query, country=country, city=city)
             return mod.render(request, 'search_results.html', candidates=candidates,
                               query=preview.query, country=country, city=city, user=mod.session_user(request, sess))
         except SiteInputError as exc:
@@ -308,8 +315,10 @@ def install_routes(mod):
         identity._attempt('lead-discovery', business.id, limit=20, window=3600)
         sess.commit()
         existing = sess.scalars(select(Lead.url).where(Lead.business_id == business.id)).all()
+        sess.commit()  # No read transaction spans a separately committed reservation.
         try:
-            candidates = await discover_leads(app.state.research_factory(), query, country, city, existing_urls=tuple(existing))
+            with budget_context(mod.DbSession, scope_id='business:' + business.id, request_id=secrets.token_urlsafe(24)):
+                candidates = await discover_leads(app.state.research_factory(), query, country, city, existing_urls=tuple(existing))
             for candidate in candidates:
                 row = Lead(business_id=business.id, name=candidate.name, url=candidate.url, country=candidate.country,
                            status='discovered', fit_reason=' '.join(candidate.fit_reasons), evidence_json=candidate.model_dump_json())
@@ -374,7 +383,9 @@ def install_routes(mod):
             evidence = tuple(sources.values())[:20]
             ctx = IntelligenceContext(business_id=business.id, actor_business_id=business.id,
                                       country=business.country, question=question, evidence=evidence)
-            result = await app.state.intelligence_factory().analyze(ctx)
+            sess.commit()
+            with budget_context(mod.DbSession, scope_id='business:' + business.id, request_id=secrets.token_urlsafe(24)):
+                result = await app.state.intelligence_factory().analyze(ctx)
             sess.add(IntelligenceRun(business_id=business.id, user_id=user.id, provider=result.provider,
                 model=result.model, status=result.status, result_json=result.model_dump_json(),
                 source_report_id=records[0].id if records else None))

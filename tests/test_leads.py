@@ -50,6 +50,41 @@ def test_shared_marketplace_profiles_remain_distinct():
     assert identity_key('https://instagram.com/boutique-a') != identity_key('https://instagram.com/boutique-b')
 
 
+@pytest.mark.parametrize(('first', 'second'), [
+    ('https://facebook.com/profile.php?id=123', 'https://facebook.com/profile.php?id=456'),
+    ('https://linkedin.com/company/offline-boutique-one', 'https://linkedin.com/company/offline-boutique-two'),
+])
+def test_distinct_hosted_organizations_survive_lead_discovery(first, second):
+    assert identity_key(first) != identity_key(second)
+    rows = [{**candidate(first), 'source_id': 'offline-search-one'},
+            {**candidate(second), 'source_id': 'offline-search-two'}]
+    leads = asyncio.run(discover_leads(FixtureSearch(rows), 'clothing', 'GH'))
+    assert len(leads) == 2
+    assert len({lead.id for lead in leads}) == 2
+    assert {lead.source_id for lead in leads} == {'offline-search-one', 'offline-search-two'}
+
+
+@pytest.mark.parametrize(('canonical', 'alias'), [
+    ('https://facebook.com/profile.php?id=123', 'https://www.facebook.com/profile.php?id=123&utm_source=offline#about'),
+    ('https://facebook.com/profile.php?id=123', 'http://m.facebook.com/profile.php?id=123&tracking=discard'),
+    ('https://linkedin.com/company/offline-boutique', 'https://www.linkedin.com/company/offline-boutique/?utm_source=offline#about'),
+    ('https://linkedin.com/company/offline-boutique', 'https://linkedin.com/company/offline-boutique/about/'),
+    ('https://instagram.com/offline-boutique', 'https://www.instagram.com/offline-boutique/?utm_source=offline'),
+])
+def test_tracking_and_known_profile_aliases_do_not_duplicate_prospects(canonical, alias):
+    assert identity_key(canonical) == identity_key(alias)
+    leads = asyncio.run(discover_leads(FixtureSearch([candidate(canonical), candidate(alias)]), 'clothing', 'NG'))
+    assert len(leads) == 1
+    assert asyncio.run(discover_leads(FixtureSearch([candidate(alias)]), 'clothing', 'NG',
+                                     existing_urls=(canonical,))) == ()
+
+
+def test_ambiguous_facebook_identity_and_individual_linkedin_profile_are_not_organization_leads():
+    rows = [candidate('https://facebook.com/profile.php'),
+            candidate('https://linkedin.com/in/offline-person', snippet='A clothing business owner and shop enthusiast.')]
+    assert asyncio.run(discover_leads(FixtureSearch(rows), 'clothing', 'GH')) == ()
+
+
 @pytest.mark.parametrize('row', [
     candidate('http://127.0.0.1/'),
     candidate('https://user:pass@boutique.org/'),

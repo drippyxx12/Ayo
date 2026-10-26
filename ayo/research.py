@@ -6,10 +6,11 @@ credentials, separately authorized spend, and operator-reviewed hosted egress an
 source policies. These configuration attestations are not a claim that Firecrawl
 or Ayo's production controls have been independently verified.
 
-Official API contracts consulted 2026-10-25:
+Official API contracts consulted 2026-10-26 (public documentation, no API calls):
 https://docs.firecrawl.dev/api-reference/endpoint/search
 https://docs.firecrawl.dev/api-reference/endpoint/crawl-post
 https://docs.firecrawl.dev/api-reference/endpoint/crawl-get
+https://docs.firecrawl.dev/api-reference/endpoint/crawl-delete
 """
 from __future__ import annotations
 
@@ -20,7 +21,6 @@ from html import unescape
 import json
 import os
 import re
-import time
 from decimal import Decimal, InvalidOperation
 from typing import Literal, Protocol
 from urllib.parse import urlsplit
@@ -30,11 +30,19 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 
 from ayo.website_research import SiteInputError, extract_public_page, normalize_public_url
 from ayo.intelligence import IntelligenceResult, PublicResearchContext, SourceEvidence, validate_analysis
+from ayo.budgets import BudgetError
+from ayo.provider_usage import metered_operation
+from ayo.provider_config import valid_api_key
 
 COUNTRY_NAMES = {"NG": "Nigeria", "GH": "Ghana"}
 MAX_RESPONSE_BYTES = 1_000_000
 MAX_SOURCE_CHARS = 60_000
 MAX_SEARCH_RESULTS = 5
+# A shared platform host cannot establish which merchant/profile was retrieved.
+# Keep the exact public path/identity on these platforms; no guessed redirects.
+SHARED_PUBLIC_HOSTS = frozenset({'facebook.com', 'm.facebook.com', 'instagram.com',
+    'tiktok.com', 'x.com', 'twitter.com', 'jiji.ng', 'jiji.com.gh',
+    'jumia.com.ng', 'jumia.com.gh', 'konga.com', 'tonaton.com', 'etsy.com'})
 
 
 class ResearchError(Exception):
@@ -70,9 +78,54 @@ def _public_url(value: str) -> str:
         raise ResearchError("invalid_url", "Numeric network addresses are not supported.", 400)
     if host in {"metadata.google.internal", "metadata.google", "instance-data.ec2.internal"}:
         raise ResearchError("invalid_url", "Private network targets are not supported.", 400)
-    if re.search(r"/(?:admin|account|accounts|login|signin|sign-in|cart|checkout)(?:/|$)", urlsplit(url).path, re.I):
+    if re.search(r"/(?:admin|wp-admin|wp-login\.php|account|accounts|login|logout|signin|sign-in|auth|oauth|api|graphql|private|internal|cart|checkout|password|reset-password|\.git|\.env)(?:/|$)", urlsplit(url).path, re.I):
         raise ResearchError("invalid_url", "Only public business pages may be researched.", 400)
     return url
+
+
+def _candidate_identity(url: str) -> tuple[str, str, str]:
+    """Deduplicate common URL aliases without merging distinct public profiles.
+
+    This is an index-candidate heuristic, not proof of organization ownership or
+    a redirect permission. The original validated URL stays attached as evidence.
+    """
+    parsed = urlsplit(url)
+    host = (parsed.hostname or '').removeprefix('www.')
+    return host, parsed.path.rstrip('/') or '/', parsed.query
+
+
+def _ambiguous_profile(url: str) -> bool:
+    parsed = urlsplit(url)
+    return (parsed.hostname in {'facebook.com', 'www.facebook.com', 'm.facebook.com'}
+            and parsed.path == '/profile.php' and not parsed.query)
+
+
+def _same_research_target(requested_url: str, returned_url: str) -> bool:
+    requested, returned = urlsplit(requested_url), urlsplit(returned_url)
+    if requested.hostname != returned.hostname:
+        return False
+    host = (requested.hostname or '').removeprefix('www.')
+    if host in SHARED_PUBLIC_HOSTS:
+        return _candidate_identity(requested_url) == _candidate_identity(returned_url)
+    return True
+
+
+def _access_wall(content: str, title: str = '') -> bool:
+    """Fail closed on common 200-status login/challenge placeholders.
+
+    A normal public page may mention login in its navigation. Only recognizable
+    leading challenge text or a challenge title is refused; no bypass is tried.
+    """
+    markers = ('just a moment', 'verify you are human', 'please verify you are human',
+        'checking your browser', 'enable javascript and cookies to continue',
+        'please enable javascript and cookies', 'access denied', 'request blocked',
+        'log in to continue', 'login to continue', 'you must log in',
+        "this page isn't available", 'this page is not available')
+    for value in (title, content[:500]):
+        normalized = re.sub(r'\s+', ' ', value).strip().lstrip('#* _').casefold()
+        if any(normalized.startswith(marker) for marker in markers):
+            return True
+    return False
 
 
 def _public_content(value: str) -> str:
@@ -282,18 +335,23 @@ class FirecrawlProvider:
         self, api_key: str, *, spend_authorized: bool = False,
         egress_policy_verified: bool = False, approved_hosts: tuple[str, ...] = (),
         transport: httpx.AsyncBaseTransport | None = None,
-        poll_interval: float = 1.0, max_polls: int = 15,
+        poll_interval: float = 1.0, max_polls: int = 15, deadline_seconds: float = 35.0,
+        dispatch_budget=metered_operation,
     ):
-        if not api_key or not api_key.strip():
+        if not valid_api_key(api_key):
             raise ResearchError("provider_not_configured", "Public research provider credentials are not configured.")
         if not spend_authorized:
             raise ResearchError("provider_spend_not_authorized", "Research provider spending has not been authorized.")
+        if not 0 < deadline_seconds <= 45:
+            raise ValueError('Research deadline must be positive and at most 45 seconds')
         self._api_key = api_key
         self._egress_policy_verified = egress_policy_verified
         self._approved_hosts = frozenset(approved_hosts)
         self._transport = transport
         self._poll_interval = max(0.0, min(poll_interval, 2.0))
         self._max_polls = max(1, min(max_polls, 20))
+        self._deadline_seconds = deadline_seconds
+        self._dispatch_budget = dispatch_budget
 
     @classmethod
     def from_env(cls):
@@ -320,6 +378,12 @@ class FirecrawlProvider:
                         raise ResearchError("provider_authorization_failed", "Research provider access was rejected.")
                     if response.status_code == 429:
                         raise ResearchError("provider_rate_limited", "Research provider is temporarily rate limited.", 429)
+                    if response.status_code == 402:
+                        raise ResearchError("provider_budget_exhausted", "Research provider credits or access are unavailable.", 503)
+                    if response.status_code in {408, 504}:
+                        raise ResearchError("provider_timeout", "Research provider did not finish within its request deadline.", 504)
+                    if response.status_code in {502, 503}:
+                        raise ResearchError("provider_service_unavailable", "Research provider is temporarily unavailable.", 503)
                     if response.status_code != 200:
                         raise ResearchError("provider_failure", "Research provider could not complete this request.", 502)
                     chunks, size = [], 0
@@ -331,22 +395,47 @@ class FirecrawlProvider:
             body = json.loads(b"".join(chunks))
         except ResearchError:
             raise
-        except (httpx.HTTPError, TimeoutError, ValueError, TypeError) as exc:
+        except (httpx.TimeoutException, TimeoutError) as exc:
+            raise ResearchError("provider_timeout", "Research provider did not finish within its request deadline.", 504) from exc
+        except (httpx.HTTPError, ValueError, TypeError, RecursionError) as exc:
             raise ResearchError("provider_failure", "Research provider is unavailable or returned invalid data.", 502) from exc
-        if not isinstance(body, dict) or body.get("success") is not True:
+        if not isinstance(body, dict):
+            raise ResearchError("provider_malformed", "Research provider returned malformed data.", 502)
+        # Current v2 search/crawl-create use a success envelope. Crawl status
+        # and cancellation instead return a status object. Do not reject valid
+        # documented responses or accept an explicit failure/error as success.
+        accepted = (body.get('success') is True if method == 'POST' else
+                    body.get('success') is not False and 'error' not in body and isinstance(body.get('status'), str))
+        if not accepted:
             raise ResearchError("provider_failure", "Research provider did not return a successful result.", 502)
         return body
 
     async def search(self, query: str, country: str = "", city: str = "", limit: int = 5) -> tuple[BusinessCandidate, ...]:
+        query, country, city = _text(query, 250, 'Business search'), _country(country), _text(city, 100, 'City')
+        if not query or type(limit) is not int or not 1 <= limit <= MAX_SEARCH_RESULTS:
+            raise ResearchError('invalid_input', 'Enter a business search and request at most five results.', 400)
+        try:
+            async with self._dispatch_budget('firecrawl', 'search') as debit:
+                result = await self._search(query, country, city, limit)
+                debit.usage['searches'] = 1
+                return result
+        except BudgetError as exc:
+            raise ResearchError(exc.code, str(exc), 429 if exc.code == 'budget_exceeded' else 503) from exc
+
+    async def _search(self, query: str, country: str = "", city: str = "", limit: int = 5) -> tuple[BusinessCandidate, ...]:
         query = _text(query, 250, "Business search")
         country = _country(country)
         city = _text(city, 100, "City")
-        if not query or not 1 <= limit <= MAX_SEARCH_RESULTS:
+        if not query or type(limit) is not int or not 1 <= limit <= MAX_SEARCH_RESULTS:
             raise ResearchError("invalid_input", "Enter a business search and request at most five results.", 400)
         location = ", ".join(part for part in (city, COUNTRY_NAMES.get(country, "")) if part)
-        payload = {"query": query, "limit": limit, "sources": ["web"]}
+        payload = {"query": query, "limit": limit, "sources": ["web"], "timeout": 10000}
         if location:
             payload["location"] = location
+        if country:
+            # Firecrawl otherwise defaults geo-targeting to US. This biases
+            # discovery toward the selected market; it does not prove domicile.
+            payload['country'] = country
         body = await self._request("POST", "/search", payload)
         web = body.get("data", {}).get("web") if isinstance(body.get("data"), dict) else None
         if not isinstance(web, list):
@@ -357,16 +446,19 @@ class FirecrawlProvider:
                 continue
             try:
                 url = _public_url(item.get("url", ""))
-                title = _public_content(str(item.get("title", ""))).strip()[:240]
-                snippet = _public_content(str(item.get("description", ""))).strip()[:600]
+                if not isinstance(item.get('title'), str) or not isinstance(item.get('description'), str):
+                    continue
+                title = _public_content(item['title']).strip()[:240]
+                snippet = _public_content(item['description']).strip()[:600]
             except ResearchError:
                 continue
             # Same canonical link appears once. Distinct marketplace profiles
             # may share a host and are not automatically the same organization.
-            if not title or url in seen:
+            identity = _candidate_identity(url)
+            if not title or len(snippet) < 20 or _access_wall(snippet, title) or _ambiguous_profile(url) or identity in seen:
                 continue
-            seen.add(url)
-            fingerprint = hashlib.sha256(url.encode()).hexdigest()[:32]
+            seen.add(identity)
+            fingerprint = hashlib.sha256(json.dumps(identity).encode()).hexdigest()[:32]
             result.append(BusinessCandidate(
                 id="candidate-" + fingerprint, name=title, url=url, snippet=snippet,
                 country=country, source_id="search-" + fingerprint,
@@ -375,8 +467,26 @@ class FirecrawlProvider:
         return tuple(result[:limit])
 
     async def fetch(self, url: str, country: str = "") -> SourceDocument:
+        url, country = _public_url(url), _country(country)
+        if _ambiguous_profile(url):
+            raise ResearchError('invalid_url', 'Enter a public profile address with its numeric business identity.', 400)
+        if not self._egress_policy_verified:
+            raise ResearchError('research_egress_not_verified', 'Hosted crawl egress and redirect safety have not been verified.')
+        if urlsplit(url).hostname not in self._approved_hosts:
+            raise ResearchError('source_policy_not_approved', 'This source has not been approved under Ayo\'s public access policy.', 403)
+        try:
+            async with self._dispatch_budget('firecrawl', 'fetch') as debit:
+                result = await self._fetch(url, country)
+                debit.usage['pages'] = 1
+                return result
+        except BudgetError as exc:
+            raise ResearchError(exc.code, str(exc), 429 if exc.code == 'budget_exceeded' else 503) from exc
+
+    async def _fetch(self, url: str, country: str = "") -> SourceDocument:
         url = _public_url(url)
         country = _country(country)
+        if _ambiguous_profile(url):
+            raise ResearchError('invalid_url', 'Enter a public profile address with its numeric business identity.', 400)
         host = urlsplit(url).hostname
         if not self._egress_policy_verified:
             raise ResearchError("research_egress_not_verified", "Hosted crawl egress and redirect safety have not been verified.")
@@ -390,39 +500,59 @@ class FirecrawlProvider:
         }
         if country:
             scrape_options["location"] = {"country": country}
-        body = await self._request("POST", "/crawl", {
-            "url": url, "limit": 1, "maxDiscoveryDepth": 0,
-            "sitemap": "skip", "crawlEntireDomain": False,
-            "allowExternalLinks": False, "allowSubdomains": False,
-            "ignoreRobotsTxt": False, "maxConcurrency": 1,
-            "scrapeOptions": scrape_options,
-        })
-        receipt = body.get("id")
-        if not isinstance(receipt, str) or not re.fullmatch(r"[a-zA-Z0-9-]{8,100}", receipt):
-            raise ResearchError("provider_malformed", "Research provider did not return a valid crawl receipt.", 502)
-        completed = None
-        deadline = time.monotonic() + 35
-        for attempt in range(self._max_polls):
-            if time.monotonic() >= deadline:
-                break
-            status = await self._request("GET", "/crawl/" + receipt)
-            if status.get("status") == "completed":
-                completed = status
-                break
-            if status.get("status") in {"failed", "cancelled"}:
-                raise ResearchError("source_unavailable", "The public source could not be retrieved under the access policy.", 502)
-            if status.get("status") not in {"scraping", "queued"}:
-                raise ResearchError("provider_malformed", "Research provider returned an invalid crawl state.", 502)
-            if attempt + 1 < self._max_polls:
-                await asyncio.sleep(self._poll_interval)
-        if completed is None:
-            # Stop provider work on this bounded request rather than leave an
-            # uncontrolled background crawl. Cancellation is best-effort.
-            try:
-                await self._request("DELETE", "/crawl/" + receipt)
-            except ResearchError:
-                pass
-            raise ResearchError("research_timeout", "Research exceeded its bounded time budget; no completed report is available.", 504)
+        receipt, completed, active = None, None, False
+        try:
+            # One absolute deadline covers creation AND every status request;
+            # per-request HTTP timeouts alone would multiply across polls.
+            async with asyncio.timeout(self._deadline_seconds):
+                body = await self._request("POST", "/crawl", {
+                    "url": url, "limit": 1, "maxDiscoveryDepth": 0,
+                    "sitemap": "skip", "crawlEntireDomain": False,
+                    "allowExternalLinks": False, "allowSubdomains": False,
+                    "ignoreRobotsTxt": False, "maxConcurrency": 1,
+                    "scrapeOptions": scrape_options,
+                })
+                receipt = body.get("id")
+                if not isinstance(receipt, str) or not re.fullmatch(r"[a-zA-Z0-9-]{8,100}", receipt):
+                    receipt = None
+                    raise ResearchError("provider_malformed", "Research provider did not return a valid crawl receipt.", 502)
+                active = True
+                for attempt in range(self._max_polls):
+                    try:
+                        status = await self._request("GET", "/crawl/" + receipt)
+                    except ResearchError as exc:
+                        # A receipt proves the chargeable crawl was accepted.
+                        # Rate/service errors while polling must never invite a
+                        # fresh crawl as though the initial dispatch was denied.
+                        if exc.code in {'provider_rate_limited', 'provider_service_unavailable'}:
+                            raise ResearchError('source_outcome_uncertain',
+                                'The source request was accepted but its result could not be confirmed; it has not been retried.', 503) from exc
+                        raise
+                    if status.get("status") == "completed":
+                        completed, active = status, False
+                        break
+                    if status.get("status") in {"failed", "cancelled"}:
+                        active = False
+                        raise ResearchError("source_unavailable", "The public source could not be retrieved under the access policy.", 502)
+                    if status.get("status") not in {"scraping", "queued"}:
+                        raise ResearchError("provider_malformed", "Research provider returned an invalid crawl state.", 502)
+                    if attempt + 1 < self._max_polls:
+                        await asyncio.sleep(self._poll_interval)
+                if completed is None:
+                    raise ResearchError("research_timeout", "Research exceeded its bounded time budget; no completed report is available.", 504)
+        except TimeoutError as exc:
+            raise ResearchError("research_timeout", "Research exceeded its bounded time budget; no completed report is available.", 504) from exc
+        finally:
+            if active and receipt:
+                # A received receipt permits best-effort cancellation on timeout,
+                # transport error or worker cancellation. A two-second cleanup
+                # bound is additional to the research deadline. Cancellation is
+                # not a refund or proof of stopped/bill-free provider execution.
+                try:
+                    async with asyncio.timeout(2):
+                        await self._request("DELETE", "/crawl/" + receipt)
+                except (ResearchError, TimeoutError):
+                    pass
         documents = completed.get("data")
         if not isinstance(documents, list) or len(documents) != 1 or not isinstance(documents[0], dict):
             raise ResearchError("source_unavailable", "No readable public page was returned; access may be blocked or disallowed.", 502)
@@ -434,13 +564,16 @@ class FirecrawlProvider:
             final_url = _public_url(metadata.get("url") or metadata.get("sourceURL") or "")
         except ResearchError as exc:
             raise ResearchError("provider_unsafe_redirect", "Research returned an unsafe source address.", 502) from exc
-        if urlsplit(final_url).hostname != host:
-            raise ResearchError("provider_unsafe_redirect", "Research redirected outside the approved source host.", 502)
+        if not _same_research_target(url, final_url):
+            raise ResearchError("provider_unsafe_redirect", "Research redirected outside the approved source or selected public profile.", 502)
         raw_content = page.get("markdown")
         if not isinstance(raw_content, str) or len(raw_content) > MAX_SOURCE_CHARS:
             raise ResearchError("source_unavailable", "Source text is missing or exceeds the research size limit.", 502)
         content = _public_content(raw_content)
-        if len(content) < 30:
+        title = _public_content(metadata.get('title') if isinstance(metadata.get('title'), str) else '')[:240]
+        if _access_wall(content, title):
+            raise ResearchError('source_access_restricted', 'The source returned a login or access challenge; no bypass was attempted.', 422)
+        if len(content) < 30 or len(re.findall(r'\w+', content)) < 5:
             raise ResearchError("insufficient_evidence", "Not enough readable public evidence was retrieved to create a report.", 422)
         products, channels, html_hash = (), (), None
         html = page.get('html')
@@ -480,7 +613,7 @@ class FirecrawlProvider:
         digest = hashlib.sha256(content.encode()).hexdigest()
         return SourceDocument(
             id="source-" + digest[:32], url=final_url, retrieved_at=_now(), source_hash=digest,
-            title=_public_content(str(metadata.get("title", "")))[:240],
+            title=title,
             excerpt=content[:600], content=content, provider="firecrawl",
             provider_receipt_id=receipt,
             html_source_hash=html_hash, product_observations=products, channel_observations=channels,
@@ -499,7 +632,7 @@ class ResearchService:
         query = _text(query, 250, "Business search")
         country = _country(country)
         city = _text(city, 100, "City")
-        if not query or not 1 <= limit <= MAX_SEARCH_RESULTS:
+        if not query or type(limit) is not int or not 1 <= limit <= MAX_SEARCH_RESULTS:
             raise ResearchError("invalid_input", "Enter a business search and request at most five results.", 400)
         values = await self.provider.search(query, country, city, limit)
         if not isinstance(values, (tuple, list)):
@@ -510,8 +643,9 @@ class ResearchService:
                 candidate = BusinessCandidate.model_validate(value)
             except (ValueError, TypeError, ResearchError) as exc:
                 raise ResearchError("provider_malformed", "Research provider returned an invalid candidate.", 502) from exc
-            if candidate.url not in seen:
-                seen.add(candidate.url)
+            identity = _candidate_identity(candidate.url)
+            if identity not in seen:
+                seen.add(identity)
                 result.append(candidate)
         return tuple(result)
 
@@ -524,8 +658,8 @@ class ResearchService:
             source = SourceDocument.model_validate(source)
         except (ValueError, TypeError, ResearchError) as exc:
             raise ResearchError("provider_malformed", "Research provider returned invalid evidence.", 502) from exc
-        if urlsplit(source.url).hostname != urlsplit(url).hostname:
-            raise ResearchError("provider_unsafe_redirect", "Evidence does not match the requested business host.", 502)
+        if not _same_research_target(url, source.url):
+            raise ResearchError("provider_unsafe_redirect", "Evidence does not match the requested business host or public profile.", 502)
         return build_report(source, country=country, business_name=business_name)
 
 
