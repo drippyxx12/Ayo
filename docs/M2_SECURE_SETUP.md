@@ -6,13 +6,26 @@ Updated 26 October 2026. **DRAFT FOR REVIEW; no provider call, charge, deploymen
 
 Use the **managed Cloud Environment attached to this conversation**, with the existing checkout `/workspace/ayo`, branch `codex/africa-platform`. Current observation: environment spec124, running/connected, current observations, enforced HTTP policy, **no secret bindings or runtime variables**. The environment is identified by `ccarenv_b64_Y2NhcmVudl8zYTg4OTE4ZmUwY2M4MTkxYmRjZjBlYWEzMWIwM2NhNQ`. Recheck the selected environment after configuration; this identifier is a receipt, not permission to reuse a detached instance.
 
-Open that environment's configuration controls and add **secret environment-variable bindings** `GEMINI_API_KEY` and `FIRECRAWL_API_KEY`. Enter values only in those secret controls. I can inspect readiness but have no tool that writes secret values to this environment. No key value belongs in chat, Git, CI, browser variables, shell history, a URL or a screenshot. Use a replacement if a real credential was previously disclosed.
+Open that environment's configuration controls and add **secret environment-variable bindings** `GEMINI_API_KEY` and `FIRECRAWL_API_KEY`. These managed secret controls are preferred. The connected tool can inspect readiness but cannot write vault values. The founder has now explicitly authorized reuse of the supplied keys; a private workspace fallback is configured below. Keys must stay out of Git, CI, browser output, shell history and public artifacts.
 
 Add the nonsecret settings below as runtime variables. Apply the same bindings to the private web process and research worker; they must use the same database and encryption key. Applying settings is preparation, not permission to run provider calls. Confirm the environment's observed bindings are ready before using them; never print their values or dump the environment.
 
 The Vercel project `ayo-development-preview` / deployment `dpl_FHxr7kjKUjVhvUAcyccB6JmptXBC` is **not this test backend**. Its wrapper disables providers, accounts and persistent storage. Do not put the keys there or in GitHub Actions: CI uses offline fixtures. No complete live merchant deployment has been provisioned. Keep the existing preview unchanged.
 
 Provider-only offline preparation does not need transactional email. Actual evidence persistence/worker operation additionally needs an approved PostgreSQL `DATABASE_URL`, durable `SESSION_SECRET` and Fernet `TOKEN_ENCRYPTION_KEY`, and an `APP_ORIGIN` suitable for the private test. The existing disposable PostgreSQL service proves offline tests only. No managed DB, public API/worker hosting, SMTP/Resend service or paid resource is created by this guide. Delivered-account/M3 acceptance separately requires approved hosting/HTTPS and `RESEND_API_KEY`, verified `MAIL_FROM` and transactional-mail permission.
+
+### Authorized private workspace fallback
+
+The founder explicitly authorized using the supplied credentials. Both are now stored in `/workspace/.ayo-private/runtime.env`, outside the Git checkout, in an owner-only directory 0700/file 0600. This is a local workspace file, **not** a managed vault binding or a deployment secret. It is available only while this workspace/private file persists. No actual value or key fingerprint is recorded in project documentation, source or evidence.
+
+Use the loader to supply that file to the existing offline preparation check:
+
+```sh
+.venv/bin/python scripts/with-private-runtime.py
+.venv/bin/python scripts/with-private-runtime.py -- .venv/bin/python scripts/check-provider-readiness.py --mode prepare --scope account
+```
+
+The helper checks ownership/permissions, rejects ancestor/file symlinks, anchors directory/file lookups, rejects malformed/duplicate/system-variable bindings and does not interpolate values. It does not display loaded values or modify the parent process environment. Explicit child commands receive the configuration; choose commands intentionally and never run environment-dumping commands. All supplied configuration currently keeps provider/mail switches 0. The managed runtime observation still has no vault bindings; readiness through this loader reports both credential-presence/shape checks as configured, not live-valid. Data/source/host/budget-review and actual database/mail checks remain blocked.
 
 ## 2. Gemini model and owner-side checks
 

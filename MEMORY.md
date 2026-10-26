@@ -1,6 +1,6 @@
 # Ayo project memory and stopping point
 
-Updated: 2026-10-26 14:10 UTC. Overall platform: **PARTIALLY COMPLETE**.
+Updated: 2026-10-26 14:40 UTC. Overall platform: **PARTIALLY COMPLETE**.
 
 ## Persistent working preference
 
@@ -14,7 +14,7 @@ This checkpoint adds safe non-arming preparation modes, exact model/input/output
 
 ## Actual verification
 
-- **521 tests passed**, zero failed/skipped, real local PostgreSQL17 plus SQLite and explicit offline source/model/mail fixtures. One upstream Starlette/httpx deprecation warning.
+- **583 tests passed**, zero failed/skipped, real local PostgreSQL17 plus SQLite and explicit offline source/model/mail fixtures. One upstream Starlette/httpx deprecation warning.
 - Migration 0004 budget parity/roundtrip and legacy preservation; concurrent caps/idempotency; cross-provider shared request limits; database lock deadlines; lost-worker/no-second-model-dispatch; hostile sources/claims and account/tenant/first 500 regressions passed.
 - Ruff, dependency consistency/audit, whitespace and redacted working-tree/history secret scans passed; 101 local documentation links resolve and full capability/milestone coverage is preserved.
 - Chromium NG/GH at 390/768/1440px passed progress/retry, report, save/relogin/reopen, leads, fonts/no overflow/page errors. Five fresh fixture accounts; sixth signup correctly throttled and reused a verified fixture account. `docs/evidence/m2-hardening-browser.json`; reproduce with optional `scripts/verify-m2-browser.py` against disposable PostgreSQL.
@@ -32,10 +32,16 @@ Interactive scope is public intake with honest unavailable states. Accounts/priv
 
 ## Blockers and exact next action
 
-Observed runtime spec 124 has no configured app secrets/runtime variables. Offline `python scripts/check-provider-readiness.py --mode prepare --scope provider` and account scope exit 2, zero network requests, live_verified:false. This is an expected configuration blocker, not a live test failure. Never use/repeat a credential pasted in chat; replacements belong in runtime secret configuration.
+Observed runtime spec 124 has no configured app secrets/runtime variables. Offline `python scripts/check-provider-readiness.py --mode prepare --scope provider` and account scope exit 2, zero network requests, live_verified:false. This is an expected configuration blocker, not a live test failure. The founder explicitly authorized using the supplied credentials. That supersedes the earlier replacement-only instruction; do not ask again to rotate/provide keys. Values are never recorded in project memory or Git.
 
 Secure setup: GEMINI_API_KEY, explicit available GEMINI_MODEL, FIRECRAWL_API_KEY; reviewed AI data policy, source/robots/terms/egress policy and exact hosts; unexpired reviewed per-operation reservations and request/provider/scope daily dollar/call caps; separately approved provider calls and total spend. Full account acceptance also needs durable hosted PostgreSQL/API/worker, SESSION_SECRET/TOKEN_ENCRYPTION_KEY, HTTPS APP_ORIGIN, verified Resend sender/domain and separately authorized transactional mail. Exact variables and planned independent NG/GH journey: [M2 runbook](docs/M2_LIVE_TEST_RUNBOOK.md). No public deployment/spending permission is implied.
 
-**Stopped at:** Secure setup/review package and safety guards published and CI-verified. Live acceptance remains open. **Next:** bind secrets/nonsecret variables in the attached managed runtime, complete policy/billing/source review and obtain separate authorization for controlled real NG/GH acceptance with independent source-to-claim review. **Blocked by:** secure provider/runtime configuration, policy/model/pricing review, explicit provider-test spend and actual mail/hosting setup. Invoice reconciliation, broader research and later full-product milestones remain incomplete.
+**Stopped at:** supplied keys configured in private workspace; offline credential/model/disabled-switch checks pass; private loader and synthetic tests verified, publishing this increment next. Live provider acceptance remains open. **Next:** use the private runtime loader, complete policy/billing/source review and obtain separate authorization for controlled real NG/GH acceptance with independent source-to-claim review. **Blocked by:** source/data/host/budget approval, explicit live-call permission and actual database/mail/hosting setup. Credential presence is no longer the blocker when using the workspace loader. Invoice reconciliation, broader research and later full-product milestones remain incomplete.
 
 Current preparation guide: [M2_SECURE_SETUP](docs/M2_SECURE_SETUP.md); draft [founder review](config/m2-live-test-review.json). Current authorization 0 calls/USD0. Proposed conservative reservation ceiling USD 3 for 2 Gemini + 4 source operations in one UTC window is not spending approval or an invoice. Provider/account checks are both blocked on absent actual bindings/reviews. No provider/model/key-validation or paid API call was executed.
+
+## Authorized private runtime configuration
+
+Founder explicitly directed reuse of the supplied provider credentials. Configured both outside the checkout in `/workspace/.ayo-private/runtime.env` (directory 0700/file 0600), with provider/mail switches 0. This is private workspace configuration, not a managed vault binding, public deployment or global environment change. `scripts/with-private-runtime.py` loads it into a selected child; default command is offline provider preparation. Never print file contents, environment values or key fingerprints.
+
+Actual offline provider/account checks through the loader pass credential presence/shape, selected model, disabled switches and generated local signing/encryption settings. They still exit 2 for unreviewed source/data/host/budget configuration and missing actual PostgreSQL/mail. Zero network/provider API calls, key validity/model access unverified. Latest model/data/source/budget policy approval has not been inferred from credential authorization. Current authorization remains 0 paid calls.

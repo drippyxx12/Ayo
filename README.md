@@ -58,7 +58,7 @@ sh scripts/check-secrets.sh
 
 Set `AYO_TEST_POSTGRES_URL` to a disposable local PostgreSQL database to include migration, concurrent founding-allocation and full HTTP journey checks. Tests use isolated schemas. GitHub CI provisions its own test PostgreSQL service.
 
-The latest integrated suite has **521 passing tests** with PostgreSQL enabled. Browser checks cover 390/768/1440px search → committed evidence → offline Gemini synthesis → cited report → signup → verification-token fixture → private save → reopen → sourced lead discovery/qualification. These are fixture-backed application tests, not live business or merchant evidence.
+The latest integrated suite has **583 passing tests** with PostgreSQL enabled. Browser checks cover 390/768/1440px search → committed evidence → offline Gemini synthesis → cited report → signup → verification-token fixture → private save → reopen → sourced lead discovery/qualification. These are fixture-backed application tests, not live business or merchant evidence.
 
 ## Delivery records
 
@@ -73,3 +73,5 @@ The original ZIP and its SHA-256/file manifest are preserved. Older architecture
 M2 provider setup: [controlled live-test runbook](docs/M2_LIVE_TEST_RUNBOOK.md). Run `python scripts/check-provider-readiness.py --mode prepare --scope provider` for a safe offline configuration check. It never verifies live credentials or authorizes spending. Durable reservations are conservative authorization debits, not measured provider invoices.
 
 Secure preparation: [exact environment/model/setup instructions](docs/M2_SECURE_SETUP.md), [draft founder review](config/m2-live-test-review.json) and [.env.m2-prepare.example](.env.m2-prepare.example). Keep both provider/mail switches 0 while preparing; only the reviewed configuration shape is checked, with no calls or implicit authorization.
+
+The founder-authorized workspace credentials are loaded without displaying values using `.venv/bin/python scripts/with-private-runtime.py`. The owner-only file is outside Git; managed/deployment secret bindings remain separate. Spending/mail stay disabled and data/source/budget approvals remain pending.

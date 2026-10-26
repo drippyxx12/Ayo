@@ -6,7 +6,7 @@ Current secure setup target, model, draft limits and founder-review policies: [M
 
 ## Configuration and authorization gates
 
-Configure replacement credentials through the runtime secret manager, shared by the web and worker processes. Never paste keys into chat, commit them, include them in a URL, or put them in screenshots or command history. Rotate any real credential already pasted into chat. A connected personal app or chat subscription does not supply Ayo API authorization.
+Prefer runtime secret-manager bindings shared by the web and worker. The founder has explicitly authorized the supplied credentials; they are now in an owner-only workspace configuration outside Git, loaded with `scripts/with-private-runtime.py`. Values must never enter source, screenshots, URLs or command history. This fallback does not create managed vault/deployment bindings. A connected personal app or chat subscription does not supply Ayo API authorization.
 
 Required provider secrets and server settings:
 
