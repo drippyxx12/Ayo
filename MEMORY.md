@@ -1,6 +1,6 @@
 # Ayo project memory and stopping point
 
-Updated: 2026-10-26 07:23 UTC. Overall platform: **PARTIALLY COMPLETE**.
+Updated: 2026-10-26 07:28 UTC. Overall platform: **PARTIALLY COMPLETE**.
 
 ## Persistent working preference
 
@@ -22,7 +22,7 @@ This checkpoint adds committed pre-dispatch provider reservations, cross-provide
 
 ## GitHub/review state
 
-Repository [drippyxx12/Ayo](https://github.com/drippyxx12/Ayo), remote branch `codex/africa-platform`, [draft PR #1](https://github.com/drippyxx12/Ayo/pull/1), not merged. Before this change, remote HEAD 0861f7a0ee811db80cad9ed9fc4c0949a414c397 / tree 0edf8945dfc92d536df78cdfca60ec29d3cb5b8c matched local source. Actual checks 40245841660/40245838011 succeeded. Current hardening changes await commit/publication and fresh CI receipt; do not infer a push from a local SHA. Local historical ancestry differs from GitHub's connector-created commits. Original ZIP/source remain preserved.
+Repository [drippyxx12/Ayo](https://github.com/drippyxx12/Ayo), branch `codex/africa-platform`, [draft PR #1](https://github.com/drippyxx12/Ayo/pull/1), not merged. Published M2 code: `187877b71f3bf7e5e5bb3712d945799e22aa8a29`, tree `688f8bc9d8452dd8502120ad0819159d8d2ef4e0` matches the tested local tree. GitHub CI completed successfully: [40285670027](https://github.com/drippyxx12/Ayo/actions/runs/40285670027) and [40285664336](https://github.com/drippyxx12/Ayo/actions/runs/40285664336). Both ran against that exact published code. Local code commit `798e60e0be589ae88a3108b4d93b850830a1dc05` has different ancestry; remote receipts identify delivered work. Original ZIP/source remain preserved.
 
 ## Direct preview
 
@@ -36,4 +36,4 @@ Observed runtime spec 104 has no configured app secrets/runtime variables. Offli
 
 Secure setup: GEMINI_API_KEY, explicit available GEMINI_MODEL, FIRECRAWL_API_KEY; reviewed AI data policy, source/robots/terms/egress policy and exact hosts; unexpired reviewed per-operation reservations and request/provider/scope daily dollar/call caps; separately approved provider calls and total spend. Full account acceptance also needs durable hosted PostgreSQL/API/worker, SESSION_SECRET/TOKEN_ENCRYPTION_KEY, HTTPS APP_ORIGIN, verified Resend sender/domain and separately authorized transactional mail. Exact variables and planned independent NG/GH journey: [M2 runbook](docs/M2_LIVE_TEST_RUNBOOK.md). No public deployment/spending permission is implied.
 
-**Stopped at:** M2 hardening locally verified, publishing changes/CI next. **Next:** commit to existing branch/PR, record actual CI; then authorized controlled real NG/GH acceptance with independent source-to-claim review. **Blocked by:** secure provider/runtime configuration, policy/model/pricing review, explicit provider-test spend and actual mail/hosting setup. Invoice reconciliation, broader research and later full-product milestones remain incomplete.
+**Stopped at:** M2 hardening published and CI-verified on the existing branch/PR; live acceptance remains open. **Next:** securely configure and obtain authorization for controlled real NG/GH acceptance with independent source-to-claim review. **Blocked by:** secure provider/runtime configuration, policy/model/pricing review, explicit provider-test spend and actual mail/hosting setup. Invoice reconciliation, broader research and later full-product milestones remain incomplete.
