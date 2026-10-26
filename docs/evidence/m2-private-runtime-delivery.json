@@ -1,0 +1,26 @@
+{
+  "code_commit": "d8725422185673560253f75019821eea033de4d3",
+  "tree": "e8d89c9d1a2569edd2956137fa4083a1d94c1593",
+  "ci": [
+    {
+      "url": "https://github.com/drippyxx12/Ayo/actions/runs/40341711111",
+      "conclusion": "success"
+    },
+    {
+      "url": "https://github.com/drippyxx12/Ayo/actions/runs/40341704402",
+      "conclusion": "success"
+    }
+  ],
+  "tests": {
+    "passed": 583,
+    "failed": 0,
+    "skipped": 0
+  },
+  "credential_file_included_in_git": false,
+  "credential_values_in_project_files": false,
+  "provider_api_calls": 0,
+  "provider_live_verified": false,
+  "managed_secret_binding_created": false,
+  "deployment_changed": false,
+  "overall_status": "PARTIALLY_COMPLETE"
+}

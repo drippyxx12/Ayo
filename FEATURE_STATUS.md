@@ -62,3 +62,5 @@ Secure live-test preparation is documented in [M2_SECURE_SETUP](docs/M2_SECURE_S
 Secure-setup delivery: `091c51113f5af7493833626f3e38909c6f162b25`; CI [40336619789](https://github.com/drippyxx12/Ayo/actions/runs/40336619789) / [40336611896](https://github.com/drippyxx12/Ayo/actions/runs/40336611896) succeeded. Latest runtime recheck spec 124 still has zero secret/runtime bindings. No live provider acceptance claimed.
 
 Private workspace configuration: both supplied provider credentials now pass offline presence/shape checks via `scripts/with-private-runtime.py`; keys are outside Git in an owner-only file. The helper passes 62 synthetic ownership/permission/symlink/race/parsing/redaction tests. No API validity/model access or managed-vault binding is established. Data/source/host/budget review and actual DB/mail remain blocked; spending/mail are disabled.
+
+Private-runtime code `d8725422185673560253f75019821eea033de4d3` is delivered with successful CI 40341711111/40341704402. Supplied credentials remain outside the repository; no live provider result is claimed.
