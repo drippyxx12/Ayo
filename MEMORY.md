@@ -4,6 +4,8 @@ Updated: 2026-10-27 15:12 UTC. Overall platform: **PARTIALLY COMPLETE**.
 
 ## Latest milestone — Firecrawl account connected; first report still gated
 
+**Published application checkpoint:** `99dddea679f977cf8dcb19eef7f9d822e0b5bbc4`, tree `a12e0f5dad2fb245944c241100fb2408c9b6047f`, exact tested local/remote match. Non-forced expected-head update; remote and PR #1 head verified, draft/open/unmerged, clean working tree. Latest application CI not yet verified at this receipt;42 local targeted tests passed. This following documentation-only receipt records delivery.
+
 Continued exact `dd5566c4582f35f7f8cc80fd8b88358a1768feab` branch; clean local/remote starting state, PR #1 retained draft/unmerged. Rechecked prior-head PR CI40525924656: success. **Do not repeat the existing Gemini connectivity test.**
 
 **FIRECRAWL CONNECTED:** one disclosed authenticated `GET /v2/team/credit-usage` returned HTTP200, success:true, remainingCredits1000, planCredits1000. [Actual redacted receipt](docs/evidence/firecrawl-account-readiness.json). No crawl/search/extract request or new Gemini request. Plan name/free-credit classification and pay-as-you-go/automatic purchase setting are not returned and remain unverified. Credentials are already present in the owner-only private runtime; do not ask for them again.
