@@ -1,6 +1,6 @@
 # Ayo project memory and stopping point
 
-Updated: 2026-10-27 07:43 UTC. Overall platform: **PARTIALLY COMPLETE**.
+Updated: 2026-10-27 07:50 UTC. Overall platform: **PARTIALLY COMPLETE**.
 
 ## Persistent working preference
 
@@ -22,7 +22,9 @@ Implemented in the current working tree: persistent Business profiles/offer/audi
 
 ## GitHub and delivery
 
-Repository https://github.com/drippyxx12/Ayo ; existing branch `codex/africa-platform`; draft PR https://github.com/drippyxx12/Ayo/pull/1 . Last published remote head remains **1698c7affe5adc330f22af2b9dcb37cd60153706**, tree bb42141be524abadbd55cae57e7d8826ce659fe3, matching local starting tree. Its checks40342219878/40342208791 passed. Current merchant changes are **not yet committed/published**; preserve all tracked/untracked changes. Last published application code before this stage:d8725422185673560253f75019821eea033de4d3. Publish only via the correct drippyxx12 GitHub connector; local and remote ancestry differ, so verify the created remote tree exactly equals the tested local commit tree before updating the ref. Do not ordinary-push through a different connected account. No merge/deployment approval.
+Repository https://github.com/drippyxx12/Ayo ; branch `codex/africa-platform`; draft PR https://github.com/drippyxx12/Ayo/pull/1 remains open/unmerged. **Published merchant application code:09c6abc965030cf47cc0d292fe0833f0c0e00e5c**, tree `7cd52fb0689d33f0c45835820d3dcb2b56e3612f`, exactly matches tested local code commit `6f7ea534bb4eda285bb99eed45c12e3cf0bf0f4a`. GitHub checks [40469115737](https://github.com/drippyxx12/Ayo/actions/runs/40469115737) and [40469101108](https://github.com/drippyxx12/Ayo/actions/runs/40469101108) completed successfully. The following documentation receipt updates this handoff without changing application code. Original ZIP/source remain preserved. No merge/deployment occurred.
+
+Local and remote ancestry differ. Future publication must use the correct drippyxx12 connector and verify the remote tree equals the tested local commit tree before expected-head ref update; do not ordinary-push using another connected account.
 
 ## Direct browser preview
 
@@ -37,6 +39,10 @@ Existing protected Vercel development preview; may require the authorized founde
 - Actual hosted API/worker/PostgreSQL, stable secret bindings, transactional sender/delivered verification and independent real NG/GH research/report/account/reopen/lead acceptance remain unverified. No public deployment, spending, outreach or merchant action is authorized.
 - Optional business-scoped commerce/payment integrations, domain ownership proof, governed operations, verified sending/replies/sales, monitoring, backups and production/privacy/pilot assurance remain in the full roadmap.
 
-## Next concrete action
+## Stopped at / Next / Blocked by
 
-Final local checks and status documents are complete. Commit/publish the tested tree to the existing branch and update draft PR1, verify CI and record exact remote receipts here. Then extend ownership/correction/multi-source evidence and contextual follow-up planning/business-scoped connector foundations independently of unresolved live providers.
+**Stopped at:** M3/M4 merchant workflows and feasible M5 conversation/read-tool foundation implemented, database/browser verified and published with passing application CI; full platform remains partial. Status documents and source receipts are synchronized.
+
+**Next:** extend M4 ownership challenges/correction and multi-source evidence workflows, then contextual follow-up planning and business-scoped connector foundations, preserving read-only/provider-disabled boundaries until specific external approvals exist.
+
+**Blocked by:** genuine source/Gemini/mail/lead live acceptance and hosted persistent operation, managed secret-binding proof and external policy/authorization gates; these do not block the independent development above. No repeated credential request is needed.

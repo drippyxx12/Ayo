@@ -71,5 +71,38 @@
     "No domain control, commerce/payment, outbound operation or sales outcome verified.",
     "Bounded deterministic read plans; previous conversation history is not transmitted to providers.",
     "Full C01-C18 product remains incomplete."
-  ]
+  ],
+  "github_delivery": {
+    "repository": "drippyxx12/Ayo",
+    "branch": "codex/africa-platform",
+    "draft_pr": 1,
+    "application_commit": "09c6abc965030cf47cc0d292fe0833f0c0e00e5c",
+    "application_tree": "7cd52fb0689d33f0c45835820d3dcb2b56e3612f",
+    "tested_local_application_commit": "6f7ea534bb4eda285bb99eed45c12e3cf0bf0f4a",
+    "tested_tree_matches_remote": true,
+    "application_ci": [
+      {
+        "id": 40469115737,
+        "conclusion": "success"
+      },
+      {
+        "id": 40469101108,
+        "conclusion": "success"
+      }
+    ],
+    "receipt_recorded_at": "2026-10-27T07:51:29.618296+00:00"
+  },
+  "offline_readiness": {
+    "provider_preparation_exit_code": 2,
+    "inherited_secret_migration_exit_code": 2,
+    "network_requests_made": 0,
+    "live_verified": false,
+    "meaning": "Expected missing/unreviewed runtime configuration blocker, separate from passing automated application tests."
+  },
+  "documentation_review": {
+    "local_links_checked": 104,
+    "missing_links": 0,
+    "C01_C18_and_M0_M10_preserved": true,
+    "independent_scope_review": "passed; remaining-work wording reconciled with implemented baselines"
+  }
 }

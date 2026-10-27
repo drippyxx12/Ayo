@@ -94,7 +94,20 @@ python scripts/check-provider-readiness.py --mode prepare --scope account
 
 Both are offline: no API/model-list/DNS/database connection, no `.env` loading, no values printed, no setting changed. Preparation requires **both** spending/mail switches explicitly 0. Exit 0 means only the selected configuration scope passes; exit 2 lists missing/invalid/expired/unreviewed settings. A provider-only pass does not mean account/DB/mail/worker readiness. Model/key access and actual invoice cost remain unverified even on exit 0. The legacy default/`--mode armed` merely inspects an already-authorized configuration; it never arms it and is not the preparation command.
 
-For public evidence persistence, separately verify the approved private PostgreSQL connection and `alembic current`/upgrade to 0004 under normal database change controls, with a backup for non-disposable data. Readiness deliberately does not infer connectivity/migration/worker health from a URL's shape. The offline regression suite already tests current schema parity/legacy preservation with real local PostgreSQL.
+For public evidence persistence, separately verify the approved private PostgreSQL connection and `alembic current`/upgrade to the current head (`0007_assistant` after the merchant-stage migrations) under normal database change controls, with a backup for non-disposable data. Readiness deliberately does not infer connectivity/migration/worker health from a URL's shape. The offline regression suite already tests current schema parity/legacy preservation with real local PostgreSQL.
+
+### Local fallback versus persistent bindings
+
+The preparation loader now selects a complete credential source. `--source auto` prefers injected provider settings before reading any local file; `--source injected` never reads the workspace fallback. A partial or blank injected pair fails closed instead of reviving local keys. Injected nonsecret settings retain precedence too. Provider spending and mail must both be explicitly disabled; the helper refuses armed/ambiguous preparation rather than masking it.
+
+```sh
+python scripts/with-private-runtime.py --source injected
+python scripts/check-secret-migration.py
+```
+
+These commands do not provision a secret or call a provider. The second emits readiness metadata only. An explicitly selected `--compare-local` can compare a complete valid injected pair with the owner-only fallback without printing values, hashes or partial matches; it does not read that file while injected preparation is incomplete. A result of `matched` still does not prove managed-vault provisioning, real environment recreation, key revocation, API validity, billing status or authorization. All those proof fields remain false until separately evidenced. Fresh child processes test configuration selection, not environment recreation; already-running API/worker processes require restart to pick up a new selected version.
+
+Current managed observations still contain no application bindings; migration/rotation/recreation remain recorded blockers. Preserve signing/encryption/database compatibility before removing any fallback: migrating only two provider keys must not discard the key needed to decrypt existing jobs/tokens. No additional credential request or paid validation is part of the merchant-development stage.
 
 ## 6. Controlled two-business test, after configuration AND separate approval
 
