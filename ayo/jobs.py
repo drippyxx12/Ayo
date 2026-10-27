@@ -109,14 +109,18 @@ def job_progress(session, job_id, anonymous_id):
     return result
 
 
-async def process_one(factory, fernet, research_factory=ResearchService.from_env, clock=time.time, *, analysis_provider=None):
+async def process_one(factory, fernet, research_factory=ResearchService.from_env, clock=time.time, *, analysis_provider=None, only_job_id=None):
     """A lease fences stale workers; failed work never produces success/report data."""
     now = clock()
     with factory() as session:
-        row = session.scalar(select(ResearchJob).where(or_(
+        eligible = or_(
             (ResearchJob.status == 'queued') & or_(ResearchJob.lease_until.is_(None), ResearchJob.lease_until <= now),
             (ResearchJob.status == 'running') & (ResearchJob.lease_until <= now),
-        )).order_by(ResearchJob.created_at).with_for_update(skip_locked=True))
+        )
+        query = select(ResearchJob).where(eligible)
+        if only_job_id is not None:
+            query = query.where(ResearchJob.id == only_job_id)
+        row = session.scalar(query.order_by(ResearchJob.created_at).with_for_update(skip_locked=True))
         if row is None:
             return False
         if row.attempts >= 3 or row.created_at + 86400 <= now:

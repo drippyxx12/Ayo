@@ -366,8 +366,11 @@ class FirecrawlProvider:
         # Paths are internal constants or locally checked receipt IDs; never use
         # provider-returned polling URLs and never follow API redirects.
         try:
-            async with asyncio.timeout(12.0), httpx.AsyncClient(
-                timeout=httpx.Timeout(12.0), follow_redirects=False,
+            # A direct scrape can take longer than an API status poll.
+            # Bound it below the enclosing 35-second research deadline.
+            deadline = 32.0 if method == "POST" and path == "/scrape" else 12.0
+            async with asyncio.timeout(deadline), httpx.AsyncClient(
+                timeout=httpx.Timeout(deadline), follow_redirects=False,
                 transport=self._transport,
             ) as client:
                 async with client.stream(
@@ -500,59 +503,82 @@ class FirecrawlProvider:
         }
         if country:
             scrape_options["location"] = {"country": country}
-        receipt, completed, active = None, None, False
-        try:
-            # One absolute deadline covers creation AND every status request;
-            # per-request HTTP timeouts alone would multiply across polls.
-            async with asyncio.timeout(self._deadline_seconds):
-                body = await self._request("POST", "/crawl", {
-                    "url": url, "limit": 1, "maxDiscoveryDepth": 0,
-                    "sitemap": "skip", "crawlEntireDomain": False,
-                    "allowExternalLinks": False, "allowSubdomains": False,
-                    "ignoreRobotsTxt": False, "maxConcurrency": 1,
-                    "scrapeOptions": scrape_options,
-                })
-                receipt = body.get("id")
-                if not isinstance(receipt, str) or not re.fullmatch(r"[a-zA-Z0-9-]{8,100}", receipt):
-                    receipt = None
-                    raise ResearchError("provider_malformed", "Research provider did not return a valid crawl receipt.", 502)
-                active = True
-                for attempt in range(self._max_polls):
+        if os.getenv("AYO_SINGLE_PAGE_FETCH_MODE") == "scrape":
+            # A single URL should not incur an asynchronous crawl+poll cycle.
+            # Do not fall back to crawl or retry after an uncertain paid dispatch.
+            # Firecrawl's scrape API returns one data object, not a crawl status.
+            try:
+                async with asyncio.timeout(self._deadline_seconds):
+                    body = await self._request("POST", "/scrape", {
+                        "url": url, **scrape_options,
+                    })
+            except TimeoutError as exc:
+                raise ResearchError("source_outcome_uncertain",
+                    "The single-page provider request timed out; it was not retried.", 503) from exc
+            page = body.get("data")
+            if not isinstance(page, dict):
+                raise ResearchError("source_unavailable",
+                    "No readable public page was returned by the provider.", 502)
+            completed = {"data": [page]}
+            # /scrape has no provider-issued crawl receipt. This marker is a
+            # LOCAL deterministic fingerprint, never represented as vendor ID.
+            receipt = "local-scrape-" + hashlib.sha256(
+                (url + json.dumps(page, sort_keys=True, default=str)).encode()
+            ).hexdigest()[:32]
+        else:
+            receipt, completed, active = None, None, False
+            try:
+                # One absolute deadline covers creation AND every status request;
+                # per-request HTTP timeouts alone would multiply across polls.
+                async with asyncio.timeout(self._deadline_seconds):
+                    body = await self._request("POST", "/crawl", {
+                        "url": url, "limit": 1, "maxDiscoveryDepth": 0,
+                        "sitemap": "skip", "crawlEntireDomain": False,
+                        "allowExternalLinks": False, "allowSubdomains": False,
+                        "ignoreRobotsTxt": False, "maxConcurrency": 1,
+                        "scrapeOptions": scrape_options,
+                    })
+                    receipt = body.get("id")
+                    if not isinstance(receipt, str) or not re.fullmatch(r"[a-zA-Z0-9-]{8,100}", receipt):
+                        receipt = None
+                        raise ResearchError("provider_malformed", "Research provider did not return a valid crawl receipt.", 502)
+                    active = True
+                    for attempt in range(self._max_polls):
+                        try:
+                            status = await self._request("GET", "/crawl/" + receipt)
+                        except ResearchError as exc:
+                            # A receipt proves the chargeable crawl was accepted.
+                            # Rate/service errors while polling must never invite a
+                            # fresh crawl as though the initial dispatch was denied.
+                            if exc.code in {'provider_rate_limited', 'provider_service_unavailable'}:
+                                raise ResearchError('source_outcome_uncertain',
+                                    'The source request was accepted but its result could not be confirmed; it has not been retried.', 503) from exc
+                            raise
+                        if status.get("status") == "completed":
+                            completed, active = status, False
+                            break
+                        if status.get("status") in {"failed", "cancelled"}:
+                            active = False
+                            raise ResearchError("source_unavailable", "The public source could not be retrieved under the access policy.", 502)
+                        if status.get("status") not in {"scraping", "queued"}:
+                            raise ResearchError("provider_malformed", "Research provider returned an invalid crawl state.", 502)
+                        if attempt + 1 < self._max_polls:
+                            await asyncio.sleep(self._poll_interval)
+                    if completed is None:
+                        raise ResearchError("research_timeout", "Research exceeded its bounded time budget; no completed report is available.", 504)
+            except TimeoutError as exc:
+                raise ResearchError("research_timeout", "Research exceeded its bounded time budget; no completed report is available.", 504) from exc
+            finally:
+                if active and receipt:
+                    # A received receipt permits best-effort cancellation on timeout,
+                    # transport error or worker cancellation. A two-second cleanup
+                    # bound is additional to the research deadline. Cancellation is
+                    # not a refund or proof of stopped/bill-free provider execution.
                     try:
-                        status = await self._request("GET", "/crawl/" + receipt)
-                    except ResearchError as exc:
-                        # A receipt proves the chargeable crawl was accepted.
-                        # Rate/service errors while polling must never invite a
-                        # fresh crawl as though the initial dispatch was denied.
-                        if exc.code in {'provider_rate_limited', 'provider_service_unavailable'}:
-                            raise ResearchError('source_outcome_uncertain',
-                                'The source request was accepted but its result could not be confirmed; it has not been retried.', 503) from exc
-                        raise
-                    if status.get("status") == "completed":
-                        completed, active = status, False
-                        break
-                    if status.get("status") in {"failed", "cancelled"}:
-                        active = False
-                        raise ResearchError("source_unavailable", "The public source could not be retrieved under the access policy.", 502)
-                    if status.get("status") not in {"scraping", "queued"}:
-                        raise ResearchError("provider_malformed", "Research provider returned an invalid crawl state.", 502)
-                    if attempt + 1 < self._max_polls:
-                        await asyncio.sleep(self._poll_interval)
-                if completed is None:
-                    raise ResearchError("research_timeout", "Research exceeded its bounded time budget; no completed report is available.", 504)
-        except TimeoutError as exc:
-            raise ResearchError("research_timeout", "Research exceeded its bounded time budget; no completed report is available.", 504) from exc
-        finally:
-            if active and receipt:
-                # A received receipt permits best-effort cancellation on timeout,
-                # transport error or worker cancellation. A two-second cleanup
-                # bound is additional to the research deadline. Cancellation is
-                # not a refund or proof of stopped/bill-free provider execution.
-                try:
-                    async with asyncio.timeout(2):
-                        await self._request("DELETE", "/crawl/" + receipt)
-                except (ResearchError, TimeoutError):
-                    pass
+                        async with asyncio.timeout(2):
+                            await self._request("DELETE", "/crawl/" + receipt)
+                    except (ResearchError, TimeoutError):
+                        pass
         documents = completed.get("data")
         if not isinstance(documents, list) or len(documents) != 1 or not isinstance(documents[0], dict):
             raise ResearchError("source_unavailable", "No readable public page was returned; access may be blocked or disallowed.", 502)

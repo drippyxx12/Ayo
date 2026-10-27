@@ -31,6 +31,12 @@
     <a class="pill" href="/">Start another search ↗</a>
   {% else %}
     <p class="quiet">Refresh this page to check the persisted job status. These milestones record actual processing; they do not estimate a completion percentage.</p>
+    {% if job.status == 'queued' %}
+    <form method="post" action="/research/jobs/{{ job.id }}/run">
+      <input type="hidden" name="csrf" value="{{ csrf }}">
+      <button class="pill" type="submit">Run research now ↗</button>
+    </form>
+    {% endif %}
     <a class="pill" href="/research/jobs/{{ job.id }}">Check research status ↗</a>
   {% endif %}
 </main>

@@ -16,8 +16,9 @@ from ayo.identity import IdentityError, IdentityService, token_hash
 from ayo.intelligence import IntelligenceContext, IntelligenceError, IntelligenceOrchestrator, SourceEvidence
 from ayo.leads import LeadError, PipelineEvidence, discover_leads, transition_lead
 from ayo.mailer import queue_identity_mail
-from ayo.jobs import enqueue, get_job, job_progress
+from ayo.jobs import enqueue, get_job, job_progress, process_one
 from ayo.provider_usage import budget_context
+from ayo.public_intelligence import enrich_report
 from ayo.account_deletion import remove_account
 from ayo.models import AuditEvent, Business, IntelligenceRun, Lead, LeadEvent, Membership, ResearchReportRecord
 from ayo.public_research import prepare_public_research
@@ -215,7 +216,8 @@ def install_routes(mod):
         return RedirectResponse('/dashboard', 303)
 
     async def research_url(request, sess, url, country, business_name=''):
-        app.state.research_factory()  # Fail before queueing if configuration is absent.
+        if os.getenv('AYO_ON_DEMAND_RESEARCH') != '1':
+            app.state.research_factory()  # Standard hosted worker requires configuration before queueing.
         anonymous_id = request.session.setdefault('anonymous_id', secrets.token_urlsafe(32))
         request_id = request.session.setdefault('research_request_id', secrets.token_urlsafe(24))
         IdentityService(sess)._attempt('research-submit', client_key(request), limit=10, window=3600)
@@ -236,6 +238,21 @@ def install_routes(mod):
             return RedirectResponse('/research/' + job.report_id, 303)
         return mod.render(request, 'research_job.html', job=job, user=mod.session_user(request, sess),
                           progress=job_progress(sess, job.id, request.session.get('anonymous_id')))
+
+    @app.post('/research/jobs/{job_id}/run')
+    async def run_research_job(job_id: str, request: Request, csrf: str = Form(...), sess=Depends(mod.db)):
+        """Explicit owner-triggered bounded execution for staging/serverless.
+
+        The browser capability and CSRF are both required; the worker can claim
+        only this job and never an unrelated tenant's queued work. No provider
+        access, budget rule or source permission is bypassed by this route.
+        """
+        guard(request, csrf, sess)
+        get_job(sess, job_id, request.session.get('anonymous_id'))
+        if os.getenv('AYO_ON_DEMAND_RESEARCH') != '1':
+            raise HTTPException(503, 'On-demand research is not enabled on this deployment.')
+        await process_one(mod.DbSession, mod.fernet, only_job_id=job_id)
+        return RedirectResponse('/research/jobs/' + job_id, 303)
 
     @app.post('/research')
     async def research(request: Request, query: str = Form(''), country: str = Form(''), city: str = Form(''),
@@ -286,6 +303,58 @@ def install_routes(mod):
     # Static research paths must be registered before /research/{report_id}.
     from ayo.research_workspace_routes import install_routes as install_research_workspace
     install_research_workspace(mod, context, protected, guard)
+
+    @app.post('/research/{report_id}/retry-analysis')
+    async def retry_public_analysis(report_id: str, request: Request, csrf: str = Form(...),
+                                    sess=Depends(mod.db)):
+        """Run Gemini once more over already-stored PUBLIC evidence, without recrawling.
+
+        The report's original anonymous browser capability is required, CSRF
+        applies, and the stable dispatch prefix blocks duplicate charges for
+        the same report/policy version. Source evidence is never rewritten.
+        """
+        guard(request, csrf, sess)
+        anonymous_id = request.session.get('anonymous_id')
+        if not anonymous_id:
+            raise HTTPException(404, 'Research report not found.')
+        try:
+            existing = ReportStore(sess).accessible(report_id, None, anonymous_id)
+        except IdentityError as exc:
+            raise HTTPException(exc.status_code, str(exc))
+        if existing.business_id is not None or existing.owner_user_id is not None:
+            raise HTTPException(403, 'This action is only available to the original public research session.')
+        original_json = existing.report_json
+        previous = ResearchReport.model_validate_json(original_json)
+        if previous.analysis_status not in {'unavailable', 'rejected'}:
+            raise HTTPException(409, 'This report does not need public analysis recovery.')
+        if previous.analysis_error_code not in {'model_unavailable', 'model_output_rejected'}:
+            raise HTTPException(409, 'The reported issue requires configuration review.')
+        sess.commit()  # No session transaction may span external model I/O.
+        prefix = ('public_analysis_recovery:' + report_id + ':' +
+                  os.getenv('AYO_GEMINI_BUDGET_POLICY_VERSION', 'not_configured'))
+        with budget_context(mod.DbSession,
+                            scope_id='anonymous:' + token_hash(anonymous_id),
+                            request_id='recovery:' + report_id, dispatch_prefix=prefix):
+            updated = await enrich_report(previous)
+        if updated.analysis_status != 'completed':
+            return RedirectResponse('/research/' + report_id + '?ai_recovery=unavailable', 303)
+        # Reject competing writes and ownership changes after the model call.
+        with mod.DbSession() as writing:
+            current = writing.scalar(select(ResearchReportRecord).where(
+                ResearchReportRecord.id == report_id).with_for_update())
+            if current is None or current.report_json != original_json:
+                return RedirectResponse('/research/' + report_id, 303)
+            try:
+                ReportStore(writing).accessible(report_id, None, anonymous_id)
+            except IdentityError as exc:
+                raise HTTPException(exc.status_code, str(exc))
+            immutable = {'analysis', 'analysis_status', 'analysis_error_code', 'status'}
+            if (previous.model_dump(exclude=immutable) != updated.model_dump(exclude=immutable)):
+                raise HTTPException(409, 'Research evidence was changed during analysis.')
+            current.report_json = updated.model_dump_json()
+            current.status = updated.status
+            writing.commit()
+        return RedirectResponse('/research/' + report_id + '?ai_recovery=completed', 303)
 
     @app.get('/research/{report_id}')
     def open_report(report_id: str, request: Request, sess=Depends(mod.db)):
