@@ -366,8 +366,11 @@ class FirecrawlProvider:
         # Paths are internal constants or locally checked receipt IDs; never use
         # provider-returned polling URLs and never follow API redirects.
         try:
-            async with asyncio.timeout(12.0), httpx.AsyncClient(
-                timeout=httpx.Timeout(12.0), follow_redirects=False,
+            # A direct scrape can take longer than an API status poll.
+            # Bound it below the enclosing 35-second research deadline.
+            deadline = 32.0 if method == "POST" and path == "/scrape" else 12.0
+            async with asyncio.timeout(deadline), httpx.AsyncClient(
+                timeout=httpx.Timeout(deadline), follow_redirects=False,
                 transport=self._transport,
             ) as client:
                 async with client.stream(
