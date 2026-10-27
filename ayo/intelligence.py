@@ -206,55 +206,6 @@ def validate_analysis(raw: dict, context: IntelligenceContext | PublicResearchCo
     return analysis
 
 
-def validate_grounded_subset(raw: dict, context: IntelligenceContext | PublicResearchContext) -> StructuredAnalysis:
-    """Reject unsupported model findings; salvage individually validated safe ones.
-
-    Never promote an invalid observation, invented citation, financial outcome or
-    action claim. If no evidence-backed items survive, fail rather than pretend
-    Gemini produced a valid business assessment.
-    """
-    try:
-        return validate_analysis(raw, context)
-    except IntelligenceError as original:
-        if original.code not in {
-            'unsupported_observation', 'unsupported_citation', 'missing_citation',
-            'unverified_owner_claim', 'invalid_unknown',
-            'unsupported_financial_claim', 'unauthorized_action_claim',
-        }:
-            raise
-        parsed = StructuredAnalysis.model_validate(raw)
-        safe_claims = []
-        for claim in parsed.claims:
-            if claim.kind == 'UNKNOWN':
-                continue
-            try:
-                validate_analysis({'claims': [claim.model_dump()]}, context)
-            except IntelligenceError:
-                continue
-            safe_claims.append(claim)
-        safe_recommendations = []
-        for recommendation in parsed.recommendations:
-            try:
-                validate_analysis({'recommendations': [recommendation.model_dump()]}, context)
-            except IntelligenceError:
-                continue
-            safe_recommendations.append(recommendation)
-        limitations = []
-        for item in parsed.limitations:
-            try:
-                validate_analysis({'limitations': [item]}, context)
-            except IntelligenceError:
-                continue
-            limitations.append(item)
-        if not safe_claims and not safe_recommendations:
-            raise original
-        return validate_analysis({
-            'claims': [c.model_dump() for c in safe_claims],
-            'recommendations': [r.model_dump() for r in safe_recommendations],
-            'limitations': limitations,
-        }, context)
-
-
 class _HTTPModel:
     def __init__(self, api_key: str, model: str, *, transport: httpx.AsyncBaseTransport | None = None,
                  max_output_tokens: int = 1500, dispatch_budget=metered_operation, thinking_level: str | None = None):
@@ -452,7 +403,7 @@ class IntelligenceOrchestrator:
             'evidence': [{'id': e.id, 'url': e.url, 'excerpt': e.excerpt, 'classification': e.source_kind,
                           'observed_at': e.observed_at.isoformat()} for e in context.evidence]}
         raw, usage = await provider.complete(SYSTEM_POLICY, payload)
-        analysis = validate_grounded_subset(raw, context)
+        analysis = validate_analysis(raw, context)
         limitations = tuple(dict.fromkeys((*analysis.limitations,
             'Recommendations are proposals for merchant review; no external action has been performed.',
             'Public website evidence does not establish private sales, profit, ownership or marketing consent.')))
