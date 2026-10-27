@@ -1,6 +1,6 @@
-"""Private read-only routes for the current workspace's saved evidence."""
-from fastapi import Depends, Request
-from fastapi.responses import JSONResponse
+"""Private saved-evidence views and internal correction-review requests."""
+from fastapi import Depends, Form, Request
+from fastapi.responses import JSONResponse, RedirectResponse
 
 from ayo.identity import IdentityError
 from ayo.research_workspace import LibraryFilters, ResearchWorkspace
@@ -53,3 +53,18 @@ def install_routes(mod, context, protected, guard):
             'Cache-Control': 'private, no-store', 'Pragma': 'no-cache',
             'X-Content-Type-Options': 'nosniff',
         })
+
+    @app.post('/research/library/{report_id}/corrections')
+    def request_correction(report_id: str, request: Request, source_id: str = Form(''),
+                           reason: str = Form(''), details: str = Form(''), csrf: str = Form(...),
+                           sess=Depends(mod.db)):
+        user, business = protected(request, sess)
+        guard(request, csrf, sess)
+        try:
+            ResearchWorkspace(sess).request_correction(user.id, business.id, report_id,
+                source_id=source_id, reason=reason, details=details)
+            sess.commit()
+        except IdentityError:
+            sess.rollback()
+            raise
+        return RedirectResponse('/research/library/' + report_id + '#corrections', 303)

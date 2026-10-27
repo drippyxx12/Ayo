@@ -1,4 +1,4 @@
-"""Read-only research history and evidence views over immutable saved reports.
+"""Research history and correction-review work over immutable saved reports.
 
 This module never fetches a URL, asks a model, changes a report, or establishes
 business ownership. All access is scoped to the caller's selected workspace.
@@ -6,6 +6,7 @@ business ownership. All access is scoped to the caller's selected workspace.
 from __future__ import annotations
 
 from dataclasses import dataclass
+import json
 from datetime import date, datetime, timezone
 from decimal import Decimal
 import re
@@ -15,7 +16,9 @@ from urllib.parse import urlencode, urlsplit
 from sqlalchemy import func, or_, select
 
 from ayo.identity import IdentityError, IdentityService
-from ayo.models import ResearchReportRecord
+from ayo.merchant_models import Task
+from ayo.merchant_work import TaskService, text_value
+from ayo.models import AuditEvent, ResearchReportRecord, User
 from ayo.research import ResearchReport
 from ayo.website_research import normalize_public_url
 
@@ -23,6 +26,8 @@ FRESHNESS_DAYS = 14
 PAGE_SIZE = 20
 MAX_PAGE_SIZE = 50
 REPORT_ID = re.compile(r'^[A-Za-z0-9_-]{1,64}$')
+CORRECTION_REASONS = {'inaccurate': 'Inaccurate statement', 'outdated': 'Outdated information',
+                      'wrong_business': 'Wrong business identity', 'missing_context': 'Missing context'}
 
 
 def _invalid(message):
@@ -266,7 +271,48 @@ class ResearchWorkspace:
         row, report = self._load(user_id, business_id, report_id)
         result = self._view(row, report)
         result['history'], result['history_count'] = self._history(business_id, result['canonical_target'])
+        member = IdentityService(self.session, self.clock).require_membership(user_id, business_id)
+        user = self.session.get(User, user_id)
+        result['can_request_correction'] = bool(user.email_verified_at and member.role in {'owner', 'admin', 'editor'})
+        result['correction_reasons'] = CORRECTION_REASONS
+        result['correction_requests'] = self.correction_requests(user_id, business_id, report_id)
         return result
+
+    def request_correction(self, user_id, business_id, report_id, *, source_id, reason, details):
+        """Create internal review work; never promote a merchant statement to evidence."""
+        tasks = TaskService(self.session, self.clock)
+        tasks._write_access(user_id, business_id)
+        row, report = self._load(user_id, business_id, report_id)
+        if reason not in CORRECTION_REASONS:
+            raise _invalid('Choose a correction reason from the form.')
+        source = next((item for item in report.source_documents if item.id == source_id), None)
+        if source is None:
+            raise IdentityError('source_not_found', 'Choose a retained source from this saved report.', 404)
+        details = text_value(details, 'correction_details', 1500, minimum=10)
+        description = ('MERCHANT_PROVIDED_UNVERIFIED — correction review request\n'
+                       + CORRECTION_REASONS[reason] + '\nSource ID: ' + source.id
+                       + '\nCaptured: ' + source.retrieved_at.isoformat()
+                       + '\nContent SHA-256: ' + source.source_hash + '\n\n' + details
+                       + '\n\nReview against permitted evidence. Task completion does not verify a correction or refresh the report.')
+        task = tasks.create(user_id, business_id, title='Review evidence correction: ' + CORRECTION_REASONS[reason],
+                            description=description, source_report_id=row.id)
+        IdentityService(self.session, self.clock).audit('research.correction_requested', user_id=user_id,
+            business_id=business_id, resource_type='task', resource_id=task.id,
+            details={'report_id': row.id, 'source_id': source.id, 'source_hash': source.source_hash,
+                     'reason': reason, 'classification': 'MERCHANT_PROVIDED_UNVERIFIED',
+                     'evidence_reverified': False})
+        self.session.flush()
+        return task
+
+    def correction_requests(self, user_id, business_id, report_id):
+        self._load(user_id, business_id, report_id)
+        records = self.session.execute(select(Task, AuditEvent).join(AuditEvent,
+            (AuditEvent.resource_id == Task.id) & (AuditEvent.business_id == Task.business_id)).where(
+                Task.business_id == business_id, Task.source_report_id == report_id,
+                AuditEvent.action == 'research.correction_requested', AuditEvent.resource_type == 'task',
+            ).order_by(AuditEvent.created_at.desc(), AuditEvent.id.desc()).limit(50)).all()
+        return [{'task': task, 'provenance': json.loads(event.details_json),
+                 'requested_at': self._time(event.created_at)} for task, event in records]
 
     def _view(self, row, report):
         now, sources = self.clock(), report.source_documents

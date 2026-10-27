@@ -1,5 +1,7 @@
 # M2 secure preparation and founder review
 
+**27 October recovery override:** source recovered at `/workspace/Ayo`. After the founder restored the existing credentials to owner-only private runtime storage, exactly one authorized Free-tier synthetic Gemini request returned HTTP200 / `AYO_GEMINI_OK` (19 tokens). [Actual receipt and recovery](GEMINI_CONNECTION_RECOVERY.md). Do not repeat this connectivity test. General provider/mail switches stay0; the paid-budget proposal below remains unapproved. Full public research, private inference and hosted acceptance retain their separate gates. Historical environment/presence/zero-call statements below describe earlier checkpoints.
+
 Updated 26 October 2026. **DRAFT FOR REVIEW; no provider call, charge, deployment or merge authorized. Ayo is PARTIALLY COMPLETE.** The generated AI Studio key is not configured in Ayo merely because it exists.
 
 ## 1. Exact configuration target

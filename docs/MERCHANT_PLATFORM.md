@@ -50,3 +50,10 @@ Neither a local test nor an inherited key proves a successful live API call, sta
 - Commerce/payment connections, business ownership proof, approved sending, verified replies/sales, governed provider actions, monitoring, backups and broader production/pilot review remain incomplete in the full roadmap.
 
 Next independent development: extend ownership/correction and multi-source research workflows, then improve contextual follow-up planning and the business-scoped connector model while external operations remain disabled. Ayo remains **PARTIALLY COMPLETE**.
+
+
+## 27 October follow-up: live Gemini connectivity and M4 review intake
+
+Basic Gemini connectivity is now separately VERIFIED LIVE: [single real synthetic response](evidence/gemini-connectivity-attempt.json), HTTP200, exact `AYO_GEMINI_OK`, model `gemini-3.5-flash-lite`, 19 tokens. The founder reports the dedicated project is Free; official Standard Free-tier input/output prices are zero. Billing telemetry was not accessed. No further inference/source call was made and general providers/mail remain disabled. This does not pass real NG/GH research acceptance or enable private inference.
+
+Saved research inspection now offers correction-review intake at `/research/library/{report_id}/corrections`. Verified owners/admins/editors choose a retained source, reason and 10–1500-character explanation. The server validates same-workspace published saved evidence, creates an internal Work task, and records original report/source/hash provenance in the existing audit log. The inspection page shows the latest50 review tasks and their current Work status. Merchant text is escaped, stays unverified and is not added to the original report/export. Task completion does not apply or independently verify a correction. No migration or external fetch/write is introduced; account removal uses the existing task deletion/anonymization paths. Ownership proof, applied/refetched corrections and multi-source acquisition remain future M4 work.
