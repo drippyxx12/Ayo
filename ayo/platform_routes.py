@@ -215,7 +215,8 @@ def install_routes(mod):
         return RedirectResponse('/dashboard', 303)
 
     async def research_url(request, sess, url, country, business_name=''):
-        app.state.research_factory()  # Fail before queueing if configuration is absent.
+        if os.getenv('AYO_ON_DEMAND_RESEARCH') != '1':
+            app.state.research_factory()  # Standard hosted worker requires configuration before queueing.
         anonymous_id = request.session.setdefault('anonymous_id', secrets.token_urlsafe(32))
         request_id = request.session.setdefault('research_request_id', secrets.token_urlsafe(24))
         IdentityService(sess)._attempt('research-submit', client_key(request), limit=10, window=3600)
