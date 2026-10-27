@@ -16,7 +16,7 @@ from ayo.identity import IdentityError, IdentityService, token_hash
 from ayo.intelligence import IntelligenceContext, IntelligenceError, IntelligenceOrchestrator, SourceEvidence
 from ayo.leads import LeadError, PipelineEvidence, discover_leads, transition_lead
 from ayo.mailer import queue_identity_mail
-from ayo.jobs import enqueue, get_job, job_progress
+from ayo.jobs import enqueue, get_job, job_progress, process_one
 from ayo.provider_usage import budget_context
 from ayo.account_deletion import remove_account
 from ayo.models import AuditEvent, Business, IntelligenceRun, Lead, LeadEvent, Membership, ResearchReportRecord
@@ -236,6 +236,21 @@ def install_routes(mod):
             return RedirectResponse('/research/' + job.report_id, 303)
         return mod.render(request, 'research_job.html', job=job, user=mod.session_user(request, sess),
                           progress=job_progress(sess, job.id, request.session.get('anonymous_id')))
+
+    @app.post('/research/jobs/{job_id}/run')
+    async def run_research_job(job_id: str, request: Request, csrf: str = Form(...), sess=Depends(mod.db)):
+        """Explicit owner-triggered bounded execution for staging/serverless.
+
+        The browser capability and CSRF are both required; the worker can claim
+        only this job and never an unrelated tenant's queued work. No provider
+        access, budget rule or source permission is bypassed by this route.
+        """
+        guard(request, csrf, sess)
+        get_job(sess, job_id, request.session.get('anonymous_id'))
+        if os.getenv('AYO_ON_DEMAND_RESEARCH') != '1':
+            raise HTTPException(503, 'On-demand research is not enabled on this deployment.')
+        await process_one(mod.DbSession, mod.fernet, only_job_id=job_id)
+        return RedirectResponse('/research/jobs/' + job_id, 303)
 
     @app.post('/research')
     async def research(request: Request, query: str = Form(''), country: str = Form(''), city: str = Form(''),
