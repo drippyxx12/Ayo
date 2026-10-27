@@ -255,3 +255,10 @@ Immediate sequence: continue M3/M4/M5 merchant implementation independently of M
 M2 now also has a non-arming offline preparation mode, model/input/output/thinking budget bindings, a 32768-byte system/context limit and public-only data-policy enforcement. [Secure setup](docs/M2_SECURE_SETUP.md) identifies the attached managed runtime, documented stable model candidate, zero-current-authorization draft budget/data/source policies and the unexecuted NG/GH test. Current runtime configuration remains absent. These controls and 521 offline tests do not satisfy actual provider or independent acceptance.
 
 The founder-authorized provider credentials are now available through an owner-only private workspace loader, outside Git. Presence/shape and disabled-switch checks pass; source/data/host/budget approvals and actual DB/mail are still open. This is not managed secret provisioning or live provider acceptance.
+
+
+## 27 October first-business report and M5 follow-up update
+
+Firecrawl account metadata is live verified (HTTP200,1000 remaining credits); exact plan/auto-purchases, Konga readable terms/rights, applicable commercial-use authorization and limited public-data/egress/budget review remain open. No crawl/new Gemini request/report was produced. [Exact frozen-operation proposal and blockers](docs/KONGA_FIRST_REPORT_REVIEW.md). Keep the conditional USD0 run unarmed until these are established; do not repeat the successful Gemini smoke test.
+
+M5 now reuses a same-actor/same-conversation validated read topic for narrow follow-ups, rereads current records and omits unavailable tools. Prior text/generated answers are not provider evidence; explicit new topics override.42 targeted two-backend tests pass. This is bounded topic continuity, not the complete contextual/multi-step planner. M4 ownership and reviewed source refresh remain next independent work.

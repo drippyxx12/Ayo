@@ -1,8 +1,8 @@
 """Bounded deterministic read plans around the existing source-bound intelligence.
 
 Questions and retrieved records never supply executable code, tool permissions,
-business IDs or model/provider routing. History is retained for the user but is
-deliberately not sent to providers in this slice.
+business IDs or model/provider routing. Short follow-ups may reuse the previous
+validated read intent; earlier message text and answers are not sent to providers.
 """
 from datetime import datetime, timezone
 import json
@@ -26,6 +26,8 @@ TOOL_NAMES = ('business.profile', 'research.saved', 'opportunities.list', 'leads
 MAX_MESSAGES = 100
 MAX_CONVERSATIONS = 100
 PENDING_SECONDS = 120
+FOLLOW_UP = re.compile(r'^(?:what next|what should i do next|and then|tell me more|go on|'
+                       r'explain that|why|what should i do about that)[?.!]*$', re.I)
 
 
 class ToolModel(BaseModel):
@@ -52,6 +54,7 @@ class ToolPlan(ToolModel):
     intent: Literal['workspace_overview', 'business_context', 'research', 'opportunities', 'leads', 'work']
     steps: tuple[ToolStep, ...] = Field(max_length=5)
     external_actions: Literal[False] = False
+    context_message_id: str | None = Field(default=None, max_length=64)
 
 
 class ToolItem(ToolModel):
@@ -208,7 +211,7 @@ class AssistantService:
             AssistantMessage.conversation_id == conversation_id))
         if count >= MAX_MESSAGES:
             raise IdentityError('message_limit', 'Start a new conversation to continue. This conversation has reached its record limit.', 429)
-        plan, results = self.read_plan(user_id, business_id, question)
+        plan, results = self.read_plan(user_id, business_id, question, conversation_id=conversation_id)
         now = self.clock()
         self.session.add(AssistantMessage(conversation_id=conversation_id, business_id=business_id,
             user_id=user_id, request_key=key, role='user', content=question, status='completed', created_at=now))
@@ -249,23 +252,41 @@ class AssistantService:
         return tuple(ToolCapability(name=name, available=available[name],
             reason='Read saved workspace records.' if available[name] else 'No usable saved records in the bounded workspace view.') for name in TOOL_NAMES)
 
-    def read_plan(self, user_id, business_id, question):
+    def read_plan(self, user_id, business_id, question, *, conversation_id=None):
         self._member(user_id, business_id)
-        # Only the merchant's current question selects among this exact allowlist.
-        # Source text and generated model text are never used for tool selection.
+        # Explicit current topics always win. A narrow follow-up may reuse a
+        # scoped, typed read plan, never model output or an earlier tool result.
         routing = ((r'\b(task|tasks|work|todo|to-do)\b', 'work', 'work.tasks'),
                    (r'\b(lead|leads|prospect|prospects)\b', 'leads', 'leads.saved'),
                    (r'\b(opportunity|opportunities|priority|priorities)\b', 'opportunities', 'opportunities.list'),
                    (r'\b(research|report|reports|website|sources)\b', 'research', 'research.saved'),
                    (r'\b(profile|offer|audience|goal|goals)\b', 'business_context', 'business.profile'))
         selected = [(intent, name) for pattern, intent, name in routing if re.search(pattern, question, re.I)]
+        prior_plan, context_id = None, None
+        if not selected and conversation_id and FOLLOW_UP.fullmatch(question.strip()):
+            self.get(user_id, business_id, conversation_id)
+            previous = self.session.scalar(select(AssistantMessage).where(
+                AssistantMessage.conversation_id == conversation_id,
+                AssistantMessage.user_id == user_id, AssistantMessage.business_id == business_id,
+                AssistantMessage.role == 'assistant',
+            ).order_by(AssistantMessage.created_at.desc(), AssistantMessage.id.desc()).limit(1))
+            if previous and previous.status in {'completed', 'blocked'}:
+                try:
+                    prior_plan = ToolPlan.model_validate_json(previous.plan_json)
+                    context_id = previous.id
+                except ValueError:
+                    pass  # Malformed/unsupported history cannot add a tool.
         capabilities = self.capabilities(user_id, business_id)
         available = {item.name for item in capabilities if item.available}
-        wanted = {name for _, name in selected} if selected else set(TOOL_NAMES)
+        wanted = ({name for _, name in selected} if selected else
+                  {step.name for step in prior_plan.steps} if prior_plan else set(TOOL_NAMES))
         wanted.add('business.profile')
-        steps = tuple(ToolStep(name=name, reason='Read relevant saved records within the current workspace.')
+        reason = ('Continue the previous read topic using current workspace records.' if prior_plan else
+                  'Read relevant saved records within the current workspace.')
+        steps = tuple(ToolStep(name=name, reason=reason)
                       for name in TOOL_NAMES if name in wanted and name in available)
-        plan = ToolPlan(intent=selected[0][0] if selected else 'workspace_overview', steps=steps)
+        intent = selected[0][0] if selected else prior_plan.intent if prior_plan else 'workspace_overview'
+        plan = ToolPlan(intent=intent, steps=steps, context_message_id=context_id)
         results = tuple(self.run_tool(user_id, business_id, step) for step in plan.steps)
         return plan, results
 

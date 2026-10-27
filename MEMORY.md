@@ -1,6 +1,20 @@
 # Ayo project memory and stopping point
 
-Updated: 2026-10-27 14:53 UTC. Overall platform: **PARTIALLY COMPLETE**.
+Updated: 2026-10-27 15:12 UTC. Overall platform: **PARTIALLY COMPLETE**.
+
+## Latest milestone — Firecrawl account connected; first report still gated
+
+Continued exact `dd5566c4582f35f7f8cc80fd8b88358a1768feab` branch; clean local/remote starting state, PR #1 retained draft/unmerged. Rechecked prior-head PR CI40525924656: success. **Do not repeat the existing Gemini connectivity test.**
+
+**FIRECRAWL CONNECTED:** one disclosed authenticated `GET /v2/team/credit-usage` returned HTTP200, success:true, remainingCredits1000, planCredits1000. [Actual redacted receipt](docs/evidence/firecrawl-account-readiness.json). No crawl/search/extract request or new Gemini request. Plan name/free-credit classification and pay-as-you-go/automatic purchase setting are not returned and remain unverified. Credentials are already present in the owner-only private runtime; do not ask for them again.
+
+**GEMINI BUSINESS ANALYSIS NOT VERIFIED / REAL REPORT NOT CREATED.** Konga's own homepage self-identifies as the Nigerian storefront; robots allows `/` and excludes account/cart/checkout/search/some product paths. Terms at `/content/terms-and-conditions` returned only a loading shell/metadata, not the legal text. Bounded pinned public GETs were operator identity/policy checks only, not pipeline report evidence. No bypass or model submission of these pages occurred.
+
+[Exact one-page operation/credit plan, terms and required approvals](docs/KONGA_FIRST_REPORT_REVIEW.md); [machine-readable readiness](docs/evidence/konga-first-report-readiness.json). Proposed bound:1 crawl of `https://www.konga.com/`, depth0/limit1/robots on/basic proxy/no add-ons/no retry; expected1 base credit; then1 existing-model Gemini synthesis after committed sanitized data review. Authorized USD0; maximum provider charge remains unverified, so no crawl/inference dispatched. Offline preflight exits2 for existing unreviewed data/egress/host/budget configuration, zero network. Do not activate the old USD3/two-business proposal.
+
+Founder input pending: exact-account Free plan and auto-purchases-disabled confirmation; readable Konga automated-use rights; applicable Firecrawl commercial-use permission (public terms5.d.1 requires express authorization); limited nonpersonal data-policy acceptance including normal Firecrawl retention and Google improvement/human review. Source/provider rights cannot be granted by founder approval alone. ZDR is not enabled merely by cache opt-out. Once actual account/rights/data evidence exists, freeze exact-host egress and expiring one-crawl/one-Gemini USD0 policy; the user's current instruction already conditionally permits an entirely verified-free test and need not be reapproved generically.
+
+Independent M5 progress: short follow-ups can inherit only the previous validated read-plan topic in the same user's conversation/workspace. Explicit new topic wins, unavailable tools are dropped, current records are reread, and malformed/failed/uncertain history cannot supply context. Older prompt text/AI answers/tool snapshots are not transmitted or reused as evidence. Private inference still has its separate policy. No executable tools, external writes, schema, branding or founding-access changes. **42 targeted tests passed, zero failures/skips**, SQLite + actual local PostgreSQL17,33.20s; one upstream warning. Ruff/dependency consistency/whitespace/redacted source+history secret checks passed. No full-suite/browser rerun or deployment claimed.
 
 ## Latest verified milestone — Gemini connected and M4 correction review
 
@@ -53,8 +67,8 @@ Existing protected Vercel development preview; may require the authorized founde
 
 ## Stopped at / Next / Blocked by
 
-**Stopped at:** real Gemini connectivity verified once; M4 source-specific correction-review task intake implemented on the existing branch. Targeted follow-up verification: **111 passed, zero failed/skipped**, SQLite + PostgreSQL17; Ruff, dependency consistency, whitespace and redacted working-tree/history secret scans pass. [Receipt](docs/evidence/m4-correction-review-verification.json). Prior full-suite/browser results remain historical; new code was not publicly deployed. Publication receipt is in the session delivery.
+**Stopped at:** Firecrawl account access/1000-credit balance verified; Konga source/data/billing gates recorded without dispatch; contextual follow-up read planning implemented and42 tests passed. Existing Gemini connectivity remains verified. GitHub publication receipt follows in session delivery.
 
-**Next:** M4 ownership challenges and reviewed correction/refetch/multi-source evidence, then contextual follow-up planning and business-scoped connector foundations. Do not restart completed merchant foundations or repeat Gemini smoke testing.
+**Next:** resolve the specific first-report reviews, then execute the frozen one-page zero-charge pipeline and independently validate its actual report. Continue M4 ownership/source-refresh implementation and M5 contextual planning while external operations remain gated.
 
-**Blocked by:** full source/Gemini report acceptance still requires reviewed source/egress/data/host/budget configuration and independent NG/GH evidence; hosted persistent service/mail and managed secret survival remain unverified. No paid call, source crawl, outreach, merchant operation or deployment is authorized by the synthetic test.
+**Blocked by:** API metadata omits exact Firecrawl plan/auto-purchases; Konga terms legal text unavailable; applicable Firecrawl commercial permission, public-data acceptance and source egress/budget review remain open. No new credentials, paid call, public deployment or outreach is requested/authorized.

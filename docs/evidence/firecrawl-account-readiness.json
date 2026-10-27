@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-27T15:03:31.902163+00:00",
+  "operation": "GET /v2/team/credit-usage",
+  "endpoint": "https://api.firecrawl.dev/v2/team/credit-usage",
+  "attempts": 1,
+  "automatic_retries": 0,
+  "scrape_crawl_search_extract_calls": 0,
+  "credential_values_recorded": false,
+  "invoice_verified": false,
+  "http_status": 200,
+  "duration_seconds": 0.541,
+  "api_success": true,
+  "quota": {
+    "remainingCredits": 1000,
+    "planCredits": 1000,
+    "billingPeriodStart": "2026-10-26T14:25:55.055Z",
+    "billingPeriodEnd": "2026-11-26T14:25:55.055Z"
+  },
+  "connected": true,
+  "account_plan_verified": false,
+  "automatic_purchase_setting_verified": false
+}
