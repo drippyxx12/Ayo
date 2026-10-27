@@ -41,5 +41,26 @@
     "Review intake only; no applied correction, refetch, domain ownership or multi-source fetch.",
     "No browser accessibility certification from HTTP tests.",
     "Separate actual Gemini synthetic response receipt does not certify real-business research."
-  ]
+  ],
+  "github_delivery": {
+    "application_commit": "70f715f590d5b32ea28850b87c0968de3a484b02",
+    "application_tree": "53cae5afa3afcd17fd89dd16ec996d7c7f144dbf",
+    "tested_tree_matches_remote": true,
+    "branch": "codex/africa-platform",
+    "pr_number": 1,
+    "pr_open": true,
+    "pr_draft": true,
+    "merged": false,
+    "ci_at_receipt": [
+      {
+        "id": 40525714122,
+        "status": "in_progress"
+      },
+      {
+        "id": 40525701563,
+        "status": "in_progress"
+      }
+    ],
+    "recorded_at": "2026-10-27T14:55:39.692380+00:00"
+  }
 }
