@@ -28,3 +28,7 @@ The platform migration preserves users, encrypted provider fields and snapshots;
 Test `upgrade head → downgrade 0001_alpha → upgrade head` on a disposable restored database before production. Downgrading removes the new feature data and should only occur after explicit backup/review. It cannot safely narrow financial values larger than a PostgreSQL INTEGER; PostgreSQL rejects that downgrade rather than truncating. SQLite downgrade requires SQLite 3.35 or newer for native user-column removal.
 
 `tests/test_migrations.py` verifies fresh round trips, baseline-user/provider/snapshot preservation, model parity, large monetary values and constraints. Set `AYO_TEST_POSTGRES_URL` to a disposable PostgreSQL test database to run the same tests with isolated schemas; without it, PostgreSQL checks are explicitly skipped. PostgreSQL tests never erase the configured database's public schema.
+
+## Merchant platform additions
+
+`0005_merchant` adds owner-provided profiles and internal tasks. `0006_lead_crm` adds prospect lists, notes and review-only drafts. Its unique `(business_id,id)` lead index avoids copying populated SQLite parent tables, preserving lead events and task references. `0007_assistant` adds private conversations/messages and versioned read-tool snapshots with composite tenant/user foreign keys. These are internal workspace records; they do not authorize provider actions, outreach or payments. Downgrade removes these new records. The explicit upgrade/downgrade/parity and populated-parent preservation tests run on SQLite and PostgreSQL.

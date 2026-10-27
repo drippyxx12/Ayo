@@ -253,10 +253,14 @@ class IdentityService:
             email = normalize_email(email)
         except IdentityError:
             email = ''
+        user = self.session.scalar(select(User).where(User.email == email)) if email else None
+        if user:
+            # Serialize password verification and session issuance with password
+            # changes/removal; a cached hash must not issue a post-revocation grant.
+            user = self.lock_user(user.id)
         self._attempt('login-account', email or 'invalid', limit=8)
         if client_key:
             self._attempt('login-client', client_key, limit=40)
-        user = self.session.scalar(select(User).where(User.email == email)) if email else None
         valid = password_verify(password, user.password_hash if user else _DUMMY_HASH)
         if not user or not valid or user.disabled_at is not None:
             self.audit('account.login_failed')
@@ -265,7 +269,7 @@ class IdentityService:
         return self.create_session(user.id)
 
     def create_session(self, user_id) -> SessionGrant:
-        user = self.session.get(User, user_id)
+        user = self.lock_user(user_id)
         if not user or user.disabled_at is not None:
             raise IdentityError('authentication_required', 'Sign in required.', 401)
         raw = secrets.token_urlsafe(48)
@@ -275,6 +279,16 @@ class IdentityService:
                                      expires_at=expires, csrf=csrf))
         self.audit('account.session_created', user_id=user.id)
         return SessionGrant(user, raw, csrf, expires)
+
+    def lock_user(self, user_id):
+        """Fresh account state held until caller commit on both supported DBs.
+
+        SQLite ignores FOR UPDATE, so take its write lock before reading. All
+        authenticated account/token writes follow User → token/session order.
+        """
+        self.session.execute(update(User).where(User.id == user_id).values(id=User.id))
+        return self.session.scalar(select(User).where(User.id == user_id).with_for_update()
+                                   .execution_options(populate_existing=True))
 
     def session_record(self, raw: str | None) -> AuthSession | None:
         if not _valid_token(raw):
@@ -305,7 +319,7 @@ class IdentityService:
     def issue_token(self, user_id, purpose: str) -> str:
         if purpose not in TOKEN_TTL:
             raise IdentityError('invalid_purpose', 'Unsupported identity token purpose.')
-        user = self.session.get(User, user_id)
+        user = self.lock_user(user_id)
         if not user or user.disabled_at is not None:
             raise IdentityError('authentication_required', 'Account not found.', 401)
         now = self.clock()
@@ -322,14 +336,17 @@ class IdentityService:
     def _consume_token(self, raw: str, purpose: str):
         if not _valid_token(raw):
             raise IdentityError('invalid_token', 'This link is invalid or expired.', 400)
-        user_id = self.session.execute(update(IdentityToken).where(
+        user_id = self.session.scalar(select(IdentityToken.user_id).where(
+            IdentityToken.token_hash == token_hash(raw), IdentityToken.purpose == purpose,
+            IdentityToken.consumed_at.is_(None), IdentityToken.expires_at > self.clock()))
+        user = self.lock_user(user_id) if user_id is not None else None
+        if not user or user.disabled_at is not None:
+            raise IdentityError('invalid_token', 'This link is invalid or expired.', 400)
+        claimed_user_id = self.session.execute(update(IdentityToken).where(
             IdentityToken.token_hash == token_hash(raw), IdentityToken.purpose == purpose,
             IdentityToken.consumed_at.is_(None), IdentityToken.expires_at > self.clock(),
         ).values(consumed_at=self.clock()).returning(IdentityToken.user_id)).scalar_one_or_none()
-        if user_id is None:
-            raise IdentityError('invalid_token', 'This link is invalid or expired.', 400)
-        user = self.session.get(User, user_id)
-        if not user or user.disabled_at is not None:
+        if claimed_user_id != user_id:
             raise IdentityError('invalid_token', 'This link is invalid or expired.', 400)
         return user
 
@@ -347,9 +364,11 @@ class IdentityService:
             email = normalize_email(email)
         except IdentityError:
             return None
-        self._attempt('reset-account', email, limit=3, window=60 * 60)
         user = self.session.scalar(select(User).where(User.email == email, User.disabled_at.is_(None)))
-        if not user:
+        if user:
+            user = self.lock_user(user.id)
+        self._attempt('reset-account', email, limit=3, window=60 * 60)
+        if not user or user.disabled_at is not None:
             return None
         return user, self.issue_token(user.id, 'reset_password')
 
@@ -365,16 +384,18 @@ class IdentityService:
         return user
 
     def require_membership(self, user_id, business_id, roles: Iterable[str] | None = None) -> Membership:
+        if roles is not None:
+            self.lock_user(user_id)
         member = self.session.scalar(select(Membership).join(User, Membership.user_id == User.id).where(
             Membership.user_id == user_id, Membership.business_id == business_id,
             User.disabled_at.is_(None),
-        ))
+        ).execution_options(populate_existing=True))
         if not member or (roles is not None and member.role not in set(roles)):
             raise IdentityError('forbidden_tenant', 'This workspace is not available to your account.', 403)
         return member
 
     def require_verified_user(self, user_id) -> User:
-        user = self.session.get(User, user_id)
+        user = self.lock_user(user_id)
         if not user or user.disabled_at is not None:
             raise IdentityError('authentication_required', 'Sign in required.', 401)
         if user.email_verified_at is None:

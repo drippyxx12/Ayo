@@ -1,0 +1,1951 @@
+{
+  "timestamp": "2026-10-27T07:41:37.039189+00:00",
+  "mode": "offline_fixture_merchant_browser",
+  "story": "Merchant account \u2192 profile \u2192 saved evidence \u2192 internal work and prospect drafts \u2192 bounded workspace reads \u2192 persistent reopening and tenant isolation.",
+  "database": "actual_local_postgresql_disposable_schema",
+  "migration_revision": "0007_assistant",
+  "signing_and_encryption": "fresh synthetic ephemeral keys; never recorded",
+  "provider_network_calls": 0,
+  "source_acquisition": "two offline snapshots and one organization fixture seeded through validated local services and DB",
+  "ai": "deterministic saved-record reads; explicit fixture private-policy denial; no model response generated",
+  "mail_delivery": "fixture encrypted outbox verification link only; no delivered mail",
+  "external_operations": "none: no send, provider write, payment, reply or sale",
+  "live_provider_verified": false,
+  "screenshots": "none; receipt records actual interactions and DB assertions",
+  "counters": {
+    "blocked_private_analysis_attempts": 3,
+    "unexpected_source_factory_calls": 0
+  },
+  "checks": [
+    {
+      "width": 390,
+      "market": "NG",
+      "status": "passed",
+      "flows": [
+        "register_verify_fixture_outbox",
+        "profile_name_offer_audience_goals",
+        "library_filter_source_inspection_snapshot_comparison",
+        "source_linked_task_completion",
+        "prospect_list_add_qualification_note",
+        "sourced_draft_review_without_send",
+        "lead_followup_task",
+        "conversation_workspace_reads_blocked_private_ai",
+        "logout_relogin_reopen",
+        "workspace_switch_isolation_and_return",
+        "audit_activity"
+      ],
+      "http_checks": [
+        {
+          "stage": "public_intake",
+          "method": "GET",
+          "path": "/",
+          "status": 200
+        },
+        {
+          "stage": "registration",
+          "method": "GET",
+          "path": "/signup",
+          "status": 200
+        },
+        {
+          "stage": "account_registered",
+          "method": "POST",
+          "path": "/signup",
+          "status": 303
+        },
+        {
+          "stage": "fixture_outbox_verification",
+          "method": "GET",
+          "path": "/verify-email",
+          "status": 303
+        },
+        {
+          "stage": "profile_before_edit",
+          "method": "GET",
+          "path": "/business",
+          "status": 200
+        },
+        {
+          "stage": "profile_saved",
+          "method": "POST",
+          "path": "/business",
+          "status": 303
+        },
+        {
+          "stage": "home_actual_saved_records",
+          "method": "GET",
+          "path": "/dashboard",
+          "status": 200
+        },
+        {
+          "stage": "research_library_two_snapshots",
+          "method": "GET",
+          "path": "/research/library",
+          "status": 200
+        },
+        {
+          "stage": "research_evidence_inspection",
+          "method": "GET",
+          "path": "/research/library/pHKDEhhOaRnAGLk6ZM_LPu7zeQwWjShR",
+          "status": 200
+        },
+        {
+          "stage": "source_task_created",
+          "method": "POST",
+          "path": "/work/tasks",
+          "status": 303
+        },
+        {
+          "stage": "merchant_task_completion_recorded",
+          "method": "POST",
+          "path": "/work/tasks/ZzEqRfF1ORf7wmvFQNOxecz0ilgLDGo_",
+          "status": 303
+        },
+        {
+          "stage": "prospect_library",
+          "method": "GET",
+          "path": "/leads",
+          "status": 200
+        },
+        {
+          "stage": "prospect_list_created",
+          "method": "POST",
+          "path": "/leads/lists",
+          "status": 303
+        },
+        {
+          "stage": "prospect_detail",
+          "method": "GET",
+          "path": "/leads/rDMsZsWiGfcIH5mmeqE2piyMQB43nl55",
+          "status": 200
+        },
+        {
+          "stage": "prospect_added_to_list",
+          "method": "POST",
+          "path": "/leads/lists/tO6vlpkkgO--fbejGNWtIZuyFXBk_s9L/items",
+          "status": 303
+        },
+        {
+          "stage": "prospect_qualified_after_review",
+          "method": "POST",
+          "path": "/leads/rDMsZsWiGfcIH5mmeqE2piyMQB43nl55/qualify",
+          "status": 303
+        },
+        {
+          "stage": "qualified_prospect_detail",
+          "method": "GET",
+          "path": "/leads/rDMsZsWiGfcIH5mmeqE2piyMQB43nl55",
+          "status": 200
+        },
+        {
+          "stage": "prospect_note_saved",
+          "method": "POST",
+          "path": "/leads/rDMsZsWiGfcIH5mmeqE2piyMQB43nl55/notes",
+          "status": 303
+        },
+        {
+          "stage": "sourced_draft_prepared",
+          "method": "POST",
+          "path": "/leads/rDMsZsWiGfcIH5mmeqE2piyMQB43nl55/drafts",
+          "status": 303
+        },
+        {
+          "stage": "reviewed_draft_saved",
+          "method": "POST",
+          "path": "/leads/rDMsZsWiGfcIH5mmeqE2piyMQB43nl55/drafts/VWoyi4p2X1KDrDmeqxQY38tUskVP2571",
+          "status": 303
+        },
+        {
+          "stage": "lead_followup_task_saved",
+          "method": "POST",
+          "path": "/leads/rDMsZsWiGfcIH5mmeqE2piyMQB43nl55/followups",
+          "status": 303
+        },
+        {
+          "stage": "work_includes_lead_followup",
+          "method": "GET",
+          "path": "/work",
+          "status": 200
+        },
+        {
+          "stage": "ayo_conversation_library",
+          "method": "GET",
+          "path": "/ayo",
+          "status": 200
+        },
+        {
+          "stage": "conversation_created",
+          "method": "POST",
+          "path": "/ayo/conversations",
+          "status": 303
+        },
+        {
+          "stage": "workspace_reads_saved_private_inference_blocked",
+          "method": "POST",
+          "path": "/ayo/conversations/CFegRnFsndte8aaqbXRb4IA98ERZDGQe/messages",
+          "status": 303
+        },
+        {
+          "stage": "logout",
+          "method": "POST",
+          "path": "/logout",
+          "status": 303
+        },
+        {
+          "stage": "relogin",
+          "method": "GET",
+          "path": "/login",
+          "status": 200
+        },
+        {
+          "stage": "relogin_persistent_workspace",
+          "method": "POST",
+          "path": "/login",
+          "status": 303
+        },
+        {
+          "stage": "reopened_saved_conversation",
+          "method": "GET",
+          "path": "/ayo/conversations/CFegRnFsndte8aaqbXRb4IA98ERZDGQe",
+          "status": 200
+        },
+        {
+          "stage": "reopened_saved_evidence",
+          "method": "GET",
+          "path": "/research/library/pHKDEhhOaRnAGLk6ZM_LPu7zeQwWjShR",
+          "status": 200
+        },
+        {
+          "stage": "reopened_profile",
+          "method": "GET",
+          "path": "/business",
+          "status": 200
+        },
+        {
+          "stage": "second_workspace_setup",
+          "method": "GET",
+          "path": "/business/setup",
+          "status": 200
+        },
+        {
+          "stage": "second_workspace_created",
+          "method": "POST",
+          "path": "/business/setup",
+          "status": 303
+        },
+        {
+          "stage": "isolated_workspace_work",
+          "method": "GET",
+          "path": "/work",
+          "status": 200
+        },
+        {
+          "stage": "isolated_workspace_leads",
+          "method": "GET",
+          "path": "/leads",
+          "status": 200
+        },
+        {
+          "stage": "isolated_workspace_research",
+          "method": "GET",
+          "path": "/research/library",
+          "status": 200
+        },
+        {
+          "stage": "isolated_workspace_conversations",
+          "method": "GET",
+          "path": "/ayo",
+          "status": 200
+        },
+        {
+          "stage": "other_workspace_report_denied",
+          "method": "GET",
+          "path": "/research/library/pHKDEhhOaRnAGLk6ZM_LPu7zeQwWjShR",
+          "status": 404
+        },
+        {
+          "stage": "other_workspace_lead_denied",
+          "method": "GET",
+          "path": "/leads/rDMsZsWiGfcIH5mmeqE2piyMQB43nl55",
+          "status": 404
+        },
+        {
+          "stage": "other_workspace_conversation_denied",
+          "method": "GET",
+          "path": "/ayo/conversations/CFegRnFsndte8aaqbXRb4IA98ERZDGQe",
+          "status": 404
+        },
+        {
+          "stage": "workspace_switch_settings",
+          "method": "GET",
+          "path": "/settings",
+          "status": 200
+        },
+        {
+          "stage": "original_workspace_restored",
+          "method": "POST",
+          "path": "/business/switch",
+          "status": 303
+        },
+        {
+          "stage": "real_audit_activity",
+          "method": "GET",
+          "path": "/activity",
+          "status": 200
+        },
+        {
+          "stage": "final_persisted_work",
+          "method": "GET",
+          "path": "/work",
+          "status": 200
+        }
+      ],
+      "screen_checks": [
+        {
+          "stage": "public_intake",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "registration",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "account_registered",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "profile_before_edit",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "profile_saved",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "home_actual_saved_records",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "keyboard_navigation_to_research",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "research_filter",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "research_library_two_snapshots",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "research_compare_history",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "research_evidence_inspection",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "work_from_saved_source",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "source_task_created",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "merchant_task_completion_recorded",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "prospect_library",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "prospect_list_created",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "prospect_detail",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "prospect_added_to_list",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "prospect_qualified_after_review",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "qualified_prospect_detail",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "prospect_note_saved",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "sourced_draft_prepared",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "reviewed_draft_saved",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "lead_followup_task_saved",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "work_includes_lead_followup",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "ayo_conversation_library",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "conversation_created",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "workspace_reads_saved_private_inference_blocked",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "logout",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "relogin",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "relogin_persistent_workspace",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "reopened_saved_conversation",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "reopened_saved_evidence",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "reopened_profile",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "second_workspace_setup",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "second_workspace_created",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "isolated_workspace_work",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "isolated_workspace_leads",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "isolated_workspace_research",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "isolated_workspace_conversations",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "workspace_switch_settings",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "original_workspace_restored",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "real_audit_activity",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "final_persisted_work",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        }
+      ],
+      "keyboard_navigation": "focused research navigation link and Enter followed its destination",
+      "database_checks": {
+        "verified_user": true,
+        "saved_profile_version": 1,
+        "source_classification": "OWNER_PROVIDED_UNVERIFIED",
+        "immutable_saved_reports": 2,
+        "task_count": 2,
+        "source_linked_task_status": "done",
+        "lead_followup_status": "open",
+        "lead_status": "qualified",
+        "list_item_count": 1,
+        "note_count": 1,
+        "draft_status": "draft",
+        "draft_version": 2,
+        "assistant_message_count": 2,
+        "assistant_tool_run_count": 5,
+        "assistant_status": "blocked",
+        "assistant_error_code": "private_analysis_not_authorized",
+        "browser_multiline_forms_saved_as_lf": true,
+        "assistant_generated_result": false,
+        "audit_action_types": [
+          "account.registered",
+          "assistant.analysis_recorded",
+          "assistant.conversation_created",
+          "assistant.question_recorded",
+          "business.created",
+          "business.profile_updated",
+          "lead.draft_saved",
+          "lead.list_created",
+          "lead.list_item_added",
+          "lead.note_added",
+          "lead.qualified",
+          "report.claimed",
+          "task.created",
+          "task.updated"
+        ],
+        "founding_grants_for_account": 1,
+        "second_workspace_record_counts": {
+          "research_reports": 0,
+          "leads": 0,
+          "business_profiles": 0,
+          "tasks": 0,
+          "assistant_conversations": 0
+        }
+      },
+      "page_errors": [],
+      "network_failures": [],
+      "forbidden_browser_requests": []
+    },
+    {
+      "width": 768,
+      "market": "GH",
+      "status": "passed",
+      "flows": [
+        "register_verify_fixture_outbox",
+        "profile_name_offer_audience_goals",
+        "library_filter_source_inspection_snapshot_comparison",
+        "source_linked_task_completion",
+        "prospect_list_add_qualification_note",
+        "sourced_draft_review_without_send",
+        "lead_followup_task",
+        "conversation_workspace_reads_blocked_private_ai",
+        "logout_relogin_reopen",
+        "workspace_switch_isolation_and_return",
+        "audit_activity"
+      ],
+      "http_checks": [
+        {
+          "stage": "public_intake",
+          "method": "GET",
+          "path": "/",
+          "status": 200
+        },
+        {
+          "stage": "registration",
+          "method": "GET",
+          "path": "/signup",
+          "status": 200
+        },
+        {
+          "stage": "account_registered",
+          "method": "POST",
+          "path": "/signup",
+          "status": 303
+        },
+        {
+          "stage": "fixture_outbox_verification",
+          "method": "GET",
+          "path": "/verify-email",
+          "status": 303
+        },
+        {
+          "stage": "profile_before_edit",
+          "method": "GET",
+          "path": "/business",
+          "status": 200
+        },
+        {
+          "stage": "profile_saved",
+          "method": "POST",
+          "path": "/business",
+          "status": 303
+        },
+        {
+          "stage": "home_actual_saved_records",
+          "method": "GET",
+          "path": "/dashboard",
+          "status": 200
+        },
+        {
+          "stage": "research_library_two_snapshots",
+          "method": "GET",
+          "path": "/research/library",
+          "status": 200
+        },
+        {
+          "stage": "research_evidence_inspection",
+          "method": "GET",
+          "path": "/research/library/2fn9YfFSvsh_2nN8p7iVIHMbRhg_G9_h",
+          "status": 200
+        },
+        {
+          "stage": "source_task_created",
+          "method": "POST",
+          "path": "/work/tasks",
+          "status": 303
+        },
+        {
+          "stage": "merchant_task_completion_recorded",
+          "method": "POST",
+          "path": "/work/tasks/M71Tw6SHVxpcXucYJ7jYUp1d0JeVym9n",
+          "status": 303
+        },
+        {
+          "stage": "prospect_library",
+          "method": "GET",
+          "path": "/leads",
+          "status": 200
+        },
+        {
+          "stage": "prospect_list_created",
+          "method": "POST",
+          "path": "/leads/lists",
+          "status": 303
+        },
+        {
+          "stage": "prospect_detail",
+          "method": "GET",
+          "path": "/leads/uOkqHZj6Y34Lmlso6vn0drwIWDAWXt6-",
+          "status": 200
+        },
+        {
+          "stage": "prospect_added_to_list",
+          "method": "POST",
+          "path": "/leads/lists/1CnKM6O8fS6SR1G3mFeY9EIikWJ8PfEB/items",
+          "status": 303
+        },
+        {
+          "stage": "prospect_qualified_after_review",
+          "method": "POST",
+          "path": "/leads/uOkqHZj6Y34Lmlso6vn0drwIWDAWXt6-/qualify",
+          "status": 303
+        },
+        {
+          "stage": "qualified_prospect_detail",
+          "method": "GET",
+          "path": "/leads/uOkqHZj6Y34Lmlso6vn0drwIWDAWXt6-",
+          "status": 200
+        },
+        {
+          "stage": "prospect_note_saved",
+          "method": "POST",
+          "path": "/leads/uOkqHZj6Y34Lmlso6vn0drwIWDAWXt6-/notes",
+          "status": 303
+        },
+        {
+          "stage": "sourced_draft_prepared",
+          "method": "POST",
+          "path": "/leads/uOkqHZj6Y34Lmlso6vn0drwIWDAWXt6-/drafts",
+          "status": 303
+        },
+        {
+          "stage": "reviewed_draft_saved",
+          "method": "POST",
+          "path": "/leads/uOkqHZj6Y34Lmlso6vn0drwIWDAWXt6-/drafts/SpSgV0-_wF0I1pIkq89Te3jrN_CKowM4",
+          "status": 303
+        },
+        {
+          "stage": "lead_followup_task_saved",
+          "method": "POST",
+          "path": "/leads/uOkqHZj6Y34Lmlso6vn0drwIWDAWXt6-/followups",
+          "status": 303
+        },
+        {
+          "stage": "work_includes_lead_followup",
+          "method": "GET",
+          "path": "/work",
+          "status": 200
+        },
+        {
+          "stage": "ayo_conversation_library",
+          "method": "GET",
+          "path": "/ayo",
+          "status": 200
+        },
+        {
+          "stage": "conversation_created",
+          "method": "POST",
+          "path": "/ayo/conversations",
+          "status": 303
+        },
+        {
+          "stage": "workspace_reads_saved_private_inference_blocked",
+          "method": "POST",
+          "path": "/ayo/conversations/961VymzSKkhhp8jUDEUR9YDKXu4wt9cz/messages",
+          "status": 303
+        },
+        {
+          "stage": "logout",
+          "method": "POST",
+          "path": "/logout",
+          "status": 303
+        },
+        {
+          "stage": "relogin",
+          "method": "GET",
+          "path": "/login",
+          "status": 200
+        },
+        {
+          "stage": "relogin_persistent_workspace",
+          "method": "POST",
+          "path": "/login",
+          "status": 303
+        },
+        {
+          "stage": "reopened_saved_conversation",
+          "method": "GET",
+          "path": "/ayo/conversations/961VymzSKkhhp8jUDEUR9YDKXu4wt9cz",
+          "status": 200
+        },
+        {
+          "stage": "reopened_saved_evidence",
+          "method": "GET",
+          "path": "/research/library/2fn9YfFSvsh_2nN8p7iVIHMbRhg_G9_h",
+          "status": 200
+        },
+        {
+          "stage": "reopened_profile",
+          "method": "GET",
+          "path": "/business",
+          "status": 200
+        },
+        {
+          "stage": "second_workspace_setup",
+          "method": "GET",
+          "path": "/business/setup",
+          "status": 200
+        },
+        {
+          "stage": "second_workspace_created",
+          "method": "POST",
+          "path": "/business/setup",
+          "status": 303
+        },
+        {
+          "stage": "isolated_workspace_work",
+          "method": "GET",
+          "path": "/work",
+          "status": 200
+        },
+        {
+          "stage": "isolated_workspace_leads",
+          "method": "GET",
+          "path": "/leads",
+          "status": 200
+        },
+        {
+          "stage": "isolated_workspace_research",
+          "method": "GET",
+          "path": "/research/library",
+          "status": 200
+        },
+        {
+          "stage": "isolated_workspace_conversations",
+          "method": "GET",
+          "path": "/ayo",
+          "status": 200
+        },
+        {
+          "stage": "other_workspace_report_denied",
+          "method": "GET",
+          "path": "/research/library/2fn9YfFSvsh_2nN8p7iVIHMbRhg_G9_h",
+          "status": 404
+        },
+        {
+          "stage": "other_workspace_lead_denied",
+          "method": "GET",
+          "path": "/leads/uOkqHZj6Y34Lmlso6vn0drwIWDAWXt6-",
+          "status": 404
+        },
+        {
+          "stage": "other_workspace_conversation_denied",
+          "method": "GET",
+          "path": "/ayo/conversations/961VymzSKkhhp8jUDEUR9YDKXu4wt9cz",
+          "status": 404
+        },
+        {
+          "stage": "workspace_switch_settings",
+          "method": "GET",
+          "path": "/settings",
+          "status": 200
+        },
+        {
+          "stage": "original_workspace_restored",
+          "method": "POST",
+          "path": "/business/switch",
+          "status": 303
+        },
+        {
+          "stage": "real_audit_activity",
+          "method": "GET",
+          "path": "/activity",
+          "status": 200
+        },
+        {
+          "stage": "final_persisted_work",
+          "method": "GET",
+          "path": "/work",
+          "status": 200
+        }
+      ],
+      "screen_checks": [
+        {
+          "stage": "public_intake",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "registration",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "account_registered",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "profile_before_edit",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "profile_saved",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "home_actual_saved_records",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "keyboard_navigation_to_research",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "research_filter",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "research_library_two_snapshots",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "research_compare_history",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "research_evidence_inspection",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "work_from_saved_source",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "source_task_created",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "merchant_task_completion_recorded",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "prospect_library",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "prospect_list_created",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "prospect_detail",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "prospect_added_to_list",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "prospect_qualified_after_review",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "qualified_prospect_detail",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "prospect_note_saved",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "sourced_draft_prepared",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "reviewed_draft_saved",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "lead_followup_task_saved",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "work_includes_lead_followup",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "ayo_conversation_library",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "conversation_created",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "workspace_reads_saved_private_inference_blocked",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "logout",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "relogin",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "relogin_persistent_workspace",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "reopened_saved_conversation",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "reopened_saved_evidence",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "reopened_profile",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "second_workspace_setup",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "second_workspace_created",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "isolated_workspace_work",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "isolated_workspace_leads",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "isolated_workspace_research",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "isolated_workspace_conversations",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "workspace_switch_settings",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "original_workspace_restored",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "real_audit_activity",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "final_persisted_work",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        }
+      ],
+      "keyboard_navigation": "focused research navigation link and Enter followed its destination",
+      "database_checks": {
+        "verified_user": true,
+        "saved_profile_version": 1,
+        "source_classification": "OWNER_PROVIDED_UNVERIFIED",
+        "immutable_saved_reports": 2,
+        "task_count": 2,
+        "source_linked_task_status": "done",
+        "lead_followup_status": "open",
+        "lead_status": "qualified",
+        "list_item_count": 1,
+        "note_count": 1,
+        "draft_status": "draft",
+        "draft_version": 2,
+        "assistant_message_count": 2,
+        "assistant_tool_run_count": 5,
+        "assistant_status": "blocked",
+        "assistant_error_code": "private_analysis_not_authorized",
+        "browser_multiline_forms_saved_as_lf": true,
+        "assistant_generated_result": false,
+        "audit_action_types": [
+          "account.registered",
+          "assistant.analysis_recorded",
+          "assistant.conversation_created",
+          "assistant.question_recorded",
+          "business.created",
+          "business.profile_updated",
+          "lead.draft_saved",
+          "lead.list_created",
+          "lead.list_item_added",
+          "lead.note_added",
+          "lead.qualified",
+          "report.claimed",
+          "task.created",
+          "task.updated"
+        ],
+        "founding_grants_for_account": 1,
+        "second_workspace_record_counts": {
+          "research_reports": 0,
+          "leads": 0,
+          "business_profiles": 0,
+          "tasks": 0,
+          "assistant_conversations": 0
+        }
+      },
+      "page_errors": [],
+      "network_failures": [],
+      "forbidden_browser_requests": []
+    },
+    {
+      "width": 1440,
+      "market": "NG",
+      "status": "passed",
+      "flows": [
+        "register_verify_fixture_outbox",
+        "profile_name_offer_audience_goals",
+        "library_filter_source_inspection_snapshot_comparison",
+        "source_linked_task_completion",
+        "prospect_list_add_qualification_note",
+        "sourced_draft_review_without_send",
+        "lead_followup_task",
+        "conversation_workspace_reads_blocked_private_ai",
+        "logout_relogin_reopen",
+        "workspace_switch_isolation_and_return",
+        "audit_activity"
+      ],
+      "http_checks": [
+        {
+          "stage": "public_intake",
+          "method": "GET",
+          "path": "/",
+          "status": 200
+        },
+        {
+          "stage": "registration",
+          "method": "GET",
+          "path": "/signup",
+          "status": 200
+        },
+        {
+          "stage": "account_registered",
+          "method": "POST",
+          "path": "/signup",
+          "status": 303
+        },
+        {
+          "stage": "fixture_outbox_verification",
+          "method": "GET",
+          "path": "/verify-email",
+          "status": 303
+        },
+        {
+          "stage": "profile_before_edit",
+          "method": "GET",
+          "path": "/business",
+          "status": 200
+        },
+        {
+          "stage": "profile_saved",
+          "method": "POST",
+          "path": "/business",
+          "status": 303
+        },
+        {
+          "stage": "home_actual_saved_records",
+          "method": "GET",
+          "path": "/dashboard",
+          "status": 200
+        },
+        {
+          "stage": "research_library_two_snapshots",
+          "method": "GET",
+          "path": "/research/library",
+          "status": 200
+        },
+        {
+          "stage": "research_evidence_inspection",
+          "method": "GET",
+          "path": "/research/library/R69_GqyTcvOyMwYjC85XP0lO6cgiiNxs",
+          "status": 200
+        },
+        {
+          "stage": "source_task_created",
+          "method": "POST",
+          "path": "/work/tasks",
+          "status": 303
+        },
+        {
+          "stage": "merchant_task_completion_recorded",
+          "method": "POST",
+          "path": "/work/tasks/kbPVL5IFa8JgN8C1jHZFv0aFNZQpfq0k",
+          "status": 303
+        },
+        {
+          "stage": "prospect_library",
+          "method": "GET",
+          "path": "/leads",
+          "status": 200
+        },
+        {
+          "stage": "prospect_list_created",
+          "method": "POST",
+          "path": "/leads/lists",
+          "status": 303
+        },
+        {
+          "stage": "prospect_detail",
+          "method": "GET",
+          "path": "/leads/wFyq0mH2TTNZ2cHmnGtFrUV5nQHAKp3T",
+          "status": 200
+        },
+        {
+          "stage": "prospect_added_to_list",
+          "method": "POST",
+          "path": "/leads/lists/62pXXLu7CfUuIA4IeRlSJR_Encuzyc9o/items",
+          "status": 303
+        },
+        {
+          "stage": "prospect_qualified_after_review",
+          "method": "POST",
+          "path": "/leads/wFyq0mH2TTNZ2cHmnGtFrUV5nQHAKp3T/qualify",
+          "status": 303
+        },
+        {
+          "stage": "qualified_prospect_detail",
+          "method": "GET",
+          "path": "/leads/wFyq0mH2TTNZ2cHmnGtFrUV5nQHAKp3T",
+          "status": 200
+        },
+        {
+          "stage": "prospect_note_saved",
+          "method": "POST",
+          "path": "/leads/wFyq0mH2TTNZ2cHmnGtFrUV5nQHAKp3T/notes",
+          "status": 303
+        },
+        {
+          "stage": "sourced_draft_prepared",
+          "method": "POST",
+          "path": "/leads/wFyq0mH2TTNZ2cHmnGtFrUV5nQHAKp3T/drafts",
+          "status": 303
+        },
+        {
+          "stage": "reviewed_draft_saved",
+          "method": "POST",
+          "path": "/leads/wFyq0mH2TTNZ2cHmnGtFrUV5nQHAKp3T/drafts/NJT1ED1gN7O6RWdLJGOU65AR6F7Bm1bq",
+          "status": 303
+        },
+        {
+          "stage": "lead_followup_task_saved",
+          "method": "POST",
+          "path": "/leads/wFyq0mH2TTNZ2cHmnGtFrUV5nQHAKp3T/followups",
+          "status": 303
+        },
+        {
+          "stage": "work_includes_lead_followup",
+          "method": "GET",
+          "path": "/work",
+          "status": 200
+        },
+        {
+          "stage": "ayo_conversation_library",
+          "method": "GET",
+          "path": "/ayo",
+          "status": 200
+        },
+        {
+          "stage": "conversation_created",
+          "method": "POST",
+          "path": "/ayo/conversations",
+          "status": 303
+        },
+        {
+          "stage": "workspace_reads_saved_private_inference_blocked",
+          "method": "POST",
+          "path": "/ayo/conversations/9XlkYlj98o4AMSdJKd8d6GkCBokINPdV/messages",
+          "status": 303
+        },
+        {
+          "stage": "logout",
+          "method": "POST",
+          "path": "/logout",
+          "status": 303
+        },
+        {
+          "stage": "relogin",
+          "method": "GET",
+          "path": "/login",
+          "status": 200
+        },
+        {
+          "stage": "relogin_persistent_workspace",
+          "method": "POST",
+          "path": "/login",
+          "status": 303
+        },
+        {
+          "stage": "reopened_saved_conversation",
+          "method": "GET",
+          "path": "/ayo/conversations/9XlkYlj98o4AMSdJKd8d6GkCBokINPdV",
+          "status": 200
+        },
+        {
+          "stage": "reopened_saved_evidence",
+          "method": "GET",
+          "path": "/research/library/R69_GqyTcvOyMwYjC85XP0lO6cgiiNxs",
+          "status": 200
+        },
+        {
+          "stage": "reopened_profile",
+          "method": "GET",
+          "path": "/business",
+          "status": 200
+        },
+        {
+          "stage": "second_workspace_setup",
+          "method": "GET",
+          "path": "/business/setup",
+          "status": 200
+        },
+        {
+          "stage": "second_workspace_created",
+          "method": "POST",
+          "path": "/business/setup",
+          "status": 303
+        },
+        {
+          "stage": "isolated_workspace_work",
+          "method": "GET",
+          "path": "/work",
+          "status": 200
+        },
+        {
+          "stage": "isolated_workspace_leads",
+          "method": "GET",
+          "path": "/leads",
+          "status": 200
+        },
+        {
+          "stage": "isolated_workspace_research",
+          "method": "GET",
+          "path": "/research/library",
+          "status": 200
+        },
+        {
+          "stage": "isolated_workspace_conversations",
+          "method": "GET",
+          "path": "/ayo",
+          "status": 200
+        },
+        {
+          "stage": "other_workspace_report_denied",
+          "method": "GET",
+          "path": "/research/library/R69_GqyTcvOyMwYjC85XP0lO6cgiiNxs",
+          "status": 404
+        },
+        {
+          "stage": "other_workspace_lead_denied",
+          "method": "GET",
+          "path": "/leads/wFyq0mH2TTNZ2cHmnGtFrUV5nQHAKp3T",
+          "status": 404
+        },
+        {
+          "stage": "other_workspace_conversation_denied",
+          "method": "GET",
+          "path": "/ayo/conversations/9XlkYlj98o4AMSdJKd8d6GkCBokINPdV",
+          "status": 404
+        },
+        {
+          "stage": "workspace_switch_settings",
+          "method": "GET",
+          "path": "/settings",
+          "status": 200
+        },
+        {
+          "stage": "original_workspace_restored",
+          "method": "POST",
+          "path": "/business/switch",
+          "status": 303
+        },
+        {
+          "stage": "real_audit_activity",
+          "method": "GET",
+          "path": "/activity",
+          "status": 200
+        },
+        {
+          "stage": "final_persisted_work",
+          "method": "GET",
+          "path": "/work",
+          "status": 200
+        }
+      ],
+      "screen_checks": [
+        {
+          "stage": "public_intake",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "registration",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "account_registered",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "profile_before_edit",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "profile_saved",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "home_actual_saved_records",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "keyboard_navigation_to_research",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "research_filter",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "research_library_two_snapshots",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "research_compare_history",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "research_evidence_inspection",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "work_from_saved_source",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "source_task_created",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "merchant_task_completion_recorded",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "prospect_library",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "prospect_list_created",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "prospect_detail",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "prospect_added_to_list",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "prospect_qualified_after_review",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "qualified_prospect_detail",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "prospect_note_saved",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "sourced_draft_prepared",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "reviewed_draft_saved",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "lead_followup_task_saved",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "work_includes_lead_followup",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "ayo_conversation_library",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "conversation_created",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "workspace_reads_saved_private_inference_blocked",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "logout",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "relogin",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "relogin_persistent_workspace",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "reopened_saved_conversation",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "reopened_saved_evidence",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "reopened_profile",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "second_workspace_setup",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "second_workspace_created",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "isolated_workspace_work",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "isolated_workspace_leads",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "isolated_workspace_research",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "isolated_workspace_conversations",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "workspace_switch_settings",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "original_workspace_restored",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "real_audit_activity",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        },
+        {
+          "stage": "final_persisted_work",
+          "horizontal_overflow": false,
+          "fonts_loaded": true,
+          "unlabeled_form_controls": 0,
+          "main_and_skip_link": true
+        }
+      ],
+      "keyboard_navigation": "focused research navigation link and Enter followed its destination",
+      "database_checks": {
+        "verified_user": true,
+        "saved_profile_version": 1,
+        "source_classification": "OWNER_PROVIDED_UNVERIFIED",
+        "immutable_saved_reports": 2,
+        "task_count": 2,
+        "source_linked_task_status": "done",
+        "lead_followup_status": "open",
+        "lead_status": "qualified",
+        "list_item_count": 1,
+        "note_count": 1,
+        "draft_status": "draft",
+        "draft_version": 2,
+        "assistant_message_count": 2,
+        "assistant_tool_run_count": 5,
+        "assistant_status": "blocked",
+        "assistant_error_code": "private_analysis_not_authorized",
+        "browser_multiline_forms_saved_as_lf": true,
+        "assistant_generated_result": false,
+        "audit_action_types": [
+          "account.registered",
+          "assistant.analysis_recorded",
+          "assistant.conversation_created",
+          "assistant.question_recorded",
+          "business.created",
+          "business.profile_updated",
+          "lead.draft_saved",
+          "lead.list_created",
+          "lead.list_item_added",
+          "lead.note_added",
+          "lead.qualified",
+          "report.claimed",
+          "task.created",
+          "task.updated"
+        ],
+        "founding_grants_for_account": 1,
+        "second_workspace_record_counts": {
+          "research_reports": 0,
+          "leads": 0,
+          "business_profiles": 0,
+          "tasks": 0,
+          "assistant_conversations": 0
+        }
+      },
+      "page_errors": [],
+      "network_failures": [],
+      "forbidden_browser_requests": []
+    }
+  ],
+  "cleanup": {
+    "loopback_server_stopped": true,
+    "disposable_schema_removed": true
+  }
+}

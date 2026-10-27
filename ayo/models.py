@@ -3,17 +3,10 @@
 Public research, account identity, merchant membership and provider grants remain
 separate authorization boundaries. Importing this module does not access a DB.
 """
-import secrets
 import time
 
-from sqlalchemy import BigInteger, CheckConstraint, Column, Float, ForeignKey, Integer, String, Text, UniqueConstraint
-from sqlalchemy.orm import declarative_base
-
-Base = declarative_base()
-
-
-def opaque_id():
-    return secrets.token_urlsafe(24)
+from sqlalchemy import BigInteger, CheckConstraint, Column, Float, ForeignKey, Index, Integer, String, Text, UniqueConstraint
+from ayo.model_base import Base, opaque_id
 
 
 class User(Base):
@@ -177,6 +170,7 @@ class Lead(Base):
     __tablename__ = 'leads'
     __table_args__ = (
         UniqueConstraint('business_id', 'url', name='uq_lead_business_url'),
+        Index('uq_lead_business_id', 'business_id', 'id', unique=True),
         CheckConstraint("status IN ('discovered', 'qualified', 'contacted', 'replied', 'converted')", name='ck_lead_status'),
     )
     id = Column(String(64), primary_key=True, default=opaque_id)
@@ -276,3 +270,9 @@ class ProviderUsageReservation(Base):
     usage_json = Column(Text, nullable=False, default='{}')
     created_at = Column(Float, nullable=False, index=True)
     settled_at = Column(Float, nullable=True)
+
+
+# All domains share one migration registry; individual modules import model_base.
+from ayo.merchant_models import BusinessProfile, Task  # noqa: E402,F401
+from ayo.lead_models import LeadList, LeadListItem, LeadNote, OutreachDraft  # noqa: E402,F401
+from ayo.assistant_models import AssistantConversation, AssistantMessage, AssistantToolRun  # noqa: E402,F401

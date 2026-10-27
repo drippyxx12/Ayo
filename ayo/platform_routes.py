@@ -19,7 +19,7 @@ from ayo.mailer import queue_identity_mail
 from ayo.jobs import enqueue, get_job, job_progress
 from ayo.provider_usage import budget_context
 from ayo.account_deletion import remove_account
-from ayo.models import AuditEvent, Business, IntelligenceRun, Lead, LeadEvent, Membership
+from ayo.models import AuditEvent, Business, IntelligenceRun, Lead, LeadEvent, Membership, ResearchReportRecord
 from ayo.public_research import prepare_public_research
 from ayo.report_storage import ReportStore
 from ayo.research import ResearchError, ResearchReport, ResearchService
@@ -86,15 +86,23 @@ def install_routes(mod):
                 sess.rollback()
 
     def dashboard_response(request, sess, error=None, status=200):
+        from ayo.merchant_overview import overview
         user, business = context(request, sess)
         if business is None:
             return mod.render(request, 'business_setup.html', user=user, error=error)
-        reports = ReportStore(sess).for_business(user.id, business.id)
-        leads = sess.scalars(select(Lead).where(Lead.business_id == business.id).order_by(Lead.created_at.desc())).all()
+        reports = sess.scalars(select(ResearchReportRecord).where(
+            ResearchReportRecord.business_id == business.id,
+            ResearchReportRecord.status.in_(['PARTIAL', 'SUCCEEDED']))
+            .order_by(ResearchReportRecord.created_at.desc()).limit(10)).all()
         opportunities = []
         for record in reports:
             data = json.loads(record.report_json)
             opportunities.extend({**item, 'report_id': record.id} for item in data.get('opportunities', []))
+            if data.get('analysis_status') == 'completed' and data.get('analysis'):
+                opportunities.extend({'title': 'Review a suggested improvement', 'description': item['text'],
+                    'classification': 'AI_INFERRED', 'report_id': record.id,
+                    'evidence_ids': item.get('evidence_ids', [])} for item in data['analysis'].get('recommendations', []))
+        opportunities = opportunities[:8]
         activities = sess.scalars(select(AuditEvent).where(AuditEvent.business_id == business.id)
                                  .order_by(AuditEvent.created_at.desc()).limit(20)).all()
         labels = {'report.claimed': 'Research saved to this workspace',
@@ -109,8 +117,9 @@ def install_routes(mod):
         notice = ('Your report is ready to save. Verify your email, then reopen it to save it securely.'
                   if request.session.get('pending_claim') and not user.email_verified_at else None)
         response = mod.render(request, 'app_dashboard.html', user=user, business=business,
-            reports=reports, leads=leads, opportunities=opportunities, activities=activities,
+            reports=reports, opportunities=opportunities, activities=activities,
             answer=json.loads(latest.result_json) if latest else None,
+            overview=overview(sess, user.id, business.id),
             founding_slot=IdentityService(sess).entitlement(user.id).founding_slot,
             error=error, notice=notice)
         response.status_code = status
@@ -274,11 +283,19 @@ def install_routes(mod):
         except ResearchError as exc:
             raise HTTPException(exc.status_code, {'code': exc.code, 'message': str(exc)})
 
+    # Static research paths must be registered before /research/{report_id}.
+    from ayo.research_workspace_routes import install_routes as install_research_workspace
+    install_research_workspace(mod, context, protected, guard)
+
     @app.get('/research/{report_id}')
     def open_report(report_id: str, request: Request, sess=Depends(mod.db)):
         user = mod.session_user(request, sess)
         try:
             row = ReportStore(sess).accessible(report_id, user.id if user else None, request.session.get('anonymous_id'))
+            if row.business_id:
+                _, selected_business = context(request, sess)
+                if not selected_business or row.business_id != selected_business.id:
+                    raise IdentityError('report_unavailable', 'Report not found in this workspace.', 404)
         except IdentityError as exc:
             raise HTTPException(exc.status_code, str(exc))
         report = ResearchReport.model_validate_json(row.report_json)
@@ -300,10 +317,11 @@ def install_routes(mod):
         return RedirectResponse('/research/' + report.id, 303)
 
     @app.get('/leads')
-    def leads_page(request: Request, sess=Depends(mod.db)):
+    def leads_page(request: Request, q: str = '', status: str = '', list_id: str = '', sess=Depends(mod.db)):
+        from ayo.lead_management import LeadManagementService
         user, business = protected(request, sess)
-        rows = sess.scalars(select(Lead).where(Lead.business_id == business.id).order_by(Lead.created_at.desc())).all()
-        return mod.render(request, 'leads.html', user=user, business=business, leads=lead_views(rows))
+        return mod.render(request, 'lead_library.html', user=user, business=business,
+            **LeadManagementService(sess).library(user.id, business.id, q=q, status=status, list_id=list_id))
 
     @app.post('/leads/discover')
     async def find_leads(request: Request, query: str = Form(...), country: str = Form(...), city: str = Form(''),
@@ -311,6 +329,7 @@ def install_routes(mod):
         user, business = protected(request, sess)
         guard(request, csrf, sess)
         identity = IdentityService(sess)
+        identity.require_verified_user(user.id)
         identity.require_membership(user.id, business.id, roles={'owner', 'admin', 'editor'})
         identity._attempt('lead-discovery', business.id, limit=20, window=3600)
         sess.commit()
@@ -319,6 +338,10 @@ def install_routes(mod):
         try:
             with budget_context(mod.DbSession, scope_id='business:' + business.id, request_id=secrets.token_urlsafe(24)):
                 candidates = await discover_leads(app.state.research_factory(), query, country, city, existing_urls=tuple(existing))
+            # Authorization may have been revoked during provider I/O. Recheck
+            # under the account lock before persisting any returned records.
+            identity.require_verified_user(user.id)
+            identity.require_membership(user.id, business.id, roles={'owner', 'admin', 'editor'})
             for candidate in candidates:
                 row = Lead(business_id=business.id, name=candidate.name, url=candidate.url, country=candidate.country,
                            status='discovered', fit_reason=' '.join(candidate.fit_reasons), evidence_json=candidate.model_dump_json())
@@ -329,9 +352,10 @@ def install_routes(mod):
                 identity.audit('lead.discovered', user_id=user.id, business_id=business.id, resource_type='lead', resource_id=row.id)
             sess.commit()
         except (ResearchError, LeadError) as exc:
+            from ayo.lead_management import LeadManagementService
             sess.rollback()
-            rows = sess.scalars(select(Lead).where(Lead.business_id == business.id)).all()
-            response = mod.render(request, 'leads.html', user=user, business=business, leads=lead_views(rows), error=str(exc))
+            response = mod.render(request, 'lead_library.html', user=user, business=business,
+                **LeadManagementService(sess).library(user.id, business.id), error=str(exc))
             response.status_code = getattr(exc, 'status_code', 400)
             return response
         except IntegrityError:
@@ -348,6 +372,7 @@ def install_routes(mod):
         row = sess.scalar(select(Lead).where(Lead.id == lead_id, Lead.business_id == business.id).with_for_update())
         if row is None:
             raise HTTPException(404, 'Lead not found.')
+        identity.require_verified_user(user.id)
         if not 1 <= len(note.strip()) <= 1000:
             raise HTTPException(400, 'Describe the source-backed fit in at most 1000 characters.')
         source = json.loads(row.evidence_json)
@@ -386,6 +411,9 @@ def install_routes(mod):
             sess.commit()
             with budget_context(mod.DbSession, scope_id='business:' + business.id, request_id=secrets.token_urlsafe(24)):
                 result = await app.state.intelligence_factory().analyze(ctx)
+            identity = IdentityService(sess)
+            identity.lock_user(user.id)
+            identity.require_membership(user.id, business.id)
             sess.add(IntelligenceRun(business_id=business.id, user_id=user.id, provider=result.provider,
                 model=result.model, status=result.status, result_json=result.model_dump_json(),
                 source_report_id=records[0].id if records else None))
@@ -410,9 +438,16 @@ def install_routes(mod):
                           founding_slot=IdentityService(sess).entitlement(user.id).founding_slot, businesses=businesses)
 
     @app.get('/security')
-    def security(request: Request, sess=Depends(mod.db)):
+    def security(request: Request, updated: str = '', sess=Depends(mod.db)):
+        from ayo.account_management import active_sessions
         user, business = context(request, sess)
-        return mod.render(request, 'account_security.html', user=user, business=business)
+        messages = {'sessions': 'Other sessions have been signed out.',
+                    'password': 'Password changed. Previous sessions have been signed out.'}
+        sessions = active_sessions(sess, user.id, request.session.get('sid'))
+        for entry in sessions:
+            entry['expiry'] = datetime.fromtimestamp(entry['expires_at'], timezone.utc).strftime('%d %b %Y · %H:%M UTC')
+        return mod.render(request, 'account_security.html', user=user, business=business,
+                          sessions=sessions, message=messages.get(updated))
 
     @app.post('/security/verify')
     def resend_verification(request: Request, csrf: str = Form(...), sess=Depends(mod.db)):
@@ -448,6 +483,30 @@ def install_routes(mod):
             return response
         request.session.clear()
         return RedirectResponse('/login', 303)
+
+    from ayo.merchant_routes import install_routes as install_merchant
+    from ayo.lead_routes import install_routes as install_lead_management
+    from ayo.assistant_routes import install_routes as install_assistant
+    from ayo.account_management import install_routes as install_account_management
+    install_merchant(mod, context, protected, guard)
+    install_lead_management(mod, context, protected, guard)
+    install_assistant(mod, context, protected, guard)
+    install_account_management(mod, context, guard, start_session)
+
+    @app.get('/activity')
+    def activity(request: Request, page: int = 1, sess=Depends(mod.db)):
+        from ayo.merchant_overview import activity_page
+        user, business = protected(request, sess)
+        data = activity_page(sess, user.id, business.id, page)
+        events = [{'action': event.action.replace('.', ' · ').replace('_', ' '),
+                   'time': datetime.fromtimestamp(event.created_at, ZoneInfo(business.timezone)).strftime('%d %b %Y · %H:%M %Z')}
+                  for event in data.pop('events')]
+        return mod.render(request, 'activity.html', user=user, business=business, events=events, **data)
+
+    @app.get('/help')
+    def help_page(request: Request, sess=Depends(mod.db)):
+        user, business = protected(request, sess)
+        return mod.render(request, 'workspace_help.html', user=user, business=business)
 
     @app.get('/verify-email')
     def verify_email(request: Request, token: str, sess=Depends(mod.db)):

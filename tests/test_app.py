@@ -1,26 +1,32 @@
 import base64
 import hashlib
 import hmac
-import os
 import re
 import secrets
-import tempfile
 import time
 from urllib.parse import parse_qs, urlparse
 
-os.environ['ENVIRONMENT'] = 'test'
-os.environ['SESSION_SECRET'] = 'test-session-secret-more-than-32-characters-absolutely'
-os.environ['TOKEN_ENCRYPTION_KEY'] = 'IHq4Ei3ARXioBXgcXL8io4S5SE6zn7Ny1S5yD8lH48M='
-os.environ['SHOPIFY_CLIENT_ID'] = 'test-id'
-os.environ['SHOPIFY_CLIENT_SECRET'] = 'test-secret'
-os.environ['APP_ORIGIN'] = 'http://testserver'
-os.environ['DATABASE_URL'] = 'sqlite:///' + tempfile.mktemp(suffix='.db')
-
 from fastapi.testclient import TestClient
+import pytest
 from sqlalchemy import select
 from ayo import app as mod
+from ayo.database import make_engine, session_factory
 
 client = TestClient(mod.app, base_url='http://testserver', follow_redirects=False)
+
+
+@pytest.fixture(autouse=True)
+def isolated_alpha_database(tmp_path, monkeypatch):
+    engine = make_engine('sqlite:///' + str(tmp_path / 'alpha.db'))
+    mod.Base.metadata.create_all(engine)
+    monkeypatch.setattr(mod, 'DbSession', session_factory(engine))
+    monkeypatch.setattr(mod, 'ORIGIN', 'http://testserver')
+    monkeypatch.setattr(mod, 'SHOPIFY_ID', 'test-id')
+    monkeypatch.setattr(mod, 'SHOPIFY_SECRET', 'test-secret')
+    client.cookies.clear()
+    yield
+    client.cookies.clear()
+    engine.dispose()
 
 
 def csrf(path='/signup'):

@@ -160,12 +160,22 @@ try:
                 page.locator('[name=country]').select_option(market)
                 page.locator('form[action="/leads/discover"] button').click()
                 page.wait_for_url('**/leads')
-                assert page.locator('.lead-item').count() == 1
+                assert page.locator('.prospect-row').count() == 1
                 if registration_mode == 'expected_signup_throttle_then_existing_fixture_account':
                     assert page.locator('.lead-status').inner_text() == 'Qualified'
                 else:
+                    page.get_by_role('link', name='Open prospect', exact=False).click()
+                    page.wait_for_url('**/leads/*')
+                    assert 'Offline Fixture Clothing Business' in page.locator('main').inner_text()
+                    assert 'Offline fixture clothing business and wholesale shop' in page.locator('main').inner_text()
+                    check_layout('prospect_detail')
                     page.locator('[name=note]').fill('Offline fixture source lists clothing wholesale; review needed.')
-                    page.locator('form[action$="/qualify"] button').click()
+                    with page.expect_response(lambda response: response.request.method == 'POST'
+                        and urlsplit(response.url).path.endswith('/qualify')) as qualification_response:
+                        page.locator('form[action$="/qualify"] button').click()
+                    assert qualification_response.value.status == 303
+                    page.wait_for_url('**/leads')
+                assert page.locator('.prospect-row').count() == 1
                 assert page.locator('.lead-status').inner_text() == 'Qualified'
                 check_layout('leads')
                 assert not errors, errors

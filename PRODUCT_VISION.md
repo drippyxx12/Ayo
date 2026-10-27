@@ -2,6 +2,8 @@
 
 Version: 2026-10-25. Owner: Ayo founder. Delivery status: **PARTIALLY COMPLETE; live core workflow BLOCKED**. This document defines the intended product; it does not certify that the capabilities below work. [ROADMAP.md](ROADMAP.md) defines dependencies and acceptance; [FEATURE_STATUS.md](FEATURE_STATUS.md) and [PROGRESS.md](PROGRESS.md) record implementation evidence.
 
+Current implementation checkpoint: [merchant platform M3/M4/M5 foundations](docs/MERCHANT_PLATFORM.md). This advances the application; it does not reduce the end-state capabilities below or satisfy real-provider acceptance.
+
 ## 1. The finished product
 
 Ayo is one unified, Africa-first AI commerce intelligence and operations platform. It helps merchants discover opportunities, understand their businesses, find relevant customers and business buyers, decide what to do, and perform authorized work with verifiable results. Nigeria and Ghana are the initial operating markets. The architecture supports additional countries through reviewed country capabilities, without creating separate products.

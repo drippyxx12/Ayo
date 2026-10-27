@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% from "_workspace.html" import workspace_nav, empty_state %}
+{% block title %}Ayo — Your workspace conversation{% endblock %}
+{% block head %}<link rel="stylesheet" href="/static/assistant.css">{% endblock %}
+{% block body %}
+<div class="app-shell">{{ workspace_nav('ayo', business) }}
+<main class="app-main" id="main-content">
+  <header class="app-page-header"><div class="eyebrow">ONE AYO / YOUR SAVED CONTEXT</div><h1>Think ahead.<br><em>Stay grounded.</em></h1><p class="page-intro">Ask about your business, saved research, prospects and work. Your conversations are private to your account in this workspace.</p></header>
+  {% if not user.email_verified_at %}<p class="notice">Verify your email before starting conversations. <a href="/security">Review account security →</a></p>{% endif %}
+  <div class="assistant-layout">
+    <aside class="assistant-library" aria-label="Your conversations">
+      <form action="/ayo/conversations" method="post" class="workspace-form"><input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="request_id" value="{{ request_id }}"><label for="conversation-title">NEW CONVERSATION</label><input id="conversation-title" name="title" maxlength="160" placeholder="A focus for today"><button class="pill small" type="submit"{% if not user.email_verified_at %} disabled{% endif %}>Start a conversation ↗</button></form>
+      {% if conversations %}<nav aria-label="Saved conversations">{% for item in conversations %}<a href="/ayo/conversations/{{ item.id }}"{% if conversation and item.id == conversation.id %} aria-current="page"{% endif %}>{{ item.title }}</a>{% endfor %}</nav>{% else %}<p class="quiet smallprint">Your saved conversations will appear here.</p>{% endif %}
+      <details class="assistant-capabilities"><summary>Available workspace context</summary><ul>{% for capability in capabilities %}<li><strong>{{ capability.name }}</strong><br>{{ 'Available' if capability.available else 'No saved records' }} · version {{ capability.version }}</li>{% endfor %}</ul><p class="quiet smallprint">Each read retrieves at most three records. Earlier messages stay here for you; they are not included in provider requests.</p></details>
+    </aside>
+    <section class="assistant-thread" aria-label="Conversation">
+    {% if conversation %}
+      <h2>{{ conversation.title }}</h2>
+      {% if not messages %}<p class="empty-inline">Start with a question about your next move. Ayo will show which saved records it read.</p>{% endif %}
+      <ol class="assistant-messages">
+      {% for item in messages %}{% set record = item.record %}
+        <li class="assistant-message assistant-message-{{ record.role }}" data-message-status="{{ record.status }}"><div class="eyebrow">{{ 'YOU' if record.role == 'user' else 'AYO' }}{% if record.role == 'assistant' %} / {{ record.status|upper }}{% endif %}</div>
+        {% if record.role == 'user' %}<p class="assistant-question">{{ record.content }}</p>{% else %}
+          {% if record.status == 'completed' %}<h3>{{ item.analysis.summary }}</h3><p class="quiet smallprint">AI analysis · {{ item.analysis.provider }} / {{ item.analysis.model }}</p>
+            {% for claim in item.analysis.claims|default([]) %}<p><span class="evidence-kind">{{ claim.kind }}</span> {{ claim.text }}</p>{% if claim.evidence_ids %}<p class="assistant-citations">Sources: {{ claim.evidence_ids|join(', ') }}</p>{% endif %}{% endfor %}
+            {% for recommendation in item.analysis.recommendations|default([]) %}<p><strong>For your review:</strong> {{ recommendation.text }}</p><p class="assistant-citations">Sources: {{ recommendation.evidence_ids|join(', ') }}</p>{% endfor %}
+            {% for limitation in item.analysis.limitations|default([]) %}<p class="quiet smallprint">{{ limitation }}</p>{% endfor %}
+          {% elif record.status == 'pending' %}<p role="status">Your question and read results are saved. Analysis is in progress. Reopen this conversation to check its status.</p>
+          {% elif record.status == 'uncertain' %}<p role="status">Analysis was interrupted or its provider outcome is uncertain. No AI answer is available. This request will not be dispatched again.</p>
+          {% else %}<p role="status">AI analysis is unavailable for this request. No AI answer was generated. Your question and the workspace records below are saved.</p>{% endif %}
+          {% if record.error_code %}<p class="quiet smallprint">Status: {{ record.error_code|replace('_',' ') }}</p>{% endif %}
+          <details class="assistant-records"{% if record.status != 'completed' %} open{% endif %}><summary>Workspace facts · {{ item.tools|length }} recorded reads</summary><p class="quiet smallprint">Deterministic saved-record view. These records are not an AI answer or proof of external actions.</p>
+          {% for tool in item.tools %}<section class="assistant-tool"><h4>{{ tool.name }} <span class="quiet">v{{ tool.version }} · {{ tool.status }}</span></h4>{% for fact in tool.items %}<p><strong>{{ fact.title }}</strong> <span class="evidence-kind">{{ fact.classification }}</span><br>{{ fact.detail }}</p>{% if fact.evidence_ids %}<p class="assistant-citations">Sources: {{ fact.evidence_ids|join(', ') }}</p>{% endif %}{% endfor %}{% if tool.more_available %}<p class="quiet smallprint">More saved records are available; this read was capped.</p>{% endif %}{% for limitation in tool.limitations %}<p class="quiet smallprint">{{ limitation }}</p>{% endfor %}{% for source in tool.evidence %}<details class="assistant-source"><summary>Source {{ source.id }}</summary><p>{{ source.excerpt }}</p><p class="quiet smallprint">{{ source.source_kind }} · {{ source.observed_at }}</p>{% if source.source_kind == 'PUBLIC_WEB' or source.source_kind == 'PUBLIC_PROFILE' %}<a class="text-link" href="{{ source.url }}" rel="noreferrer noopener" target="_blank">Inspect public source ↗</a>{% endif %}</details>{% endfor %}</section>{% endfor %}
+          </details>
+        {% endif %}</li>
+      {% endfor %}</ol>
+      {% if user.email_verified_at %}<form action="/ayo/conversations/{{ conversation.id }}/messages" method="post" class="workspace-form assistant-composer"><input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="request_id" value="{{ request_id }}"><label for="question">WHAT WOULD YOU LIKE TO UNDERSTAND?</label><textarea id="question" name="question" maxlength="1000" rows="3" required placeholder="What should I focus on next?"{% if conversation.active_request %} disabled{% endif %}></textarea><button class="pill" type="submit"{% if conversation.active_request %} disabled{% endif %}>Ask Ayo ↗</button><p class="quiet smallprint">Ayo reads saved context and proposes next steps. Every external action needs separate authorization.</p></form>{% else %}<p class="notice">Verify your email before adding questions. <a href="/security">Review account security →</a></p>{% endif %}
+    {% else %}{{ empty_state('Room to think.', 'Start a private conversation to connect the facts in your workspace. Missing research or provider configuration stays visible.') }}{% endif %}
+    </section>
+  </div>
+</main></div>
+{% endblock %}

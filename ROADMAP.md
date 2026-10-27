@@ -1,6 +1,6 @@
 # Ayo — roadmap to the complete platform
 
-Version: 2026-10-26. Overall status: **PARTIALLY COMPLETE; required live acceptance BLOCKED**. Product scope is [PRODUCT_VISION.md](PRODUCT_VISION.md). This roadmap replaces narrow MVP-only sequencing as the delivery destination; [PLAN.md](PLAN.md) remains an earlier execution checkpoint. Working code is preserved. The public-Gemini implementation checkpoint follows the separately committed full-vision documentation baseline.
+Version: 2026-10-27. Overall status: **PARTIALLY COMPLETE; required live acceptance BLOCKED**. Product scope is [PRODUCT_VISION.md](PRODUCT_VISION.md). This roadmap replaces narrow MVP-only sequencing as the delivery destination; [PLAN.md](PLAN.md) remains an earlier execution checkpoint. Working code is preserved. The public-Gemini implementation checkpoint follows the separately committed full-vision documentation baseline.
 
 ## 1. Delivery rules and status
 
@@ -20,13 +20,15 @@ Changes must record scope, capability IDs, migration/API effects, permissions, e
 
 The original ZIP, extracted working source and test history are retained. This checkpoint re-extracted **49 original specification documents/manifests** separately and reviewed docs 00–28, both 25 documents, founder/agent/build instructions and eight architecture JSON contracts. [Source inventory/hash receipt](docs/evidence/product-vision-source-audit.json). Historical Emergent source remains unavailable; no blind replacement/consolidation is assumed.
 
-Last recorded verified application baseline: **583 tests passed with local PostgreSQL, zero skipped**, one upstream warning; responsive offline workflow evidence at 390/768/1440px, local container/dependency/security checks and GitHub review delivery. The latest run includes the early Gemini pipeline and explicit offline source/model fixtures; no real API result is claimed. See [PROGRESS](PROGRESS.md), [offline browser receipt](docs/evidence/offline-browser-workflow.json), [restricted preview receipt](docs/evidence/protected-preview.json).
+Earlier M2 application baseline: **583 tests passed with local PostgreSQL, zero skipped**, one upstream warning; responsive offline workflow evidence at 390/768/1440px, local container/dependency/security checks and GitHub review delivery. The latest run includes the early Gemini pipeline and explicit offline source/model fixtures; no real API result is claimed. See [PROGRESS](PROGRESS.md), [offline browser receipt](docs/evidence/offline-browser-workflow.json), [restricted preview receipt](docs/evidence/protected-preview.json).
 
 Current services include identity/membership/session lifecycle, founding allocation, migrations, encrypted research jobs/mail outbox, bounded source/report contracts, claim isolation, deterministic single-page reports, lead discovery/qualification contracts, merchant screens and Gemini synthesis after a committed hidden evidence checkpoint, plus compatible private-analysis adapters. They are predominantly **VERIFIED LOCAL WITH FIXTURES**. The protected preview serves intake and labeled screenshot evidence only; accounts and external providers remain disabled.
 
 **M2 implementation checkpoint (26 October):** durable provider budget accounting, source identity/access/deadline defenses, current adapter contracts and persisted progress/recovery now have offline database/HTTP regressions. The [offline preflight and controlled live-test runbook](docs/M2_LIVE_TEST_RUNBOOK.md) names every setup gate. Code `187877b71f3bf7e5e5bb3712d945799e22aa8a29` and GitHub checks 40285670027/40285664336 are verified; this does not close real-source/model acceptance.
 
 **Earlier public-Gemini checkpoint:** the worker now commits/re-reads public source evidence, requests Gemini synthesis with a public-only context, validates citations again on publication, and persists provider/model/policy/usage with the report. Hidden checkpoints cannot be read or claimed. Missing/rejected/timeout output is explicitly partial. This path passed offline REST and PostgreSQL HTTP/browser tests; a real permitted source/Gemini call and independent source acceptance are still BLOCKED LIVE.
+
+**Current merchant-stage verification (27 October): 888 tests passed, zero failed/skipped**, PostgreSQL17 + SQLite, with labeled offline source/model/mail fixtures. Final desktop/mobile merchant workflow:132 HTTP and 132 screen checks; original NG/GH research journey also reran successfully. See [merchant scope](docs/MERCHANT_PLATFORM.md), [browser evidence](docs/evidence/merchant-platform-browser.json) and [PROGRESS](PROGRESS.md). These do not close M2/M3 live acceptance.
 
 ## 3. Dependency map and milestone boundaries
 
@@ -102,7 +104,7 @@ M0–M1 foundations may be tightened alongside later slices. Founding entitlemen
 
 **Already implemented:** anonymous report TTL/capabilities, one-use verified-account claim, persistence/private report/dashboard reopen, genuine-provider candidate contracts, domain/profile-aware lead deduplication, cited fit and merchant qualification, tenant access tests. Founding grants do not count extra workspaces.
 
-**Already integrated locally:** Gemini-assisted report persistence/rendering through signup/claim/reopen. **Remaining:** complete owner-provided profile persistence/corrections and no-site onboarding; validate optional organization-only lead preview before signup; improve business/offer/audience capture and research-source quality. Qualification must stay distinct from contact eligibility and sales.
+**Already integrated locally:** Gemini-assisted report persistence/rendering through signup/claim/reopen. **Implemented locally in the merchant stage:** persistent labeled owner-provided offer/products/audience/location/goals, profile corrections, internal tasks, prospect lists/notes/drafts and private conversations. **Remaining:** broader no-site onboarding and ownership proof; validate optional organization-only lead preview before signup; improve business/offer/audience capture and research-source quality. Qualification must stay distinct from contact eligibility and sales.
 
 **Exit evidence:** a new user independently searches/selects a real public business, receives a cited Gemini-assisted report **before login**, registers/verifies through delivered mail, saves the exact report, logs out/in and reopens it, then discovers real relevant organizations with inspectable sources. Repeat NG/GH cases and wrong-user/replay/expiry/ambiguous/no-results/blocked-social/no-site cases; Shopify can be skipped throughout. Include no fake leads/messages/metrics and all-feature founding access. Retain redacted IDs/receipts and a reviewer walkthrough.
 
@@ -110,17 +112,21 @@ M0–M1 foundations may be tightened alongside later slices. Founding entitlemen
 
 ### M4 — Full research, identity proof and evidence workspace
 
-**Covers:** C02–C05, C08, C12, C14, C16, C18. **Depends on:** M3. **Status:** largely PLANNED beyond the current single-page slice.
+**Covers:** C02–C05, C08, C12, C14, C16, C18. **Depends on:** M3. **Status:** PARTIAL; saved evidence/history/comparison workspace implemented and tested locally. Acquisition remains the bounded single-page M2 pipeline.
 
-**Build:** bounded quick/deep multi-page research; actual product/category/policy/customer-journey/discoverability findings; sourced positioning and up to three initial public competitor comparisons; source versioning/change history, freshness, contradictory evidence, correction/refetch and permitted export. Implement separate domain/site-control challenge verification and deliberate authorized public/private linkage. Persist owner-provided business knowledge with classification. Index/retrieve only access-permitted evidence; any vector store inherits tenant, purpose and deletion boundaries.
+**Implemented locally:** current-workspace research library with filters/pagination; source freshness; retained product/explicit-category/channel inspection; source-bound findings and AI labels; same-target version and distinct-target comparisons; contact-redacted selected-report exports. Existing reports are immutable.
+
+**Remaining build:** bounded quick/deep multi-page research; actual product/category/policy/customer-journey/discoverability findings; sourced positioning and up to three initial public competitor comparisons; source versioning/change history, freshness, contradictory evidence, correction/refetch and permitted export. Implement separate domain/site-control challenge verification and deliberate authorized public/private linkage. Persist owner-provided business knowledge with classification. Index/retrieve only access-permitted evidence; any vector store inherits tenant, purpose and deletion boundaries.
 
 **Exit evidence:** multi-source report claims trace to actually fetched permitted pages; robots/terms/redirect/byte/deadline adversarial checks; unsupported competitor claims absent; corrupted/stale/conflicting evidence handled; false domain claim denied; report saving alone grants no site control; redacted licensed export/deletion tests and independent source review. Rendering or extra formats remain disabled until isolated and justified.
 
 ### M5 — One unified Ayo, grounded tools and complete merchant experience
 
-**Covers:** C06–C08, C11, C14, C18. **Depends on:** M3, with M4/M6 tools becoming available as verified. **Status:** PARTIAL adapter/screens; registry/planning/memory mostly PLANNED.
+**Covers:** C06–C08, C11, C14, C18. **Depends on:** M3, with M4/M6 tools becoming available as verified. **Status:** PARTIAL; persistent merchant screens, private conversations and a bounded deterministic versioned read registry/plan are VERIFIED LOCAL WITH FIXTURES; broader orchestration remains incomplete.
 
-**Build:** versioned permission-aware skill registry, deterministic query/metric tools, intent routing and bounded multi-step plans; evidence retrieval and tools for business/website/catalog/orders/inventory/lead fit; source-linked prioritized opportunities; persisted merchant goals/preferences and correctable contextual conversation. Complete Home/Ayo/Work/Grow/Business navigation and Help with actual capability states. Add Claude only through evaluated optional routing and disclosed data handling. Complete usage/cost telemetry and per-tenant limits rather than relying solely on token caps.
+**Implemented locally:** Business context, Work tasks, sourced prospect management, real-record Home/activity, research history and private Ayo conversations. Five typed version-1 read tools retrieve tenant-scoped saved context, reports, opportunities, leads and tasks; plans/tool results are committed before Gemini. Provider-policy blocks, invalid citations and interrupted requests are explicit. The first-500 entitlement remains unchanged.
+
+**Remaining build:** broader versioned permission-aware skill registry, deterministic query/metric tools, intent routing and bounded multi-step plans; evidence retrieval and tools for business/website/catalog/orders/inventory/lead fit; source-linked prioritized opportunities; persisted merchant goals/preferences and correctable contextual conversation. Complete Home/Ayo/Work/Grow/Business navigation and Help with actual capability states. Add Claude only through evaluated optional routing and disclosed data handling. Complete usage/cost telemetry and per-tenant limits rather than relying solely on token caps.
 
 Keep the API/BFF and domain commands/queries typed and versioned as they expand; specify pagination, stable errors, queued-command/status semantics and idempotency. The original specimen `/api/v1` routes are design examples, not deployed endpoint evidence or a reason to break working routes without a migration.
 
@@ -152,7 +158,7 @@ Select and implement an authorized regional payment adapter based on actual NG/G
 
 ### M8 — Full researched lead-to-sale workflow and compliant channels
 
-**Covers:** C08, C09, C13, C16–C18. **Depends on:** M3 discovery, M4 evidence, M5 planning and M7 general action controls. **Status:** discovery/qualification PARTIAL; campaigns/drafts/sending/replies/deals PLANNED.
+**Covers:** C08, C09, C13, C16–C18. **Depends on:** M3 discovery, M4 evidence, M5 planning and M7 general action controls. **Status:** discovery/qualification and lists/notes/follow-up/review-only sourced drafts implemented locally; campaigns, sending, replies, deals and live acceptance remain incomplete.
 
 **Build:** business audience/campaign model, purpose and offer; evidence enrichment, fit factors/disqualifiers, dedupe review and freshness; shortlist/notes; editable source-bound pitch drafts. Implement recipient/channel/legal-basis/consent records, expiry, suppression/opt-out, verified sender and template rules, volume/cost limits, frozen approval and provider adapter. Store outreach attempts/message IDs, signed idempotent webhooks, delivery/reply reconciliation, meetings/opportunities/deals and loss/opt-out/duplicate/failure branches. Keep public business prospects separate from permitted existing-customer retention data.
 
@@ -191,19 +197,19 @@ Only this acceptance can support a production-ready/full-platform claim for the 
 | Capability | Primary milestones | Current delivery boundary |
 | --- | --- | --- |
 | C01 Identity/team/workspaces | M1, M3, M10 | Core local tests; team administration and production identity incomplete. |
-| C02 Discovery/no-site onboarding | M2–M4 | Intake/candidates fixtures; independent real matching/no-site persistence unverified. |
+| C02 Discovery/no-site onboarding | M2–M4 | Intake/candidate fixtures and persistent labeled merchant offer/audience/goals; actual matching/ownership acceptance remains open. |
 | C03 Safe acquisition | M1, M2, M4, M10 | Hosted adapter/queue tests; live egress/source policy not established. |
 | C04 Gemini reports | M2, M4, M5 | Public worker integration locally verified; real Gemini/source and multi-page analysis outstanding. |
-| C05 Saved research/ownership | M3, M4 | Claim/reopen local tests; domain proof/history/export incomplete. |
-| C06 Unified tools/planning | M2, M5, M7, M9 | Read-only model gateway; full registry/tool orchestration absent. |
-| C07 Merchant application | M3, M5, M7–M10 | Research/dashboard/leads/settings screens; full Work/Grow/Business incomplete. |
-| C08 Lead discovery/fit | M3, M4, M8 | Discovery/dedupe/qualification fixtures; campaign/enrichment and live quality incomplete. |
-| C09 Lead-to-sale operations | M8 | Safe transition contracts only; executable channel pipeline absent. |
+| C05 Saved research/ownership | M3, M4 | Claim/reopen, filtered history, freshness, comparison/export local tests; domain proof and deeper evidence workflows incomplete. |
+| C06 Unified tools/planning | M2, M5, M7, M9 | Private conversations and five versioned bounded read tools/plans implemented locally; broader orchestration/approvals/history reasoning incomplete. |
+| C07 Merchant application | M3, M5, M7–M10 | Functional persistent Home/Ayo/Work/Grow/Business, Research, activity, settings/security; live hosting and end-state operation surfaces incomplete. |
+| C08 Lead discovery/fit | M3, M4, M8 | Discovery/dedupe/qualification plus lists, notes, follow-ups and drafts verified with fixtures; campaign/enrichment and live quality incomplete. |
+| C09 Lead-to-sale operations | M8 | Evidence-derived pipeline and review-only sourced drafts; approved sending/replies/deals/attribution absent. |
 | C10 Optional commerce | M6, M7 | Preserved user-keyed Shopify alpha; business-scoped durable connections incomplete. |
 | C11 Metrics/diagnosis | M5, M6, M9 | Money helpers/alpha aggregates; complete reconciled domain tools incomplete. |
 | C12 Regional payments/localization | M2, M3, M6, M8 | NG/GH currency/timezone/state contracts; live payment integration absent. |
-| C13 Governed Work/actions | M7, M8 | No executable policy/approval/operation engine. |
-| C14 Monitoring/memory/learning | M4, M5, M9 | Saved source/analysis/activity records; end-state monitoring/memory absent. |
+| C13 Governed Work/actions | M7, M8 | Internal source-linked task tracking implemented; executable policy/approval/provider-operation engine absent. |
+| C14 Monitoring/memory/learning | M4, M5, M9 | Persistent goals, report history, conversations/tool snapshots and activity; recurring monitoring/outcome learning absent. |
 | C15 Founding-user access | M1, M3, M10 | Atomic allocation/future access tested; legitimate-account policy/pilot review open. |
 | C16 Privacy/security/governance | All milestones, M10 acceptance | Selected local controls; complete production/privacy/action controls incomplete. |
 | C17 Reliable operation | M1, M2, M6–M10 | Local PostgreSQL/jobs/CI and restricted preview; no production operation. |
@@ -240,7 +246,7 @@ No keys are requested in chat. Existing connector access is not runtime provider
 
 For each milestone retain: capability IDs; implementation/commit; migration and rollback; environment; real vs fixture classification; source/provider/model/policy versions; tested permission/consent; test command/result; relevant redacted job/report/approval/receipt IDs; reviewer; remaining risks and whether the exit passed. Status files should show **implementation** and **live acceptance** separately.
 
-Immediate sequence: M2 hardening now passes 583 local tests, including actual PostgreSQL, while real-provider acceptance remains blocked. Run the offline readiness checker; securely configure reviewed providers/model/source/data policies and explicit conservative budgets only after authorization; obtain independently checked NG/GH M2 receipts; then validate M3 without Shopify. Advance through full research, unified tools, optional commerce, Work, sales operations, monitoring and production assurance. A provider blocker does not erase later requirements or turn the MVP into completion.
+Immediate sequence: continue M3/M4/M5 merchant implementation independently of M2 live configuration. The merchant stage ships persistent profiles/tasks, lead workflow, saved evidence comparisons and private bounded Ayo conversations; see [implementation and limits](docs/MERCHANT_PLATFORM.md). Next extend ownership/correction and multi-source research, contextual follow-up planning and business-scoped connector foundations. Keep governed external actions disabled. When separately authorized, obtain independent NG/GH source/Gemini/mail/lead receipts; these are still required before M2/M3 live acceptance. Continue M6–M10 toward the full platform, without calling this intermediate slice complete.
 
 ## 26 October secure-preparation update
 

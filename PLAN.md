@@ -50,3 +50,7 @@ Build one Africa-first commerce intelligence application from the existing FastA
 | Deployment/spend permission absent | Explicit approval for a concrete reviewed deployment or charged provider action | Local implementation, tests, source commits and operational preparation |
 
 Completion remains **PARTIALLY COMPLETE** until the required workflow runs on real permitted sources and persistence, with evidence recorded. Do not replace a blocked capability with fabricated production data.
+
+## 27 October 2026 merchant-stage continuation
+
+Continue the existing branch/PR through persistent M3 merchant workflows, M4 evidence history/comparisons and feasible M5 private conversations/read tools. The [current merchant-stage contract](docs/MERCHANT_PLATFORM.md) and [ROADMAP](ROADMAP.md) record implemented versus outstanding scope. Keep unresolved M2 live requirements visible, without blocking independent development or repeating credential requests. C01–C18/M10 remain the full completion gate. No merge, public deployment, paid provider call or external merchant action is authorized.

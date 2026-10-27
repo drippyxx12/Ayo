@@ -60,3 +60,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 .workspace-identity strong{overflow-wrap:anywhere}
 @media(max-width:850px){.app-shell{grid-template-columns:minmax(0,1fr)}}
 .auth-form input:focus-visible,.auth-form select:focus-visible{outline:2px solid var(--black);outline-offset:4px}
+
+/* Merchant work and account controls inherit the editorial type system. */
+.overview-actions{display:flex;gap:24px;flex-wrap:wrap;margin-top:24px}.account-control-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:32px}.session-list{padding:0;list-style:none}.session-list li{padding:18px 0;border-bottom:1px solid var(--line);font-size:14px}.app-main p,.app-main h1,.app-main h2,.app-main h3{overflow-wrap:anywhere}.app-main textarea{max-width:100%;font-family:var(--font-ui)}
+@media(max-width:700px){.account-control-grid{grid-template-columns:minmax(0,1fr)}.overview-actions{gap:16px}}

@@ -23,6 +23,7 @@ from ayo import app as mod
 from ayo.models import Base, FoundingGrant, Lead, MailOutbox, ReportClaim, ResearchJob, ResearchReportRecord, User
 from ayo.research import BusinessCandidate, ResearchReport, ResearchService, SourceDocument
 from ayo.provider_usage import OperationUsage
+from ayo.database import make_engine
 
 
 class FixtureProvider:
@@ -54,7 +55,7 @@ def platform(request, tmp_path, monkeypatch):
             conn.execute(CreateSchema(schema))
         engine = admin.execution_options(schema_translate_map={None: schema})
     else:
-        engine = create_engine('sqlite:///' + str(tmp_path / 'platform.db'), connect_args={'check_same_thread': False})
+        engine = make_engine('sqlite:///' + str(tmp_path / 'platform.db'))
     Base.metadata.create_all(engine)
     factory = sessionmaker(bind=engine, expire_on_commit=False)
     monkeypatch.setattr(mod, 'DbSession', factory)

@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-27T07:43:00Z",
+  "classification": "OFFLINE_LOCAL_DATABASE_AND_PROVIDER_FIXTURES",
+  "overall_platform_status": "PARTIALLY_COMPLETE",
+  "milestones_advanced": [
+    "M3 merchant application",
+    "M4 saved evidence workspace",
+    "M5 bounded unified assistant foundations"
+  ],
+  "tests": {
+    "command": "AYO_TEST_POSTGRES_URL=<disposable loopback PostgreSQL> .venv/bin/python -m pytest -q --tb=short",
+    "passed": 888,
+    "failed": 0,
+    "skipped": 0,
+    "duration_seconds": 97.78,
+    "databases": [
+      "PostgreSQL17",
+      "SQLite"
+    ],
+    "warnings": [
+      "One upstream Starlette/httpx deprecation warning"
+    ]
+  },
+  "checks": {
+    "ruff": "passed",
+    "dependency_consistency": "passed",
+    "dependency_audit": "no known vulnerabilities",
+    "git_diff_check": "passed",
+    "redacted_working_tree_secret_scan": "passed",
+    "redacted_git_history_secret_scan": "passed"
+  },
+  "browser_evidence": [
+    "merchant-platform-browser.json",
+    "m2-hardening-browser.json"
+  ],
+  "independent_review": {
+    "threaded_account_concurrency_regressions": 16,
+    "targeted_account_and_deletion_tests": 20,
+    "backends": [
+      "SQLite",
+      "PostgreSQL"
+    ],
+    "resolved_findings": [
+      "Fresh locked password confirmation",
+      "Encrypted linked job payload removal",
+      "Post-removal conversation creation fence",
+      "Password verification and session issuance serialized with revocation"
+    ],
+    "unresolved_reproduced_defects": []
+  },
+  "managed_runtime": {
+    "observed_spec_revision": "147",
+    "observations_current": true,
+    "http_policy": "enforced",
+    "application_secret_binding_count": 0,
+    "runtime_variable_binding_count": 0,
+    "persistent_binding_migration_verified": false,
+    "environment_recreation_binding_survival_verified": false,
+    "provider_key_rotation_verified": false
+  },
+  "provider_live_workflows_verified": false,
+  "delivered_email_verified": false,
+  "external_merchant_actions_performed": false,
+  "paid_provider_calls_made": 0,
+  "public_deployment_performed": false,
+  "merged": false,
+  "limitations": [
+    "Public business/source/Gemini/lead acceptance uses offline fixtures only.",
+    "No hosted merchant application was updated.",
+    "No domain control, commerce/payment, outbound operation or sales outcome verified.",
+    "Bounded deterministic read plans; previous conversation history is not transmitted to providers.",
+    "Full C01-C18 product remains incomplete."
+  ]
+}

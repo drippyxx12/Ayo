@@ -1,13 +1,17 @@
 {% macro workspace_nav(active_page, business) -%}
 <aside class="workspace-sidebar" aria-label="Workspace navigation">
-  <div class="workspace-identity"><span class="eyebrow">YOUR BUSINESS</span><strong>{{ business.name|default('Your workspace', true) }}</strong><span class="workspace-market">{{ 'Nigeria · NGN' if business.country|default('') == 'NG' else 'Ghana · GHS' if business.country|default('') == 'GH' else 'Market not selected' }}</span></div>
+  <div class="workspace-identity"><span class="eyebrow">YOUR BUSINESS</span><strong>{{ business.name|default('Your workspace', true) }}</strong><span class="workspace-market">{{ 'Nigeria · NGN' if business.country|default('') == 'NG' else 'Ghana · GHS' if business.country|default('') == 'GH' else 'Market not selected' }}</span><a class="text-link" href="/settings#workspaces">Switch workspace →</a></div>
   <nav class="workspace-nav">
     <a href="/dashboard"{% if active_page == 'home' %} aria-current="page"{% endif %}><span>01</span> Home <b aria-hidden="true">↗</b></a>
-    <a href="/dashboard#reports"{% if active_page == 'research' %} aria-current="page"{% endif %}><span>02</span> Research <b aria-hidden="true">↗</b></a>
-    <a href="/leads"{% if active_page == 'leads' %} aria-current="page"{% endif %}><span>03</span> Leads <b aria-hidden="true">↗</b></a>
-    <a href="/dashboard#ayo"{% if active_page == 'ayo' %} aria-current="page"{% endif %}><span>04</span> Ayo <b aria-hidden="true">↗</b></a>
-    <a href="/connections"{% if active_page == 'connections' %} aria-current="page"{% endif %}><span>05</span> Connections <b aria-hidden="true">↗</b></a>
-    <a href="/settings"{% if active_page == 'settings' %} aria-current="page"{% endif %}><span>06</span> Settings <b aria-hidden="true">↗</b></a>
+    <a href="/ayo"{% if active_page == 'ayo' %} aria-current="page"{% endif %}><span>02</span> Ayo <b aria-hidden="true">↗</b></a>
+    <a href="/work"{% if active_page == 'work' %} aria-current="page"{% endif %}><span>03</span> Work <b aria-hidden="true">↗</b></a>
+    <a href="/leads"{% if active_page == 'leads' %} aria-current="page"{% endif %}><span>04</span> Grow · Leads <b aria-hidden="true">↗</b></a>
+    <a href="/business"{% if active_page == 'business' %} aria-current="page"{% endif %}><span>05</span> Business <b aria-hidden="true">↗</b></a>
+    <a href="/research/library"{% if active_page == 'research' %} aria-current="page"{% endif %}><span>06</span> Research <b aria-hidden="true">↗</b></a>
+    <a href="/activity"{% if active_page == 'activity' %} aria-current="page"{% endif %}><span>07</span> Activity <b aria-hidden="true">↗</b></a>
+    <a href="/connections"{% if active_page == 'connections' %} aria-current="page"{% endif %}><span>08</span> Connections <b aria-hidden="true">↗</b></a>
+    <a href="/settings"{% if active_page == 'settings' %} aria-current="page"{% endif %}><span>09</span> Settings <b aria-hidden="true">↗</b></a>
+    <a href="/help"{% if active_page == 'help' %} aria-current="page"{% endif %}><span>10</span> Help <b aria-hidden="true">↗</b></a>
   </nav>
   <div class="sidebar-foot"><p>Research informs your decisions. You authorize every action.</p><a href="/">Start a new search →</a></div>
 </aside>

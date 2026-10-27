@@ -6,7 +6,8 @@
 <title>{% block title %}Ayo — Business Intelligence{% endblock %}</title>
 <link rel="preload" href="/static/fonts/dm-sans-variable.ttf" as="font" type="font/ttf" crossorigin>
 <link rel="preload" href="/static/fonts/syne-variable.ttf" as="font" type="font/ttf" crossorigin>
-<link rel="stylesheet" href="/static/ayo.css"></head>
+<link rel="stylesheet" href="/static/ayo.css">
+{% block head %}{% endblock %}</head>
 <body>
 <a class="skip-link" href="#main-content">Skip to content</a>
 {% if preview_mode %}<aside class="preview-notice" role="note">Development preview · Business intake only. Live research, saved accounts and store connections are not available yet.</aside>{% endif %}
@@ -14,4 +15,5 @@
 <div class="toplinks">{% if preview_mode %}<a class="navlink" href="/">Explore Ayo ↗</a>{% elif user %}<span class="quiet desktop">{{user.email}}</span><a class="navlink" href="/dashboard">Workspace</a><form method="post" action="/logout"><input type="hidden" name="csrf" value="{{csrf}}"><button class="textbutton" type="submit">Sign out ↗</button></form>{% else %}<a class="navlink" href="/login">Sign in</a><a class="pill small" href="/signup">Get started ↗</a>{% endif %}</div></div>
 {% block body %}{% endblock %}
 <footer class="footer"><span>AYO / YOUR BUSINESS, IN MOTION.</span><span>Private alpha · Real data only · © Ayo</span></footer>
+<script src="/static/workspace.js" defer></script>
 </body></html>

@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% from "_workspace.html" import workspace_nav %}
+{% block title %}Business context — Ayo{% endblock %}
+{% block head %}<link rel="stylesheet" href="/static/merchant-work.css">{% endblock %}
+{% block body %}
+<div class="app-shell">
+{{ workspace_nav('business', business) }}
+<main class="app-main merchant-main" id="main-content">
+  <header class="app-page-header"><div class="eyebrow">BUSINESS / YOUR CONTEXT</div><h1>A clearer picture.<br><em>A better next move.</em></h1><p class="page-intro">Tell Ayo what you sell, who you serve and where you want to go. Build a useful business profile, with or without a website.</p></header>
+  {% if error %}<div class="notice" role="alert">{{ error }}</div>{% endif %}
+  {% if saved %}<div class="notice" role="status">Your business context has been saved.</div>{% endif %}
+  <div class="merchant-layout">
+    <form action="/business" method="post" class="merchant-form">
+      <input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="version" value="{{ profile.version if profile else 0 }}">
+      {% if not can_edit %}<p class="merchant-permission" role="note">Verified workspace owners and admins can update this profile.{% if not user.email_verified_at %} <a href="/security">Verify your email →</a>{% endif %}</p>{% endif %}
+      <fieldset{% if not can_edit %} disabled{% endif %}><legend class="eyebrow">01 / YOUR BUSINESS</legend>
+      <label for="business-name">Business name</label><input id="business-name" name="business_name" minlength="2" maxlength="160" required value="{{ values.business_name if values else business.name }}">
+      <div class="merchant-field-pair"><div><label for="business-country">Market</label><select id="business-country" name="country" required>{% set market = values.country if values else business.country %}<option value="NG"{% if market == 'NG' %} selected{% endif %}>Nigeria · NGN</option><option value="GH"{% if market == 'GH' %} selected{% endif %}>Ghana · GHS</option></select></div><div><label for="business-location">City or area <span class="quiet">(optional)</span></label><input id="business-location" name="location" maxlength="250" placeholder="e.g. Accra, Ghana" value="{{ values.location if values else profile.location if profile else '' }}"></div></div>
+      <p class="merchant-hint">Market sets your workspace currency and timezone. Changing it does not convert any existing financial records.</p>
+      <label for="business-offer">What does your business offer?</label><textarea id="business-offer" name="offer" rows="3" maxlength="3000" placeholder="Describe your business in your own words.">{{ values.offer if values else profile.offer if profile else '' }}</textarea>
+      <label for="business-products">Products or services</label><textarea id="business-products" name="products" rows="3" maxlength="3000" placeholder="Your main products, categories or services.">{{ values.products if values else profile.products if profile else '' }}</textarea>
+      </fieldset><fieldset{% if not can_edit %} disabled{% endif %}><legend class="eyebrow">02 / PEOPLE &amp; DIRECTION</legend>
+      <label for="business-audience">Who are you trying to reach?</label><textarea id="business-audience" name="audience" rows="3" maxlength="3000" placeholder="Tell us about the people or businesses you serve.">{{ values.audience if values else profile.audience if profile else '' }}</textarea>
+      <label for="business-goals">Your business goals</label><textarea id="business-goals" name="goals" rows="3" maxlength="3000" placeholder="What would you like to improve or work towards?">{{ values.goals if values else profile.goals if profile else '' }}</textarea>
+      <button class="pill" type="submit">Save business context ↗</button></fieldset>
+    </form>
+    <aside class="merchant-aside"><div class="eyebrow">CONTEXT / WITH CLARITY</div><h2>Your knowledge.<br>Clearly labeled.</h2><p>These details are provided by your workspace. Ayo has not independently verified them.</p><span class="merchant-source">OWNER_PROVIDED_UNVERIFIED</span><p>Saving a profile does not prove business or website ownership, connect a provider or grant permission to change anything outside Ayo.</p><div class="merchant-aside-rule"></div><h3>Start with what you know.</h3><p>No website? Your profile can still give your workspace a useful starting point.</p><a class="text-link" href="/work">Put your next move into Work →</a></aside>
+  </div>
+</main></div>
+{% endblock %}

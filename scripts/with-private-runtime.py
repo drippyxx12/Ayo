@@ -20,6 +20,9 @@ from dotenv.parser import parse_stream
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_ENV_FILE = ROOT.parent / '.ayo-private' / 'runtime.env'
+sys.path.insert(0, str(ROOT))
+
+from ayo.runtime_configuration import PROVIDER_CREDENTIALS, build_child_environment
 
 
 def allowed_variable(key):
@@ -75,12 +78,18 @@ def load_private_configuration(path):
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--env-file', type=Path, default=DEFAULT_ENV_FILE)
+    parser.add_argument('--source', choices=('auto', 'injected', 'local'), default='auto',
+                        help='auto prefers any injected provider key; injected never reads a local file; local explicitly selects the fallback.')
     parser.add_argument('command', nargs=argparse.REMAINDER)
     args = parser.parse_args(argv)
     try:
-        values = load_private_configuration(args.env_file)
+        source = args.source
+        if source == 'auto':
+            source = 'injected' if any(name in os.environ for name in PROVIDER_CREDENTIALS) else 'local'
+        fallback = load_private_configuration(args.env_file) if source == 'local' else None
+        environment = build_child_environment(os.environ, fallback, credential_mode=source)
     except (OSError, ValueError, UnicodeError):
-        print('Private runtime configuration is missing, invalid or not owner-only. No values were displayed.', file=sys.stderr)
+        print('Selected runtime configuration is missing, invalid, armed or not owner-only. No values were displayed.', file=sys.stderr)
         return 2
     command = args.command
     if command and command[0] == '--':
@@ -88,8 +97,7 @@ def main(argv=None):
     if not command:
         command = [sys.executable, str(ROOT / 'scripts' / 'check-provider-readiness.py'),
                    '--mode', 'prepare', '--scope', 'provider']
-    environment = os.environ.copy()
-    environment.update(values)
+    environment['AYO_RUNTIME_INPUT_SOURCE'] = 'local_file' if source == 'local' else os.environ.get('AYO_RUNTIME_INPUT_SOURCE', 'inherited_environment')
     try:
         return subprocess.run(command, env=environment, cwd=ROOT, check=False).returncode
     except (OSError, ValueError):

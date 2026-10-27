@@ -292,10 +292,8 @@ def test_default_preparation_rejects_enabled_switches_without_changing_them(priv
     private_file.write_text(contents, encoding='utf-8')
     assert runtime.main(['--env-file', str(private_file)]) == 2
     captured = capfd.readouterr()
-    assert not captured.err
-    result = json.loads(captured.out)
-    assert {item['id']: item['status'] for item in result['provider_checks']}[check] == 'blocked'
-    assert result['live_verified'] is False and result['network_requests_made'] == 0
+    assert not captured.out and captured.err
+    assert 'Traceback' not in captured.err and SYNTHETIC_VALUE not in captured.err
     assert private_file.read_text() == contents
 
 
@@ -305,3 +303,38 @@ def test_successful_child_keeps_owner_only_configuration_permissions(private_fil
     assert stat.S_IMODE(private_file.parent.stat().st_mode) == 0o700
     captured = capfd.readouterr()
     assert not captured.out and not captured.err
+
+
+def test_injected_cutover_never_reads_or_overwrites_from_local_file(private_file, synthetic_environment, monkeypatch, capfd):
+    synthetic_environment.update({'GEMINI_API_KEY': 'synthetic-new-managed-model',
+        'FIRECRAWL_API_KEY': 'synthetic-new-managed-source',
+        'AYO_PROVIDER_SPEND_AUTHORIZED': '0', 'AYO_MAIL_SEND_AUTHORIZED': '0'})
+    monkeypatch.setattr(runtime, 'load_private_configuration', lambda *_: pytest.fail('Cutover read stale fallback'))
+    code = ('import os; assert os.environ["GEMINI_API_KEY"] == "synthetic-new-managed-model"; '
+            'assert os.environ["FIRECRAWL_API_KEY"] == "synthetic-new-managed-source"; '
+            'assert os.environ["AYO_RUNTIME_INPUT_SOURCE"] == "inherited_environment"')
+    assert runtime.main(['--env-file', str(private_file), '--', sys.executable, '-c', code]) == 0
+    captured = capfd.readouterr()
+    assert captured.out == captured.err == ''
+
+
+@pytest.mark.parametrize('missing_or_blank', [None, ''])
+def test_partial_injected_binding_cannot_revive_local_secret(private_file, synthetic_environment, capfd, missing_or_blank):
+    synthetic_environment.update({'GEMINI_API_KEY': 'synthetic-new-managed-model',
+        'AYO_PROVIDER_SPEND_AUTHORIZED': '0', 'AYO_MAIL_SEND_AUTHORIZED': '0'})
+    if missing_or_blank is not None:
+        synthetic_environment['FIRECRAWL_API_KEY'] = missing_or_blank
+    assert_redacted_failure(runtime.main(['--env-file', str(private_file)]), capfd, 'synthetic-new-managed-model')
+
+
+def test_explicit_injected_mode_does_not_depend_on_private_file(private_file, synthetic_environment, capfd):
+    private_file.unlink()
+    synthetic_environment.update({'GEMINI_API_KEY': 'synthetic-new-managed-model',
+        'FIRECRAWL_API_KEY': 'synthetic-new-managed-source',
+        'AYO_PROVIDER_SPEND_AUTHORIZED': '0', 'AYO_MAIL_SEND_AUTHORIZED': '0'})
+    assert runtime.main(['--source', 'injected', '--env-file', str(private_file), '--', sys.executable, '-c', 'pass']) == 0
+    assert capfd.readouterr().out == ''
+
+
+def test_injected_mode_refuses_complete_fallback_when_bindings_are_missing(private_file, capfd):
+    assert_redacted_failure(runtime.main(['--source', 'injected', '--env-file', str(private_file)]), capfd)
