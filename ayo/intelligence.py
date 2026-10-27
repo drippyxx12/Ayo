@@ -151,6 +151,11 @@ revenue, profit, conversion, customer counts or ROI. Public product prices can b
 quoted, but public sources cannot establish private merchant financial metrics.
 Do not infer country, ethnicity, consent or payment success from a name or URL.
 Ghana Mobile Money and Nigeria bank transfer pending states are not settled cash.
+For this initial mini-report, emit ONLY 2 INFERRED claims with exact source IDs,
+empty quote strings, and 1 source-cited recommendation; do not use OBSERVED.
+Use plain nonnumeric language; omit finance, ownership, orders, and performance.
+Each claim text should begin 'The published page suggests...' and make only
+one modest inference from the provided excerpt. Include one short limitation.
 Keep source limitations explicit. Do not add tools, actions, scripts or URLs.'''
 
 
@@ -199,6 +204,55 @@ def validate_analysis(raw: dict, context: IntelligenceContext | PublicResearchCo
     if any(not isinstance(s, str) or not s.strip() or len(s) > 1000 for s in analysis.limitations):
         raise IntelligenceError('invalid_model_output', 'AI limitations must be bounded nonempty text.')
     return analysis
+
+
+def validate_grounded_subset(raw: dict, context: IntelligenceContext | PublicResearchContext) -> StructuredAnalysis:
+    """Reject unsupported model findings; salvage individually validated safe ones.
+
+    Never promote an invalid observation, invented citation, financial outcome or
+    action claim. If no evidence-backed items survive, fail rather than pretend
+    Gemini produced a valid business assessment.
+    """
+    try:
+        return validate_analysis(raw, context)
+    except IntelligenceError as original:
+        if original.code not in {
+            'unsupported_observation', 'unsupported_citation', 'missing_citation',
+            'unverified_owner_claim', 'invalid_unknown',
+            'unsupported_financial_claim', 'unauthorized_action_claim',
+        }:
+            raise
+        parsed = StructuredAnalysis.model_validate(raw)
+        safe_claims = []
+        for claim in parsed.claims:
+            if claim.kind == 'UNKNOWN':
+                continue
+            try:
+                validate_analysis({'claims': [claim.model_dump()]}, context)
+            except IntelligenceError:
+                continue
+            safe_claims.append(claim)
+        safe_recommendations = []
+        for recommendation in parsed.recommendations:
+            try:
+                validate_analysis({'recommendations': [recommendation.model_dump()]}, context)
+            except IntelligenceError:
+                continue
+            safe_recommendations.append(recommendation)
+        limitations = []
+        for item in parsed.limitations:
+            try:
+                validate_analysis({'limitations': [item]}, context)
+            except IntelligenceError:
+                continue
+            limitations.append(item)
+        if not safe_claims and not safe_recommendations:
+            raise original
+        return validate_analysis({
+            'claims': [c.model_dump() for c in safe_claims],
+            'recommendations': [r.model_dump() for r in safe_recommendations],
+            'limitations': limitations,
+        }, context)
 
 
 class _HTTPModel:
@@ -398,7 +452,7 @@ class IntelligenceOrchestrator:
             'evidence': [{'id': e.id, 'url': e.url, 'excerpt': e.excerpt, 'classification': e.source_kind,
                           'observed_at': e.observed_at.isoformat()} for e in context.evidence]}
         raw, usage = await provider.complete(SYSTEM_POLICY, payload)
-        analysis = validate_analysis(raw, context)
+        analysis = validate_grounded_subset(raw, context)
         limitations = tuple(dict.fromkeys((*analysis.limitations,
             'Recommendations are proposals for merchant review; no external action has been performed.',
             'Public website evidence does not establish private sales, profit, ownership or marketing consent.')))
