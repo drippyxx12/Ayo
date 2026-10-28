@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-28T13:30:17Z",
+  "purpose": "Zero-cost live transport and existing leased-worker verification for a user-supplied ordinary public website",
+  "test_target": "https://example.com/",
+  "target_notice": "IANA-reserved documentation domain; this is a transport/worker fixture, not a merchant or business-intelligence case",
+  "network_operations": {
+    "initial_adapter_check": [
+      "GET https://example.com/robots.txt",
+      "GET https://example.com/"
+    ],
+    "leased_worker_check": [
+      "GET https://example.com/robots.txt",
+      "GET https://example.com/"
+    ],
+    "redirects_followed": 0,
+    "firecrawl_calls": 0,
+    "gemini_calls": 0
+  },
+  "maximum_authorized_charge_usd": "0.00",
+  "paid_spending_enabled": false,
+  "source": {
+    "url": "https://example.com/",
+    "provider": "direct_public_web",
+    "robots_policy": "ROBOTS_CHECKED",
+    "retrieved_at": "2026-10-28T13:30:13.292860+00:00",
+    "title": "Example Domain",
+    "content_bytes": 175,
+    "source_hash": "526d5ea2c9d53fc3b50a0a9e62bb7fe1c7a63f17092b2840e86378e02c21e7c4",
+    "html_source_hash": "25ddf2c883e0d1958ea971d279a7e4f0fd446724ee3db7db19dadabd4a62e484",
+    "product_observations": 0,
+    "channel_observations": 0
+  },
+  "worker": {
+    "entrypoint": "python -m ayo.worker --once",
+    "database": "isolated local SQLite with migration 0008_merchant_analysis",
+    "job_id": "oxLUgXsgG2i8JsXnSTqyxHz11_R2YTl3",
+    "job_status": "succeeded",
+    "attempts": 1,
+    "report_id": "gSzGca0aSp3YdMBXJU52EqT-tTEvh0hM",
+    "source_count": 1,
+    "report_status": "PARTIAL",
+    "analysis_status": "unavailable",
+    "analysis_error_code": "model_not_configured"
+  },
+  "interpretation": "The public-site transport, robots check, evidence persistence and leased worker completion worked live. Gemini was deliberately disabled, so this does not claim a second live Gemini report or useful business analysis for Example Domain.",
+  "public_deployment": false
+}

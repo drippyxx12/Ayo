@@ -18,6 +18,12 @@ def test_public_url_intent_and_path_normalization():
     assert not r.ownership_verified
 
 
+@pytest.mark.parametrize('url', ['http://shop.example.org:443/', 'https://shop.example.org:80/'])
+def test_scheme_mismatched_ports_are_rejected(url):
+    with pytest.raises(SiteInputError):
+        normalize_public_url(url)
+
+
 @pytest.mark.parametrize('url', [
     'file:///etc/passwd', 'ftp://public.com', 'http://localhost',
     'http://127.0.0.1', 'http://[::1]',

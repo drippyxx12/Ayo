@@ -1,6 +1,16 @@
 # Ayo project memory and stopping point
 
-Updated: 28 October 2026. Overall platform: **PARTIALLY COMPLETE**.
+Updated: 28 October 2026 15:30 Europe/Warsaw. Overall platform: **PARTIALLY COMPLETE**.
+
+## Latest milestone — generic public website worker
+
+The existing leased worker now accepts a user-pasted ordinary public HTTP/HTTPS website without a Firecrawl host allowlist or paid crawler call. Default `AYO_RESEARCH_SOURCE=direct_public_web`; the prior Wikidata CC0 path remains selected for reviewed entity URLs when configured, and explicit Firecrawl configuration preserves its separate gates. The web request queues encrypted work; only the worker retrieves source bytes.
+
+Supported: static/server-rendered HTML and text, including ordinary WordPress, Shopify and WooCommerce pages. The worker checks robots, validates every DNS address, pins public egress with original TLS/Host identity, follows at most3 same bare/`www` redirects with robots rechecks, caps one page at1MB, extracts public Product JSON-LD and linked channels, redacts contact text, and commits URL/time/content+HTML hashes before existing Gemini analysis. It never executes scripts, retains cookies or bypasses a wall. Robots denial, login/bot challenges, files, JavaScript-only shells, weak evidence, unsafe redirects, unsupported encodings, rate limits and timeouts are explicit failed states.
+
+Live zero-cost proof: `python -m ayo.worker --once` retrieved the IANA-reserved `https://example.com/` test page through `direct_public_web`, persisted source evidence and completed job `oxLUgXsgG2i8JsXnSTqyxHz11_R2YTl3` on attempt1. Firecrawl0/Gemini0/paid spending0. Analysis correctly remained unavailable/model_not_configured; this is a transport/worker proof, not business intelligence. [Receipt](docs/evidence/direct-website-live-worker.json), [implementation and exact support limits](docs/GENERIC_WEBSITE_RESEARCH.md). A prior direct adapter check accounts for one additional robots+page pair; no retries/redirects.
+
+Final verification: **1000 tests passed**,0 failed/skipped, SQLite+actual local PostgreSQL17,131.84s, one upstream warning. Focused final generic-site/UI guards passed61. Ruff/dependency/whitespace/Jinja checks pass; final secret scan/delivery receipt follows. The previous real Trashy Bags Gemini report and its965-token receipt remain valid and was not repeated. Current hosted preview is unchanged. Starting checkpoint was clean `833bbbadc59d55df9bd0d859ba468ec808674a71`.
 
 ## Latest milestone — real research worker and Gemini report
 
@@ -42,11 +52,11 @@ Existing protected preview is **interactive intake only**, with private accounts
 
 ## Stopped at / Next / Blocked by
 
-**Stopped at:** real small-company worker/Gemini report and PostgreSQL relogin verified; owner-input/scoped follow-up implemented with fixture verification; UI clarity improvements verified at three widths;981 tests passed. GitHub delivery receipt follows below.
+**Stopped at:** generic direct public-site retrieval and a live leased-worker transport check are implemented;1000 tests pass. GitHub delivery receipt follows. The real small-company Gemini report remains verified.
 
-**Next:** reviewed source refresh and ownership challenges; richer licensed/owner-supplied product evidence and a successful bounded live owner-input/follow-up evaluation when a fresh dated zero-cost allowance exists. Continue independent roadmap work without Konga/Firecrawl.
+**Next:** finish generic-site full regression/GitHub delivery, then reviewed multi-page refresh/ownership and richer licensed or owner-supplied product evidence.
 
-**Blocked by:** no blocker to continued local development. Larger live batches need finite dated zero-cost budget/data review; current reviewed calls are consumed. Firecrawl storefront/commercial rights, delivered mail and hosted API/worker/database remain separate unfinished integrations. Paid calls, public deployment, outreach and merge stay unapproved. Do not repeat generic credential instructions.
+**Blocked by:** no blocker to single-page public URL retrieval. Sites may themselves deny robots/access or require JavaScript rendering. Live Gemini calls remain at the consumed dated cap; hosted API/worker/database, delivered mail and multi-page rendering are separate unfinished work. Paid calls, public deployment, outreach and merge stay unapproved.
 
 ## Verified GitHub delivery
 

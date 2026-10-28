@@ -5,6 +5,7 @@
   <a class="navlink" href="/">← Start another search</a>
   <div class="eyebrow research-kicker">AYO / {{ 'OWNER-PROVIDED STARTING PROFILE' if preview.no_website else 'PUBLIC RESEARCH' }}</div>
   <h1>{{ 'A starting point.' if preview.no_website else 'Research is being set up.' }}</h1>
+  {% if error %}<div class="notice" role="alert">{{ error }}</div>{% endif %}
   <p class="research-lead" role="status" data-research-status="{{ preview.status }}">{{ preview.message }}</p>
   <dl class="research-summary">
     <div><dt>{{ 'PUBLIC LINK ENTERED' if preview.input_kind == 'url' else 'BUSINESS NAME ENTERED' }}</dt><dd>{{ preview.query }}</dd></div>

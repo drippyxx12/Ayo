@@ -65,7 +65,8 @@ def normalize_public_url(text: str) -> str:
         if parsed.scheme not in {'https', 'http'}:
             raise SiteInputError('Only public http and https websites are supported.')
         port = parsed.port
-        if port and port not in {80, 443}:
+        expected_port = 443 if parsed.scheme == 'https' else 80
+        if port and port != expected_port:
             raise SiteInputError('Nonstandard website ports are not supported.')
         host = host.rstrip('.').encode('idna').decode('ascii').lower()
         if len(host) > 253 or any(len(part) > 63 or not part for part in host.split('.')):

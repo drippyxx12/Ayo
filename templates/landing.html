@@ -13,13 +13,13 @@
     <section class="discovery-panel" aria-labelledby="search-title">
       <div class="eyebrow">01 / START WITH YOUR BUSINESS</div>
       <h2 id="search-title">Search for your business.</h2>
-      <p>Enter a name, website, public social profile or marketplace link.</p>
+      <p>Paste an ordinary public website, or enter a business name to use a configured discovery source.</p>
       {% if error %}<div class="notice" role="alert">{{ error }}</div>{% endif %}
       <form method="post" action="/research" class="research-form">
         <input type="hidden" name="csrf" value="{{ csrf }}">
         <label for="query">BUSINESS NAME OR PUBLIC LINK</label>
         <input id="query" name="query" required maxlength="250" value="{{ values.get('query', '') }}" placeholder="Your business name or https://…" autocomplete="off" aria-describedby="query-hint">
-        <p class="field-hint" id="query-hint">Use public business information. Keep passwords, private links and customer details out.</p>
+        <p class="field-hint" id="query-hint">Public HTTP/HTTPS pages on static sites, WordPress, Shopify and WooCommerce are supported when they return readable page content. Keep passwords, private links and customer details out.</p>
         <div class="research-fields">
           <div><label for="country">MARKET <span>(OPTIONAL)</span></label><select id="country" name="country"><option value="">Choose a market</option><option value="NG"{% if values.get('country') == 'NG' %} selected{% endif %}>Nigeria</option><option value="GH"{% if values.get('country') == 'GH' %} selected{% endif %}>Ghana</option></select></div>
           <div><label for="city">CITY <span>(OPTIONAL)</span></label><input id="city" name="city" maxlength="100" value="{{ values.get('city', '') }}" placeholder="City or area" autocomplete="off"></div>
@@ -33,7 +33,7 @@
         </fieldset></details>
         <button class="pill full" type="submit">Start with my business <span aria-hidden="true">↗</span></button>
       </form>
-      <p class="research-availability">Public information only. No account required. Research depends on source availability and configured providers; inaccessible sources are reported clearly.</p>
+      <p class="research-availability">Public information only. No account required. Ayo checks the site's robots policy and reads one page. Login walls, bot challenges, private/admin/checkout paths, files and JavaScript-only shells are reported clearly instead of treated as research.</p>
     </section>
   </section>
   <section class="principles discovery-principles" aria-label="How Ayo works">

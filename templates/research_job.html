@@ -7,7 +7,18 @@
   <div role="status" aria-live="polite">
     {% if job.status == 'failed' %}
       <p class="research-lead">This research could not be completed. No completed report is available.</p>
-      <p class="quiet">Reason: {{ job.error_code|replace('_',' ') }}. Provider access, permitted sources and a running worker are required.</p>
+      {% set reason = {
+        'robots_denied': 'This website’s robots policy does not permit Ayo to read the selected page.',
+        'source_access_restricted': 'The website returned a login, bot challenge or access restriction.',
+        'source_requires_javascript': 'The page is a JavaScript-only shell and did not return readable public content.',
+        'unsupported_content_type': 'The address returned a file or content type that Ayo does not research as a webpage.',
+        'insufficient_evidence': 'The page did not contain enough readable business evidence for a report.',
+        'provider_unsafe_redirect': 'The website redirected outside the permitted public host or toward an unsafe network address.',
+        'website_url_required': 'Paste the public website address; business-name discovery is not configured for this worker.',
+        'source_unavailable': 'The public page was unavailable or did not return a readable response.',
+        'research_timeout': 'The website did not respond within the worker’s bounded time limit.'
+      }.get(job.error_code) %}
+      <p class="quiet">{{ reason or 'The source or analysis provider could not complete this request under the current limits.' }}</p>
     {% elif job.status == 'queued' and job.attempts %}
       <p class="research-lead">The source provider was temporarily unavailable. A bounded retry is waiting for its scheduled time. No report is complete yet.</p>
     {% else %}

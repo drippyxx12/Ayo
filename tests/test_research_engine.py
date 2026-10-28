@@ -82,15 +82,18 @@ def crawl_handler(page=None):
     return handler, seen
 
 
-def test_missing_credentials_and_spend_fail_closed(monkeypatch):
+def test_direct_url_source_needs_no_paid_credentials_but_explicit_firecrawl_still_fails_closed(monkeypatch):
     monkeypatch.delenv('FIRECRAWL_API_KEY', raising=False)
+    monkeypatch.delenv('AYO_RESEARCH_SOURCE', raising=False)
+    assert ResearchService.from_env().provider.source == 'direct_public_web'
+    monkeypatch.setenv('AYO_RESEARCH_SOURCE', 'firecrawl')
     with pytest.raises(ResearchError) as missing:
-        ResearchService.from_env()
+        run(ResearchService.from_env().search('Fixture merchant'))
     assert missing.value.code == 'provider_not_configured'
     monkeypatch.setenv('FIRECRAWL_API_KEY', 'fixture-secret')
     monkeypatch.delenv('AYO_PROVIDER_SPEND_AUTHORIZED', raising=False)
     with pytest.raises(ResearchError) as unauthorized:
-        ResearchService.from_env()
+        run(ResearchService.from_env().search('Fixture merchant'))
     assert unauthorized.value.code == 'provider_spend_not_authorized'
 
 

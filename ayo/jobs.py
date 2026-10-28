@@ -38,6 +38,8 @@ SAFE_ERRORS = frozenset({
     'source_outcome_uncertain', 'provider_timeout', 'provider_budget_exhausted',
     'budget_storage_unavailable',
     'source_access_restricted',
+    'robots_denied', 'unsupported_content_type', 'source_requires_javascript',
+    'website_url_required',
 })
 
 

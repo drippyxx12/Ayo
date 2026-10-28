@@ -1,10 +1,11 @@
-"""Provider-backed public research with explicit evidence and permission gates.
+"""Worker-backed public research with explicit evidence and permission gates.
 
-No submitted URL is fetched by this process. The only network destination in the
-production adapter is api.firecrawl.dev. Live use requires server-side provider
-credentials, separately authorized spend, and operator-reviewed hosted egress and
-source policies. These configuration attestations are not a claim that Firecrawl
-or Ayo's production controls have been independently verified.
+The web process only queues encrypted input. The leased worker can retrieve one
+ordinary public page through public-IP-pinned direct egress, use the fixed-host
+Wikidata CC0 adapter, or use the separately configured Firecrawl adapter. Direct
+retrieval checks robots and every network hop; it never executes scripts or
+bypasses access controls. Firecrawl still requires server-side credentials,
+separately authorized spend and operator-reviewed source policies.
 
 Official API contracts consulted 2026-10-26 (public documentation, no API calls):
 https://docs.firecrawl.dev/api-reference/endpoint/search
@@ -103,12 +104,13 @@ def _ambiguous_profile(url: str) -> bool:
 
 def _same_research_target(requested_url: str, returned_url: str) -> bool:
     requested, returned = urlsplit(requested_url), urlsplit(returned_url)
-    if requested.hostname != returned.hostname:
-        return False
     host = (requested.hostname or '').removeprefix('www.')
     if host in SHARED_PUBLIC_HOSTS:
         return _candidate_identity(requested_url) == _candidate_identity(returned_url)
-    return True
+    # Ordinary sites commonly redirect only between the bare host and www.
+    # The direct fetcher has already revalidated DNS/TLS/robots at every hop;
+    # no sibling subdomain or unrelated host is accepted here.
+    return host == (returned.hostname or '').removeprefix('www.')
 
 
 def _access_wall(content: str, title: str = '') -> bool:
@@ -203,7 +205,7 @@ class SourceDocument(ResearchModel):
     content: str = Field(min_length=1, max_length=MAX_SOURCE_CHARS)
     provider: str = Field(min_length=1, max_length=40)
     provider_receipt_id: str = Field(min_length=1, max_length=120)
-    robots_policy: Literal["PROVIDER_REQUESTED", "API_POLICY_REVIEWED"] = "PROVIDER_REQUESTED"
+    robots_policy: Literal["PROVIDER_REQUESTED", "API_POLICY_REVIEWED", "ROBOTS_CHECKED"] = "PROVIDER_REQUESTED"
     source_type: Literal["PUBLIC_WEB"] = "PUBLIC_WEB"
     html_source_hash: str | None = Field(default=None, pattern=r'^[0-9a-f]{64}$')
     product_observations: tuple[PublicProduct, ...] = Field(default=(), max_length=20)
@@ -649,16 +651,42 @@ class FirecrawlProvider:
         )
 
 
+class ConfiguredResearchProvider:
+    """Route URL research without eagerly requiring a paid discovery provider."""
+
+    def __init__(self, source: str = 'direct_public_web'):
+        if source not in {'direct_public_web', 'wikidata_cc0', 'firecrawl'}:
+            raise ResearchError('provider_not_configured', 'Select a supported public research source.')
+        self.source = source
+
+    async def search(self, query: str, country: str = '', city: str = '', limit: int = 5):
+        if self.source == 'wikidata_cc0':
+            from ayo.wikidata_source import WikidataProvider
+            return await WikidataProvider().search(query, country, city, limit)
+        if self.source == 'firecrawl':
+            return await FirecrawlProvider.from_env().search(query, country, city, limit)
+        from ayo.direct_website import DirectWebsiteProvider
+        return await DirectWebsiteProvider().search(query, country, city, limit)
+
+    async def fetch(self, url: str, country: str = ''):
+        parsed = urlsplit(_public_url(url))
+        if (self.source == 'wikidata_cc0' and parsed.hostname == 'www.wikidata.org'
+                and re.fullmatch(r'/wiki/Special:EntityData/Q[1-9][0-9]{0,11}\.json', parsed.path)):
+            from ayo.wikidata_source import WikidataProvider
+            return await WikidataProvider().fetch(url, country)
+        if self.source == 'firecrawl':
+            return await FirecrawlProvider.from_env().fetch(url, country)
+        from ayo.direct_website import DirectWebsiteProvider
+        return await DirectWebsiteProvider().fetch(url, country)
+
+
 class ResearchService:
     def __init__(self, provider: ResearchProvider):
         self.provider = provider
 
     @classmethod
     def from_env(cls):
-        if os.getenv('AYO_RESEARCH_SOURCE') == 'wikidata_cc0':
-            from ayo.wikidata_source import WikidataProvider
-            return cls(WikidataProvider())
-        return cls(FirecrawlProvider.from_env())
+        return cls(ConfiguredResearchProvider(os.getenv('AYO_RESEARCH_SOURCE', 'direct_public_web')))
 
     async def search(self, query: str, country: str = "", city: str = "", limit: int = 5) -> tuple[BusinessCandidate, ...]:
         query = _text(query, 250, "Business search")
@@ -765,6 +793,13 @@ def build_report(source: SourceDocument, *, country: str = "", business_name: st
             observed_at=source.retrieved_at if mentions else None,
         ))
     claims.append(ReportClaim(text="Revenue, conversion, stock, customer counts and payment settlement cannot be determined from public page text.", kind="UNKNOWN"))
+    access_limitation = (
+        "Ayo checked this site's robots endpoint for the exact page and used public-IP-pinned direct egress; "
+        "this does not establish ownership or broader permission for other pages."
+        if source.provider == 'direct_public_web' else
+        "Robots compliance and controlled egress were requested from the configured hosted provider; "
+        "independent vendor acceptance remains required."
+    )
     return ResearchReport(
         business_name=business_name or source.title or urlsplit(source.url).hostname or "Public business",
         target_url=source.url, country=country, status="PARTIAL",
@@ -772,7 +807,7 @@ def build_report(source: SourceDocument, *, country: str = "", business_name: st
         limitations=(
             "Coverage is one permitted public page, not the full website or product catalog.",
             "Public page statements are unverified merchant claims; ownership and store authorization are separate.",
-            "Robots compliance and controlled egress were requested from the configured hosted provider; independent vendor acceptance remains required.",
+            access_limitation,
             "Source-observation opportunities are rules-based hypotheses. Any Gemini analysis is labeled separately; no business outcomes have been verified.",
         ), created_at=_now(),
     )

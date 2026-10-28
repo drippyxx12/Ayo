@@ -13,9 +13,10 @@ Current merchant-stage implementation and verification boundaries: [M3/M4/M5 mer
 ## What is implemented
 
 - Public search-first name/URL/social/marketplace intake, explicit candidate selection, and a clearly unverified no-website owner-description path. No Shopify requirement.
-- A fixed-host Firecrawl adapter with server-only keys, explicit spend and source-policy gates, bounded hosted crawl requests, robots compliance requests, source hashes/excerpts/timestamps, public product/price and linked-channel observations, and validated citations. No arbitrary URL fetching from the web process.
+- The leased worker can read one ordinary public HTTP/HTTPS page from a submitted domain through public-IP-pinned egress, per-hop TLS/DNS validation, robots checks, bounded same-site redirects and a one-megabyte limit. Static, WordPress, Shopify and WooCommerce pages work when they return readable server HTML. Login/bot walls, private/admin/checkout paths, files and JavaScript-only shells stop with explicit states. The web process still never fetches submitted URLs.
+- Optional fixed-host Wikidata CC0 discovery and the existing Firecrawl adapter remain available. Firecrawl keeps its separate key, spend and source-policy gates; direct website reads do not silently activate it.
 - Durable encrypted research jobs commit a hidden source checkpoint before Gemini synthesis. Validated public analysis is persisted with citations/model/policy/usage; missing or rejected AI yields an explicitly partial report. Leases fence stale publication and crash recovery reuses evidence without recrawling.
-- PostgreSQL-ready relational models and seven explicit Alembic migrations. Existing alpha account/store/snapshot data is preserved by tested upgrade paths.
+- PostgreSQL-ready relational models and eight explicit Alembic migrations. Existing alpha account/store/snapshot data is preserved by tested upgrade paths.
 - Hashed database sessions, server revocation, persisted throttling, normalized accounts, business memberships, email verification/reset capabilities, encrypted transactional outbox and recovery that revokes old sessions.
 - Browser-bound, expiring, single-use report claims into verified accounts; private dashboard, reports, opportunities, activity, lead records and workspace switching.
 - Persistent Business profiles with labeled merchant-provided offer/audience/goals; source-linked Work tasks with due dates, statuses, audit and conflict protection; real-record overview and activity.
@@ -65,7 +66,7 @@ sh scripts/check-secrets.sh
 
 Set `AYO_TEST_POSTGRES_URL` to a disposable local PostgreSQL database to include migration, concurrent founding-allocation and full HTTP journey checks. Tests use isolated schemas. GitHub CI provisions its own test PostgreSQL service.
 
-The latest integrated suite has **583 passing tests** with PostgreSQL enabled. Browser checks cover 390/768/1440px search → committed evidence → offline Gemini synthesis → cited report → signup → verification-token fixture → private save → reopen → sourced lead discovery/qualification. These are fixture-backed application tests, not live business or merchant evidence.
+The current verified counts and provider boundaries are recorded in [MEMORY.md](MEMORY.md) and [PROGRESS.md](PROGRESS.md); older counts in historical documents remain dated evidence. Browser checks cover 390/768/1440px search → committed evidence → offline Gemini synthesis → cited report → signup → verification-token fixture → private save → reopen → sourced lead discovery/qualification. Fixture-backed checks are never described as live business or merchant evidence.
 
 ## Delivery records
 

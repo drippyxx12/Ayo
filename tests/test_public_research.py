@@ -54,20 +54,29 @@ def test_public_home_starts_with_business_search_without_account(public_client):
     assert 'action="/shopify/connect"' not in response.text
 
 
-@pytest.mark.parametrize(("query", "status"), [
-    ("A local clothing business", "search_not_configured"),
-    ("https://merchant.org/catalog", "secure_fetch_not_configured"),
-    ("https://www.instagram.com/publicbusiness/", "secure_fetch_not_configured"),
-])
-def test_public_research_reports_unavailable_and_never_fetches(public_client, query, status):
+def test_name_discovery_without_configured_index_requests_a_public_url(public_client):
     client, _ = public_client
+    response = client.post('/research', data={
+        'csrf': _csrf(client), 'query': 'A local clothing business', 'country': 'NG'})
+    assert response.status_code == 400
+    assert 'Paste the public website address' in response.text
+
+
+@pytest.mark.parametrize('query', [
+    'https://merchant.org/catalog',
+    'https://www.instagram.com/publicbusiness/',
+])
+def test_public_url_is_queued_for_worker_without_fetching_in_web_process(public_client, query):
+    client, mod = public_client
     response = client.post("/research", data={"csrf": _csrf(client), "query": query, "country": "NG"})
-    assert response.status_code == 503
-    assert f'data-research-status="{status}"' in response.text
-    assert "No public sources have been retrieved" in response.text
-    assert "There is no sourced mini-report or verified lead preview yet" in response.text
-    assert "Create your free Ayo account" in response.text
-    assert "Shopify is optional" in response.text
+    assert response.status_code == 303
+    assert response.headers['location'].startswith('/research/jobs/')
+    with mod.DbSession() as session:
+        from ayo.models import ResearchJob
+        job = session.scalar(select(ResearchJob))
+        payload = json.loads(mod.fernet.decrypt(job.payload_cipher.encode()))
+        assert payload['url'] == query
+        assert job.status == 'queued' and job.attempts == 0
 
 
 def test_owner_supplied_profile_is_unverified_ephemeral_and_escaped(public_client):

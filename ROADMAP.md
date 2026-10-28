@@ -10,6 +10,8 @@ The merchant-authorized description/product/pricing/goal/upload workflow and rep
 
 Interface cleanup reduces competing dashboard sections and groups inputs/report navigation while preserving branding/search-first/first500. Earlier dated fixture/setup observations below remain historical, superseded by this current receipt only for the exact verified scope.
 
+**Generic website worker update:** a pasted ordinary public HTTP/HTTPS URL now routes through the existing leased worker without a Firecrawl allowlist. The fixed public transport checks DNS/IP/TLS/Host and robots per site/hop, bounds same-site redirects/time/bytes, extracts public server HTML/text and persists hashes before inference. Common static/WordPress/Shopify/WooCommerce output is platform-neutral; login/bot walls, private paths, files, JavaScript-only shells and weak evidence remain explicit unsupported outcomes. A zero-cost live `example.com` worker check succeeded with Gemini/Firecrawl0; it is transport evidence, not a merchant report. [Contract and receipt](docs/GENERIC_WEBSITE_RESEARCH.md).
+
 ## 1. Delivery rules and status
 
 Build in dependencies, retaining each useful vertical slice. A milestone needs implemented behavior, meaningful tests, persisted evidence and its stated live/reviewer checks. Milestone names do not imply completion. Do not mark a whole milestone blocked solely by credentials when independent implementation remains possible; separate those work items.
@@ -206,7 +208,7 @@ Only this acceptance can support a production-ready/full-platform claim for the 
 | --- | --- | --- |
 | C01 Identity/team/workspaces | M1, M3, M10 | Core local tests; team administration and production identity incomplete. |
 | C02 Discovery/no-site onboarding | M2–M4 | Intake/candidate fixtures and persistent labeled merchant offer/audience/goals; actual matching/ownership acceptance remains open. |
-| C03 Safe acquisition | M1, M2, M4, M10 | Existing worker now verified live with fixed-host Wikidata CC0 records; broader storefront/multi-page acceptance unfinished. |
+| C03 Safe acquisition | M1, M2, M4, M10 | Existing worker verified live with fixed-host Wikidata and generic single-page public HTTP(S) transport; rendering/multi-page/source-quality acceptance unfinished. |
 | C04 Gemini reports | M2, M4, M5 | Limited Trashy Bags CC0/Gemini report verified live; owner-input report/follow-up fixtures pass; fuller live/multi-page evaluation unfinished. |
 | C05 Saved research/ownership | M3, M4 | Claim/reopen, filtered history, freshness, comparison/export local tests; domain proof and deeper evidence workflows incomplete. |
 | C06 Unified tools/planning | M2, M5, M7, M9 | Private conversations and five versioned bounded read tools/plans implemented locally; broader orchestration/approvals/history reasoning incomplete. |
