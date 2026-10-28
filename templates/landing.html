@@ -24,13 +24,13 @@
           <div><label for="country">MARKET <span>(OPTIONAL)</span></label><select id="country" name="country"><option value="">Choose a market</option><option value="NG"{% if values.get('country') == 'NG' %} selected{% endif %}>Nigeria</option><option value="GH"{% if values.get('country') == 'GH' %} selected{% endif %}>Ghana</option></select></div>
           <div><label for="city">CITY <span>(OPTIONAL)</span></label><input id="city" name="city" maxlength="100" value="{{ values.get('city', '') }}" placeholder="City or area" autocomplete="off"></div>
         </div>
-        <fieldset class="owner-input">
-          <legend>SELLING WITHOUT A WEBSITE?</legend>
+        <details class="discovery-owner"{% if values.get('no_website') or values.get('owner_facts') %} open{% endif %}><summary>Selling without a website?</summary><fieldset class="owner-input">
+          <legend class="visually-hidden">Business details without a website</legend>
           <label class="checkbox-label" for="no-website"><input id="no-website" name="no_website" type="checkbox" value="true"{% if values.get('no_website') %} checked{% endif %}> I don't have a website</label>
           <label for="owner-facts">DESCRIBE WHAT YOU SELL <span>(NO-WEBSITE OPTION)</span></label>
           <textarea id="owner-facts" name="owner_facts" maxlength="2000" rows="3" placeholder="Your products, customers and selling channels" aria-describedby="owner-hint">{{ values.get('owner_facts', '') }}</textarea>
           <p class="field-hint" id="owner-hint">These details stay labeled as supplied by you, until independently checked.</p>
-        </fieldset>
+        </fieldset></details>
         <button class="pill full" type="submit">Start with my business <span aria-hidden="true">↗</span></button>
       </form>
       <p class="research-availability">Public information only. No account required. Research depends on source availability and configured providers; inaccessible sources are reported clearly.</p>

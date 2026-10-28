@@ -24,6 +24,8 @@ class ReportStore:
         # Validate again at the persistence boundary; never store caller-asserted
         # evidence booleans or unvalidated generated citations.
         report = ResearchReport.model_validate(report.model_dump())
+        if report.origin != 'public_web':
+            raise IdentityError('private_input_report', 'Merchant inputs cannot become an anonymous public preview.', 403)
         pending = ResearchReport.model_validate({**report.model_dump(), 'analysis_status': 'pending',
                                                 'analysis': None, 'analysis_error_code': None})
         now = self.clock()

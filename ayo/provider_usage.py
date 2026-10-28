@@ -64,9 +64,18 @@ async def metered_operation(provider: str, operation: str, configuration_fingerp
     scope = _active.get()
     if scope is None:
         raise BudgetError('budget_not_configured', 'Provider dispatch requires a persistent server budget context.')
-    if os.getenv('AYO_PROVIDER_SPEND_AUTHORIZED') != '1':
+    if os.getenv('AYO_PROVIDER_SPEND_AUTHORIZED') != '1' and not (
+            (provider == 'gemini' and os.getenv('AYO_GEMINI_FREE_CALLS_AUTHORIZED') == '1') or
+            (provider == 'wikidata' and os.getenv('AYO_WIKIDATA_READ_AUTHORIZED') == '1')):
         raise BudgetError('provider_spend_not_authorized', 'Provider calls are disabled until the exact test is separately authorized.')
     policy = BudgetPolicy.from_env(provider, operation)
+    if policy.billing_mode == 'free_only_reviewed':
+        authorized = ((provider == 'gemini' and os.getenv('AYO_GEMINI_FREE_CALLS_AUTHORIZED') == '1') or
+                      (provider == 'wikidata' and os.getenv('AYO_WIKIDATA_READ_AUTHORIZED') == '1'))
+    else:
+        authorized = os.getenv('AYO_PROVIDER_SPEND_AUTHORIZED') == '1'
+    if not authorized:
+        raise BudgetError('provider_spend_not_authorized', 'Provider calls are disabled until the exact test is separately authorized.')
     if operation == 'analyze' and (not configuration_fingerprint or
             policy.configuration_fingerprint != configuration_fingerprint):
         raise BudgetError('budget_configuration_mismatch', 'The model configuration differs from the reviewed budget; dispatch is blocked.')

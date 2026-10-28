@@ -112,7 +112,7 @@ def test_reservation_commits_before_http_and_request_cap_blocks_second_dispatch(
     with store() as session:
         row = session.scalar(select(ProviderUsageReservation))
         assert row.outcome == 'succeeded' and row.reserved_microusd == 10
-        assert json.loads(row.usage_json) == usage
+        assert json.loads(row.usage_json) == {**usage, 'http_status': 200}
         assert 'private_body' not in row.usage_json
 
 

@@ -18,6 +18,7 @@ class AssistantConversation(Base):
     business_id = Column(String(64), ForeignKey('businesses.id', ondelete='CASCADE'), nullable=False, index=True)
     user_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'), nullable=False, index=True)
     creation_key = Column(String(64), nullable=False)
+    source_report_id = Column(String(64), ForeignKey('research_reports.id'), nullable=True)
     title = Column(String(160), nullable=False)
     active_request = Column(String(64), nullable=True)
     created_at = Column(Float, nullable=False, default=time.time)

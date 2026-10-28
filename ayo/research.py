@@ -22,7 +22,7 @@ import json
 import os
 import re
 from decimal import Decimal, InvalidOperation
-from typing import Literal, Protocol
+from typing import Annotated, Literal, Protocol
 from urllib.parse import urlsplit
 
 import httpx
@@ -30,6 +30,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 
 from ayo.website_research import SiteInputError, extract_public_page, normalize_public_url
 from ayo.intelligence import IntelligenceResult, PublicResearchContext, SourceEvidence, validate_analysis
+from ayo.merchant_evidence import MerchantInputDocument, OWNER_TARGET
 from ayo.budgets import BudgetError
 from ayo.provider_usage import metered_operation
 from ayo.provider_config import valid_api_key
@@ -42,7 +43,7 @@ MAX_SEARCH_RESULTS = 5
 # Keep the exact public path/identity on these platforms; no guessed redirects.
 SHARED_PUBLIC_HOSTS = frozenset({'facebook.com', 'm.facebook.com', 'instagram.com',
     'tiktok.com', 'x.com', 'twitter.com', 'jiji.ng', 'jiji.com.gh',
-    'jumia.com.ng', 'jumia.com.gh', 'konga.com', 'tonaton.com', 'etsy.com'})
+    'jumia.com.ng', 'jumia.com.gh', 'konga.com', 'tonaton.com', 'etsy.com', 'wikidata.org'})
 
 
 class ResearchError(Exception):
@@ -202,7 +203,7 @@ class SourceDocument(ResearchModel):
     content: str = Field(min_length=1, max_length=MAX_SOURCE_CHARS)
     provider: str = Field(min_length=1, max_length=40)
     provider_receipt_id: str = Field(min_length=1, max_length=120)
-    robots_policy: Literal["PROVIDER_REQUESTED"] = "PROVIDER_REQUESTED"
+    robots_policy: Literal["PROVIDER_REQUESTED", "API_POLICY_REVIEWED"] = "PROVIDER_REQUESTED"
     source_type: Literal["PUBLIC_WEB"] = "PUBLIC_WEB"
     html_source_hash: str | None = Field(default=None, pattern=r'^[0-9a-f]{64}$')
     product_observations: tuple[PublicProduct, ...] = Field(default=(), max_length=20)
@@ -259,11 +260,12 @@ class ReportOpportunity(ResearchModel):
 
 class ResearchReport(ResearchModel):
     schema_version: Literal["1"] = "1"
+    origin: Literal["public_web", "merchant_provided"] = "public_web"
     business_name: str = Field(min_length=1, max_length=240)
     target_url: str
     country: Literal["", "NG", "GH"] = ""
     status: Literal["SUCCEEDED", "PARTIAL"]
-    source_documents: tuple[SourceDocument, ...] = Field(min_length=1, max_length=10)
+    source_documents: tuple[Annotated[SourceDocument | MerchantInputDocument, Field(discriminator='source_type')], ...] = Field(min_length=1, max_length=10)
     claims: tuple[ReportClaim, ...] = Field(max_length=40)
     opportunities: tuple[ReportOpportunity, ...] = Field(max_length=10)
     limitations: tuple[str, ...] = Field(min_length=1, max_length=20)
@@ -274,7 +276,29 @@ class ResearchReport(ResearchModel):
     analysis: IntelligenceResult | None = None
     analysis_error_code: str | None = Field(default=None, pattern=r'^[a-z_]{1,80}$')
 
+    @field_validator('source_documents', mode='before')
+    @classmethod
+    def legacy_source_type(cls, value):
+        # Serialized legacy public records predate explicit discriminators.
+        if isinstance(value, (list, tuple)):
+            return [dict(item, source_type=item.get('source_type', 'PUBLIC_WEB')) if isinstance(item, dict) else item for item in value]
+        return value
+
+    def merchant_analysis_context(self, question=None):
+        from ayo.intelligence import MerchantInputContext
+        if self.origin != 'merchant_provided':
+            raise ValueError('Not a merchant-supplied report.')
+        return MerchantInputContext(country=self.country, question=question or
+            'Analyze the supplied business description, products, stated prices, market, website information and goals. '
+            'Give source-linked opportunities and recommendations. Owner statements remain unverified hypotheses; '
+            'do not present them as observed facts. Identify unknowns and limitations. No invented competitors or metrics.',
+            evidence=tuple(SourceEvidence(id=source.id, url=source.url, excerpt=source.content,
+                observed_at=source.retrieved_at, source_kind='OWNER_PROVIDED_UNVERIFIED')
+                for source in self.source_documents))
+
     def public_analysis_context(self):
+        if self.origin != 'public_web':
+            raise ValueError('Merchant evidence cannot enter anonymous public research.')
         return PublicResearchContext(country=self.country,
             question=('Analyze this public business evidence: products, selling channels, buyer journey, '
                       'positioning and actionable improvements. Distinguish observations, hypotheses '
@@ -286,10 +310,15 @@ class ResearchReport(ResearchModel):
     @field_validator("target_url")
     @classmethod
     def validate_url(cls, value):
-        return _public_url(value)
+        return value if OWNER_TARGET.fullmatch(value) else _public_url(value)
 
     @model_validator(mode="after")
     def citation_integrity(self):
+        owner = self.origin == 'merchant_provided'
+        if owner != bool(OWNER_TARGET.fullmatch(self.target_url)):
+            raise ValueError('Report target and input origin disagree.')
+        if any(isinstance(source, MerchantInputDocument) != owner for source in self.source_documents):
+            raise ValueError('Public and merchant evidence cannot be relabeled or mixed.')
         ids = {source.id for source in self.source_documents}
         if len(ids) != len(self.source_documents):
             raise ValueError("Evidence identifiers must be unique")
@@ -305,7 +334,7 @@ class ResearchReport(ResearchModel):
             if self.analysis.generated_at.tzinfo is None:
                 raise ValueError('AI result timestamp must include timezone')
             validate_analysis(self.analysis.model_dump(include={'claims', 'recommendations', 'limitations'}),
-                              self.public_analysis_context())
+                              self.merchant_analysis_context() if owner else self.public_analysis_context())
         elif self.analysis is not None:
             raise ValueError('Unavailable or unfinished analysis cannot contain a generated result')
         if self.analysis_status in {'unavailable', 'rejected'}:
@@ -626,6 +655,9 @@ class ResearchService:
 
     @classmethod
     def from_env(cls):
+        if os.getenv('AYO_RESEARCH_SOURCE') == 'wikidata_cc0':
+            from ayo.wikidata_source import WikidataProvider
+            return cls(WikidataProvider())
         return cls(FirecrawlProvider.from_env())
 
     async def search(self, query: str, country: str = "", city: str = "", limit: int = 5) -> tuple[BusinessCandidate, ...]:
@@ -677,6 +709,18 @@ def build_report(source: SourceDocument, *, country: str = "", business_name: st
         text="The retrieved public page contains this excerpt: “" + source.excerpt[:480] + "”",
         kind="OBSERVED", evidence_ids=ids, observed_at=source.retrieved_at,
     )]
+    if source.provider == 'wikidata_cc0':
+        return ResearchReport(
+            business_name=business_name or source.title, target_url=source.url, country=country, status='PARTIAL',
+            source_documents=(source,), claims=(*claims, ReportClaim(kind='UNKNOWN',
+                text='Products, categories, pricing, selling channels, delivery, returns and actual business activity are not established by this company-record sample.'),
+                ReportClaim(kind='UNKNOWN', text='Revenue, sales, ownership and commercial outcomes are unknown.')),
+            opportunities=(), limitations=(
+                'Coverage is one community-maintained CC0 company record, not a website, catalog or complete business audit.',
+                'Record statements are unverified community assertions; the selected market does not prove domicile or ownership.',
+                'Acquisition uses the reviewed fixed-host Wikidata JSON API; no merchant storefront or Firecrawl crawl was used.',
+                'Missing fields in this record do not establish defects in the business or its storefront. AI proposals are labeled separately.'),
+            created_at=_now())
     opportunities = []
     for product in source.product_observations:
         price = f' Listed price: {product.currency or "currency not established"} {product.listed_price}.' if product.listed_price is not None else ' A usable listed price was not established.'

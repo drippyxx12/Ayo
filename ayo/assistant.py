@@ -15,7 +15,7 @@ from sqlalchemy import func, select, update
 
 from ayo.assistant_models import AssistantConversation, AssistantMessage, AssistantToolRun
 from ayo.identity import IdentityError, IdentityService, token_hash
-from ayo.intelligence import IntelligenceContext, IntelligenceError, IntelligenceResult, SourceEvidence, validate_analysis
+from ayo.intelligence import IntelligenceContext, MerchantInputContext, IntelligenceError, IntelligenceResult, SourceEvidence, validate_analysis
 from ayo.leads import LeadCandidate
 from ayo.merchant_models import BusinessProfile, Task
 from ayo.models import Business, Lead, ResearchReportRecord
@@ -70,7 +70,7 @@ class ToolResult(ToolModel):
     version: Literal[1] = 1
     status: Literal['completed', 'partial', 'empty']
     items: tuple[ToolItem, ...] = Field(max_length=3)
-    evidence: tuple[SourceEvidence, ...] = Field(default=(), max_length=6)
+    evidence: tuple[SourceEvidence, ...] = Field(default=(), max_length=10)
     more_available: bool = False
     limitations: tuple[str, ...] = Field(default=(), max_length=4)
 
@@ -137,8 +137,13 @@ class AssistantService:
             AssistantMessage.user_id == user_id,
         ).order_by(AssistantMessage.created_at, AssistantMessage.role.desc()).limit(MAX_MESSAGES)).all()
 
-    def create(self, user_id, business_id, request_id, title='New conversation'):
+    def create(self, user_id, business_id, request_id, title='New conversation', source_report_id=None):
         identity = self._member(user_id, business_id, write=True)
+        if source_report_id:
+            from ayo.merchant_analysis import MerchantAnalysisService
+            record, report = MerchantAnalysisService(self.session).load(user_id, business_id, source_report_id)
+            if record.status == 'PENDING_ANALYSIS':
+                raise IdentityError('report_unavailable', 'Wait until the report is finalized.', 409)
         key = _key(request_id)
         # Serialize private conversation creation per user on both supported DBs.
         from ayo.models import User
@@ -147,6 +152,8 @@ class AssistantService:
             AssistantConversation.user_id == user_id, AssistantConversation.business_id == business_id,
             AssistantConversation.creation_key == key))
         if existing:
+            if existing.source_report_id != source_report_id:
+                raise IdentityError('request_conflict', 'Conversation request belongs to a different report.', 409)
             return existing
         title = title.strip() or 'New conversation'
         if len(title) > 160 or any(ord(c) < 32 for c in title):
@@ -157,7 +164,7 @@ class AssistantService:
         if count >= MAX_CONVERSATIONS:
             raise IdentityError('conversation_limit', 'The private conversation record limit has been reached.', 429)
         row = AssistantConversation(user_id=user_id, business_id=business_id, creation_key=key,
-                                    title=title, created_at=self.clock(), updated_at=self.clock())
+                                    title=title, source_report_id=source_report_id, created_at=self.clock(), updated_at=self.clock())
         self.session.add(row)
         self.session.flush()
         identity.audit('assistant.conversation_created', user_id=user_id, business_id=business_id,
@@ -185,8 +192,11 @@ class AssistantService:
 
     def begin(self, user_id, business_id, conversation_id, request_id, question):
         identity = self._member(user_id, business_id, write=True)
-        self.get(user_id, business_id, conversation_id)
+        conversation = self.get(user_id, business_id, conversation_id)
         key, question = _key(request_id), _question(question)
+        if conversation.source_report_id:
+            from ayo.merchant_analysis import clean_input
+            question = clean_input(question, 'question', 1000, 1)
         # A write lock serializes checks, counters and the single-flight fence.
         self.session.execute(update(AssistantConversation).where(
             AssistantConversation.id == conversation_id, AssistantConversation.user_id == user_id,
@@ -211,7 +221,11 @@ class AssistantService:
             AssistantMessage.conversation_id == conversation_id))
         if count >= MAX_MESSAGES:
             raise IdentityError('message_limit', 'Start a new conversation to continue. This conversation has reached its record limit.', 429)
-        plan, results = self.read_plan(user_id, business_id, question, conversation_id=conversation_id)
+        conversation = self.get(user_id, business_id, conversation_id)
+        if conversation.source_report_id:
+            plan, results = self.report_read_plan(user_id, business_id, conversation.source_report_id)
+        else:
+            plan, results = self.read_plan(user_id, business_id, question, conversation_id=conversation_id)
         now = self.clock()
         self.session.add(AssistantMessage(conversation_id=conversation_id, business_id=business_id,
             user_id=user_id, request_key=key, role='user', content=question, status='completed', created_at=now))
@@ -227,6 +241,23 @@ class AssistantService:
                        resource_type='assistant_message', resource_id=message.id,
                        details={'plan_version': plan.version, 'tools': [step.name for step in plan.steps]})
         return message, True
+
+    def report_read_plan(self, user_id, business_id, report_id):
+        from ayo.merchant_analysis import MerchantAnalysisService
+        _, report = MerchantAnalysisService(self.session).load(user_id, business_id, report_id)
+        sources = tuple(SourceEvidence(id=source.id, url=source.url, excerpt=source.content,
+            source_kind='OWNER_PROVIDED_UNVERIFIED', observed_at=source.retrieved_at)
+            for source in report.source_documents[:10])
+        plan = ToolPlan(intent='research', steps=(ToolStep(name='research.saved',
+            reason='Read current supplied inputs from the report attached to this conversation.'),))
+        result = ToolResult(name='research.saved', status='completed',
+            items=(ToolItem(id=report_id, title=report.business_name,
+                detail='Merchant-supplied report. Inputs are unverified; AI output is not independent evidence.',
+                classification='OWNER_PROVIDED_UNVERIFIED'),), evidence=sources,
+            more_available=len(report.source_documents) > 10,
+            limitations=('Only the attached report inputs are used; no profile or earlier AI answers are included.',
+                         'All supplied inputs, up to ten excerpts, retain their unverified origin.'))
+        return plan, (result,)
 
     def _reports(self, business_id):
         rows = self.session.scalars(select(ResearchReportRecord).where(
@@ -336,7 +367,7 @@ class AssistantService:
                     used = tuple(source for source in report.source_documents if source.id in used_ids)
                 for source in used:
                     evidence = SourceEvidence(id=_source_id('report', row.id, source.id), business_id=business_id,
-                        url=source.url, excerpt=source.excerpt, source_kind='PUBLIC_WEB', observed_at=source.retrieved_at)
+                        url=source.url, excerpt=source.excerpt, source_kind=source.source_type, observed_at=source.retrieved_at)
                     sources[evidence.id] = evidence
             limitations.append('At most three recent reports are retrieved. Sources may be outdated.')
             if step.name == 'opportunities.list':
@@ -393,12 +424,18 @@ class AssistantService:
             AssistantMessage.role == 'user', AssistantMessage.business_id == business_id,
             AssistantMessage.user_id == user_id))
         evidence = {}
+        bound_conversation = self.get(user_id, business_id, message.conversation_id)
         for run in self.tool_runs(user_id, business_id, message):
             result = ToolResult.model_validate_json(run.result_json)
             for source in result.evidence:
-                if source.business_id != business_id:
+                if source.business_id != business_id and not (bound_conversation.source_report_id and source.business_id is None):
                     raise IntelligenceError('unsupported_citation', 'Retrieved context does not match this workspace.')
                 evidence[source.id] = source
+        conversation = self.get(user_id, business_id, message.conversation_id)
+        if conversation.source_report_id:
+            from ayo.merchant_analysis import MerchantAnalysisService
+            _, report = MerchantAnalysisService(self.session).load(user_id, business_id, conversation.source_report_id)
+            return MerchantInputContext(country=report.country, question=question, evidence=tuple(evidence.values())[:10])
         # No earlier questions or generated answers are included as evidence.
         business = self.session.get(Business, business_id)
         return IntelligenceContext(business_id=business_id, actor_business_id=business_id,

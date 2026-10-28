@@ -1,5 +1,7 @@
 # M2 secure preparation and founder review
 
+**28 October current override:** the existing real worker has completed a limited Wikidata CC0/Gemini report for Trashy Bags, saved/reopened on local PostgreSQL. The owner-input/upload workflow is implemented with fixture verification; its initial live output was rejected and is not claimed successful. [Actual scope, zero-dollar budgets, migration0008 and receipts](MERCHANT_INPUT_AND_CC0_RESEARCH.md). Existing keys are available privately; do not repeat connectivity or use the historical paid-budget proposal below. Current reviewed Free calls are consumed and disarmed. No Firecrawl source operation/public deployment. Older setup observations below are historical.
+
 **27 October recovery override:** source recovered at `/workspace/Ayo`. After the founder restored the existing credentials to owner-only private runtime storage, exactly one authorized Free-tier synthetic Gemini request returned HTTP200 / `AYO_GEMINI_OK` (19 tokens). [Actual receipt and recovery](GEMINI_CONNECTION_RECOVERY.md). Do not repeat this connectivity test. General provider/mail switches stay0; the paid-budget proposal below remains unapproved. Full public research, private inference and hosted acceptance retain their separate gates. Historical environment/presence/zero-call statements below describe earlier checkpoints.
 
 Updated 26 October 2026. **DRAFT FOR REVIEW; no provider call, charge, deployment or merge authorized. Ayo is PARTIALLY COMPLETE.** The generated AI Studio key is not configured in Ayo merely because it exists.

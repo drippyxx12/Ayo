@@ -40,6 +40,9 @@ def canonical_target(value: str) -> str:
     Preserve paths and numeric profile identity. Common www/http aliases and a
     trailing slash are normalized for history, not as proof of a redirect.
     """
+    from ayo.merchant_evidence import OWNER_TARGET, INPUT_TARGET
+    if isinstance(value, str) and (OWNER_TARGET.fullmatch(value) or INPUT_TARGET.fullmatch(value)):
+        return value
     try:
         parsed = urlsplit(normalize_public_url(value))
     except (ValueError, TypeError) as exc:
@@ -230,7 +233,7 @@ class ResearchWorkspace:
             partial_count += report.status == 'PARTIAL'
             stale_count += freshness == 'stale'
             if start <= matched < start + filters.page_size:
-                items.append({'id': row.id, 'title': report.business_name, 'target_url': report.target_url,
+                items.append({'id': row.id, 'title': report.business_name, 'origin': report.origin, 'target_url': report.target_url,
                     'canonical_target': target, 'status': report.status, 'freshness': freshness,
                     'analysis_status': report.analysis_status, 'created_at': self._time(row.created_at),
                     'source_count': len(report.source_documents), 'claim_count': len(report.claims),
@@ -321,7 +324,7 @@ class ResearchWorkspace:
         for number, source in enumerate(sources, 1):
             source_views.append({'id': source.id, 'number': number, 'url': source.url, 'title': source.title,
                 'excerpt': source.excerpt, 'content': source.content, 'hash': source.source_hash,
-                'html_hash': source.html_source_hash, 'provider': source.provider,
+                'html_hash': source.html_source_hash, 'provider': source.provider, 'classification': source.source_type,
                 'retrieved_at': source.retrieved_at.isoformat(), 'freshness': source_freshness(source.retrieved_at, now),
                 'page_key': canonical_target(source.url)})
             for product in source.product_observations:
@@ -367,7 +370,7 @@ class ResearchWorkspace:
                     'distinct_pages': left['page_key'] != right['page_key'],
                     'content_match': left['hash'] == right['hash'],
                     'label': 'Identical retained text' if left['hash'] == right['hash'] else 'Different retained text; difference alone does not establish a factual conflict'})
-        return {'record_id': row.id, 'report': report, 'title': report.business_name,
+        return {'record_id': row.id, 'report': report, 'title': report.business_name, 'merchant_provided': report.origin == 'merchant_provided',
             'target_url': report.target_url, 'canonical_target': canonical_target(report.target_url),
             'created_at': self._time(row.created_at), 'freshness': report_freshness(report, now),
             'freshness_days': FRESHNESS_DAYS, 'checked_at': self._time(now), 'sources': source_views,
@@ -432,7 +435,7 @@ class ResearchWorkspace:
         # capabilities, account/workspace IDs, provider receipts or usage ledger.
         payload = {'schema': 'ayo-saved-research-export-v1', 'report_id': row.id,
             'business_name': report.business_name, 'target_url': report.target_url, 'country': report.country,
-            'status': report.status, 'created_at': report.created_at.isoformat(),
+            'status': report.status, 'origin': report.origin, 'created_at': report.created_at.isoformat(),
             'analysis_status': report.analysis_status, 'ownership_verified': False,
             'claims': [item.model_dump(mode='json') for item in report.claims],
             'opportunities': [item.model_dump(mode='json') for item in report.opportunities],
@@ -440,9 +443,11 @@ class ResearchWorkspace:
             'sources': [{'id': item.id, 'url': item.url, 'title': item.title, 'excerpt': item.excerpt,
                          'retrieved_at': item.retrieved_at.isoformat(), 'source_hash': item.source_hash,
                          'html_source_hash': item.html_source_hash, 'provider': item.provider,
+                         'classification': item.source_type, 'input_origin': getattr(item, 'origin', None),
+                         'input_field': getattr(item, 'input_field', None),
                          'products': [product.model_dump(mode='json') for product in item.product_observations],
                          'channels': list(item.channel_observations)} for item in report.source_documents],
-            'notice': 'Public source statements remain unverified. AI inferences and recommendations are proposals. Saving does not establish ownership or authorize actions.'}
+            'notice': ('Merchant inputs remain OWNER_PROVIDED_UNVERIFIED; no independent evidence was acquired.' if report.origin == 'merchant_provided' else 'Public source statements remain unverified.') + ' AI inferences and recommendations are proposals. Saving does not establish ownership or authorize actions.'}
         if report.analysis:
             payload['analysis'] = report.analysis.model_dump(mode='json', exclude={'usage', 'summary'})
         return _redact(payload)

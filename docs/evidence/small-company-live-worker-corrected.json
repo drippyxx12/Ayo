@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-28T07:51:43.182080+00:00",
+  "operation": "python -m ayo.worker --once; resume committed source evidence",
+  "previous_attempt": "docs/evidence/small-company-live-worker.json",
+  "source_url": "https://www.wikidata.org/wiki/Special:EntityData/Q7835749.json",
+  "source_sha256": "d5a100dd305990946a5ee85aa8595ba025172646e1cbf6bff6fd056da2415dd0",
+  "job_id": "JzaOj27_N3uv7Eo-bLOfgku68P8Tl7jd",
+  "new_source_requests": 0,
+  "firecrawl_calls": 0,
+  "maximum_authorized_charge_usd": "0.00",
+  "reviewed_utc_generation_cap": 3,
+  "budget_reset": false,
+  "paid_budget_increase": false,
+  "explicit_zero_cost_replacement_review": true,
+  "paid_spending_enabled": false,
+  "live_worker_verified": true,
+  "public_deployment": false,
+  "worker_exit_code": 0,
+  "job_status": "succeeded",
+  "job_attempts": 1,
+  "report_id": "fynJLwhqiKG_DvOwBLe4jRz1CKFtP-S8",
+  "error_code": null,
+  "analysis_status": "completed",
+  "analysis_error_code": null,
+  "model": "gemini-3.5-flash-lite",
+  "usage": {
+    "promptTokenCount": 518,
+    "candidatesTokenCount": 447,
+    "totalTokenCount": 965
+  },
+  "saved_to_research_workspace": true,
+  "today_usage_records": [
+    {
+      "id": "SpoulrIW8lgaLh20u1YEOK0o89CYcVSd",
+      "provider": "wikidata",
+      "operation": "search",
+      "reserved_microusd": 0,
+      "outcome": "succeeded",
+      "usage": {}
+    },
+    {
+      "id": "S32dJgGL_WPUYxIDo6HxyUpvgmxwP9Dk",
+      "provider": "wikidata",
+      "operation": "fetch",
+      "reserved_microusd": 0,
+      "outcome": "succeeded",
+      "usage": {}
+    },
+    {
+      "id": "Jr-ml-ty3eO9jnJO-E-BoAWQO7XzSHHx",
+      "provider": "gemini",
+      "operation": "analyze",
+      "reserved_microusd": 0,
+      "outcome": "succeeded",
+      "usage": {
+        "candidatesTokenCount": 646,
+        "promptTokenCount": 469,
+        "totalTokenCount": 1115
+      }
+    },
+    {
+      "id": "nBw0hM515b6TSPaFNVXUg76F4_kvcJ2H",
+      "provider": "wikidata",
+      "operation": "search",
+      "reserved_microusd": 0,
+      "outcome": "succeeded",
+      "usage": {}
+    },
+    {
+      "id": "8b8soJbrH9mx7D1gQJ_Uz7BIPCfo3Lkn",
+      "provider": "wikidata",
+      "operation": "fetch",
+      "reserved_microusd": 0,
+      "outcome": "succeeded",
+      "usage": {}
+    },
+    {
+      "id": "yWWZzeK2QHbRdYUvAG_OmZIO7_V21WJS",
+      "provider": "gemini",
+      "operation": "analyze",
+      "reserved_microusd": 0,
+      "outcome": "uncertain",
+      "usage": {}
+    },
+    {
+      "id": "GQvLJ9YMB7fl798Ib_Wr2J4yc_zIdIij",
+      "provider": "gemini",
+      "operation": "analyze",
+      "reserved_microusd": 0,
+      "outcome": "succeeded",
+      "usage": {
+        "candidatesTokenCount": 447,
+        "http_status": 200,
+        "promptTokenCount": 518,
+        "totalTokenCount": 965
+      }
+    }
+  ],
+  "logout_login_immutable_reopen_verified": true,
+  "free_calls_disarmed": true
+}

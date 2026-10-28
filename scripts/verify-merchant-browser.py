@@ -245,6 +245,9 @@ def main():
                         profile.get_by_label('City or area', exact=False).fill('Lagos' if market == 'NG' else 'Accra')
                         submit(profile, '/business', 'profile_saved')
                         assert 'OWNER_PROVIDED_UNVERIFIED' in page.locator('main').inner_text()
+                        visit('/business-analysis', 'merchant_input_form')
+                        assert page.locator('fieldset.analysis-form-section').count() == 3
+                        assert page.locator('input[type=checkbox]').count() == 3
                         visit('/dashboard', 'home_actual_saved_records')
                         assert page.locator('.workspace-summary dd').all_text_contents() == ['2', '1', '0']
                         nav_link = page.locator('.workspace-nav a[href="/research/library"]')
@@ -261,6 +264,7 @@ def main():
                         assert 'latest' in page.locator('.rw-library-record').inner_text()
                         check_screen('research_filter')
                         visit('/research/library', 'research_library_two_snapshots')
+                        page.locator('.rw-comparison-disclosure > summary').click()
                         page.get_by_label('LEFT REPORT', exact=True).select_option(earlier_id)
                         page.get_by_label('RIGHT REPORT', exact=True).select_option(latest_id)
                         page.get_by_role('button', name='Compare saved evidence').click()

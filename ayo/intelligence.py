@@ -92,6 +92,25 @@ class PublicResearchContext(BaseModel):
         return self
 
 
+class MerchantInputContext(BaseModel):
+    """Only attested nonpersonal owner inputs from an authorized saved report."""
+    model_config = ConfigDict(frozen=True, extra='forbid')
+    country: Literal['NG', 'GH']
+    question: str = Field(min_length=1, max_length=1000)
+    evidence: tuple[SourceEvidence, ...] = Field(min_length=1, max_length=10)
+
+    @model_validator(mode='after')
+    def owner_only(self):
+        from ayo.merchant_evidence import restricted_input
+        if any(restricted_input(value) for value in (self.question, *(e.excerpt for e in self.evidence))):
+            raise ValueError('Remove contact details, credentials and sensitive information from merchant context.')
+        if any(e.source_kind != 'OWNER_PROVIDED_UNVERIFIED' or e.business_id is not None for e in self.evidence):
+            raise ValueError('This policy accepts only nonpersonal merchant-report inputs.')
+        if len({e.id for e in self.evidence}) != len(self.evidence) or sum(len(e.excerpt.encode()) for e in self.evidence) > 16000:
+            raise ValueError('Merchant input context exceeds its bounds.')
+        return self
+
+
 class IntelligenceClaim(BaseModel):
     model_config = ConfigDict(frozen=True, extra='forbid')
     text: str = Field(min_length=1, max_length=800)
@@ -160,15 +179,19 @@ _FINANCIAL_NUMBER = re.compile(
 _EXECUTION_CLAIM = re.compile(r'\b(?:i|we|ayo)\s+(?:have\s+|has\s+)?(?:sent|contacted|approved|executed|purchased|changed|launched|charged)\b', re.I)
 
 
-def validate_analysis(raw: dict, context: IntelligenceContext | PublicResearchContext) -> StructuredAnalysis:
+def validate_analysis(raw: dict, context: IntelligenceContext | PublicResearchContext | MerchantInputContext) -> StructuredAnalysis:
     """Reject hallucinated citations, fake observations and action outcomes."""
     try:
         analysis = StructuredAnalysis.model_validate(raw)
     except (ValidationError, TypeError) as exc:
         raise IntelligenceError('invalid_model_output', 'AI returned an invalid structured analysis.') from exc
     sources = {e.id: e for e in context.evidence}
-    all_text = [c.text for c in analysis.claims] + [r.text for r in analysis.recommendations] + list(analysis.limitations)
+    all_text = [value for c in analysis.claims for value in (c.text, c.quote)] + [r.text for r in analysis.recommendations] + list(analysis.limitations)
     for text in all_text:
+        if isinstance(context, MerchantInputContext):
+            from ayo.merchant_evidence import RESTRICTED
+            if RESTRICTED.search(text):
+                raise IntelligenceError('restricted_model_output', 'Merchant analysis cannot introduce contact details or credentials.')
         if _EXECUTION_CLAIM.search(text):
             raise IntelligenceError('unauthorized_action_claim', 'AI cannot claim external work was executed.')
         if _FINANCIAL_NUMBER.search(text) and re.search(r'\d|%|\b(?:doubled|tripled|increased|decreased)\b', text, re.I):
@@ -230,6 +253,10 @@ class _HTTPModel:
                                                   self.max_output_tokens, self.thinking_level)
             async with self.dispatch_budget(self.name, 'analyze', fingerprint) as debit, asyncio.timeout(35.0), httpx.AsyncClient(timeout=35.0, follow_redirects=False, transport=self.transport) as client:
                 async with client.stream('POST', url, headers=headers, json=body) as response:
+                    self.last_http_status = response.status_code
+                    debit.usage['http_status'] = response.status_code
+                    if response.status_code == 400:
+                        raise IntelligenceError('provider_request_invalid', 'The provider rejected the structured request format.')
                     if response.status_code == 429:
                         raise IntelligenceError('provider_rate_limited', 'The AI provider is temporarily rate limited.')
                     if response.status_code in {401, 403}:
@@ -285,6 +312,23 @@ class GeminiProvider(_HTTPModel):
         text_context = self._model_text(system, context)
         generation = {'responseMimeType': 'application/json', 'candidateCount': 1,
                       'maxOutputTokens': self.max_output_tokens, 'temperature': 0}
+        if context.get('evidence'):
+            source_ids = [item['id'] for item in context['evidence']]
+            generation['responseSchema'] = {
+                'type': 'OBJECT', 'required': ['claims', 'recommendations', 'limitations'],
+                'properties': {
+                    'claims': {'type': 'ARRAY', 'maxItems': 5, 'items': {
+                        'type': 'OBJECT', 'required': ['text', 'kind', 'evidence_ids', 'quote'],
+                        'properties': {'text': {'type': 'STRING'},
+                            'kind': {'type': 'STRING', 'enum': ['INFERRED', 'UNKNOWN']},
+                            'evidence_ids': {'type': 'ARRAY', 'items': {'type': 'STRING', 'enum': source_ids}},
+                            'quote': {'type': 'STRING'}}}},
+                    'recommendations': {'type': 'ARRAY', 'maxItems': 3, 'items': {
+                        'type': 'OBJECT', 'required': ['text', 'evidence_ids', 'permission_required'],
+                        'properties': {'text': {'type': 'STRING'},
+                            'evidence_ids': {'type': 'ARRAY', 'items': {'type': 'STRING', 'enum': source_ids}},
+                            'permission_required': {'type': 'STRING', 'enum': ['merchant_review']}}}},
+                    'limitations': {'type': 'ARRAY', 'maxItems': 4, 'items': {'type': 'STRING'}}}}
         if self.thinking_level:
             generation['thinkingConfig'] = {'thinkingLevel': self.thinking_level, 'includeThoughts': False}
         result = await self._post(
@@ -348,9 +392,9 @@ def provider_from_env(provider_name: str | None = None) -> ModelProvider:
     model = os.getenv('GEMINI_MODEL' if name == 'gemini' else 'ANTHROPIC_MODEL', '')
     if not key or not model:
         raise IntelligenceError('provider_not_configured', 'AI analysis requires a configured API key and evaluated model.')
-    if os.getenv('AYO_PROVIDER_SPEND_AUTHORIZED') != '1':
+    if os.getenv('AYO_PROVIDER_SPEND_AUTHORIZED') != '1' and not (name == 'gemini' and os.getenv('AYO_GEMINI_FREE_CALLS_AUTHORIZED') == '1'):
         raise IntelligenceError('provider_spend_not_authorized', 'AI provider calls are disabled until the owner authorizes API spending.')
-    if os.getenv('AYO_AI_DATA_POLICY') not in {'reviewed', 'public_only_reviewed'}:
+    if os.getenv('AYO_AI_DATA_POLICY') not in {'reviewed', 'public_only_reviewed', 'owner_nonpersonal_reviewed'}:
         raise IntelligenceError('provider_data_policy_not_reviewed', 'Review provider data handling before enabling AI analysis.')
     adapter = GeminiProvider if name == 'gemini' else ClaudeProvider
     try:
@@ -366,13 +410,24 @@ class IntelligenceOrchestrator:
         self.provider = provider
 
     async def analyze(self, context: IntelligenceContext) -> IntelligenceResult:
-        if os.getenv('AYO_AI_DATA_POLICY') == 'public_only_reviewed':
+        if os.getenv('AYO_AI_DATA_POLICY') in {'public_only_reviewed', 'owner_nonpersonal_reviewed'}:
             raise IntelligenceError('private_analysis_not_authorized', 'This provider policy permits public research only; private workspace analysis requires separate data review.')
         # Revalidate copied/model_construct input, not just ordinary construction.
         context = IntelligenceContext.model_validate(context.model_dump())
         return await self._analyze(context, self.provider)
 
+    async def analyze_merchant(self, context: MerchantInputContext) -> IntelligenceResult:
+        if os.getenv('AYO_AI_DATA_POLICY') not in {'reviewed', 'owner_nonpersonal_reviewed'}:
+            raise IntelligenceError('merchant_data_policy_not_reviewed', 'Review nonpersonal merchant input processing before analysis.')
+        context = MerchantInputContext.model_validate(context.model_dump())
+        provider = self.provider or provider_from_env('gemini')
+        if provider.name != 'gemini':
+            raise IntelligenceError('merchant_provider_not_supported', 'Merchant input reports require Gemini.')
+        return await self._analyze(context, provider)
+
     async def analyze_public(self, context: PublicResearchContext) -> IntelligenceResult:
+        if os.getenv('AYO_AI_DATA_POLICY') == 'owner_nonpersonal_reviewed':
+            raise IntelligenceError('public_analysis_not_authorized', 'Merchant-input policy does not authorize public research.')
         context = PublicResearchContext.model_validate(context.model_dump())
         provider = self.provider
         if context.evidence:
@@ -392,7 +447,19 @@ class IntelligenceOrchestrator:
             'currency': {'NG': 'NGN', 'GH': 'GHS'}.get(context.country),
             'evidence': [{'id': e.id, 'url': e.url, 'excerpt': e.excerpt, 'classification': e.source_kind,
                           'observed_at': e.observed_at.isoformat()} for e in context.evidence]}
-        raw, usage = await provider.complete(SYSTEM_POLICY, payload)
+        system = SYSTEM_POLICY
+        if isinstance(context, MerchantInputContext):
+            system += ('\nTHIS IS A MERCHANT-INPUT REPORT, NOT A PUBLIC WEB AUDIT. '
+                       'OBSERVED is forbidden for EVERY claim. Use INFERRED with supporting input IDs '
+                       'for all supplied descriptions, products, stated prices, opportunities and hypotheses; '
+                       'prefix supplied facts as merchant-stated. Use UNKNOWN with no IDs for missing evidence. '
+                       'All quote fields must be empty. Return 3-5 claims, 2-3 recommendations and explicit limitations.')
+        else:
+            system += ('\nThe application already preserves literal source observations separately. '
+                       'For this synthesis return only INFERRED interpretations with exact supporting source IDs '
+                       'and UNKNOWN limitations with no source IDs. Never return OBSERVED. '
+                       'Use empty quote strings. Give 3-5 claims and 2-3 recommendations; do not invent unavailable product or pricing details.')
+        raw, usage = await provider.complete(system, payload)
         analysis = validate_analysis(raw, context)
         limitations = tuple(dict.fromkeys((*analysis.limitations,
             'Recommendations are proposals for merchant review; no external action has been performed.',

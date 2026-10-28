@@ -10,7 +10,7 @@ from pydantic import ValidationError
 
 from ayo.assistant import AssistantService, ToolResult
 from ayo.identity import IdentityError
-from ayo.intelligence import IntelligenceError
+from ayo.intelligence import IntelligenceError, MerchantInputContext
 from ayo.provider_usage import budget_context
 
 
@@ -85,7 +85,7 @@ def install_routes(mod, context, protected, guard):
             with budget_context(mod.DbSession, scope_id='business:' + business.id,
                                 request_id='assistant:' + record.id, dispatch_prefix='assistant:' + record.id):
                 async with asyncio.timeout(45):
-                    result = await orchestrator.analyze(ctx)
+                    result = await orchestrator.analyze_merchant(ctx) if isinstance(ctx, MerchantInputContext) else await orchestrator.analyze(ctx)
             service.finish(user.id, business.id, message_id, result=result)
             sess.commit()
         except IntelligenceError as exc:

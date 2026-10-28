@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "recorded_date": "2026-10-28",
+  "scope": [
+    "C03",
+    "C04",
+    "C05",
+    "C06",
+    "C07",
+    "C16",
+    "C17",
+    "C18"
+  ],
+  "full_suite": {
+    "passed": 981,
+    "failed": 0,
+    "skipped": 0,
+    "duration_seconds": 146.88,
+    "databases": [
+      "SQLite",
+      "actual local PostgreSQL17 isolated schemas"
+    ],
+    "upstream_warnings": 1,
+    "model_source_mail": "offline fixtures"
+  },
+  "browser": {
+    "http_checks": 135,
+    "screen_checks": 135,
+    "widths": [
+      390,
+      768,
+      1440
+    ],
+    "provider_calls": 0,
+    "receipt": "interface-clarity-browser.json"
+  },
+  "live_worker": {
+    "verified": true,
+    "case": "Trashy Bags, Ghana",
+    "source": "Wikidata CC0 company record",
+    "analysis_completed": true,
+    "http_status": 200,
+    "tokens": 965,
+    "receipt": "small-company-live-worker-corrected.json",
+    "saved_relogin_reopen": true,
+    "hosted_application": false
+  },
+  "live_owner_input": {
+    "verified": false,
+    "first_attempt_http_status": 200,
+    "rejected": "unverified_owner_claim",
+    "receipt": "merchant-input-live-workflow.json",
+    "successful_followup_verified": false
+  },
+  "migration": "0008_merchant_analysis",
+  "paid_spending_enabled": false,
+  "free_calls_disarmed": true,
+  "public_deployment": false,
+  "merge": false,
+  "limitations": [
+    "Limited company-record report, not a full business audit.",
+    "Invoice telemetry was not independently inspected.",
+    "No actual delivered mail or hosted merchant application verified.",
+    "Original saved report is immutable; inherited generic wording annotated separately."
+  ],
+  "quality_checks": {
+    "ruff": "passed",
+    "dependency_consistency": "41 packages compatible",
+    "whitespace": "passed",
+    "gitleaks_worktree_and_history": "passed, redacted",
+    "exact_private_key_value_git_file_isolation": "passed; no value/fingerprint output",
+    "changed_document_links": "passed"
+  }
+}

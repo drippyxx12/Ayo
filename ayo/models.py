@@ -236,7 +236,7 @@ class ProviderBudgetAccount(Base):
     __tablename__ = 'provider_budget_accounts'
     __table_args__ = (
         CheckConstraint('reserved_microusd >= 0 AND calls >= 0', name='ck_budget_account_nonnegative'),
-        CheckConstraint('limit_microusd > 0 AND call_limit > 0', name='ck_budget_account_limits'),
+        CheckConstraint('limit_microusd >= 0 AND call_limit > 0', name='ck_budget_account_limits'),
         CheckConstraint('reserved_microusd <= limit_microusd AND calls <= call_limit', name='ck_budget_account_capacity'),
     )
     key_hash = Column(String(64), primary_key=True)
@@ -254,7 +254,7 @@ class ProviderUsageReservation(Base):
     __tablename__ = 'provider_usage_reservations'
     __table_args__ = (
         UniqueConstraint('dispatch_hash', name='uq_provider_usage_dispatch'),
-        CheckConstraint('reserved_microusd > 0', name='ck_provider_usage_reservation'),
+        CheckConstraint('reserved_microusd >= 0', name='ck_provider_usage_reservation'),
         CheckConstraint("outcome IN ('reserved','succeeded','failed','uncertain')", name='ck_provider_usage_outcome'),
     )
     id = Column(String(64), primary_key=True, default=opaque_id)

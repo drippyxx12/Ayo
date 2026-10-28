@@ -1,6 +1,14 @@
 # Ayo — roadmap to the complete platform
 
-Version: 2026-10-27. Overall status: **PARTIALLY COMPLETE; required live acceptance BLOCKED**. Product scope is [PRODUCT_VISION.md](PRODUCT_VISION.md). This roadmap replaces narrow MVP-only sequencing as the delivery destination; [PLAN.md](PLAN.md) remains an earlier execution checkpoint. Working code is preserved. The public-Gemini implementation checkpoint follows the separately committed full-vision documentation baseline.
+Version: 2026-10-28. Overall status: **PARTIALLY COMPLETE; one limited real research-worker report verified, full live acceptance unfinished**. Product scope is [PRODUCT_VISION.md](PRODUCT_VISION.md). This roadmap replaces narrow MVP-only sequencing as the delivery destination; [PLAN.md](PLAN.md) remains an earlier execution checkpoint. Working code is preserved. The public-Gemini implementation checkpoint follows the separately committed full-vision documentation baseline.
+
+## Current checkpoint — 28 October 2026
+
+The existing worker now has an accepted **real Gemini-assisted Trashy Bags/Ghana company-record report**, retained in PostgreSQL and reopened after logout/login. Source is licensed structured Wikidata CC0 data, not a storefront crawl; no Firecrawl call or paid spending. [Actual receipt](docs/evidence/small-company-live-worker-corrected.json), [reviewed limited report](docs/evidence/trashy-bags-report.md). This resolves the previous “no real business synthesis” blocker for this exact limited path; fuller NG/GH products/pricing/multi-source acceptance remains open.
+
+The merchant-authorized description/product/pricing/goal/upload workflow and report-scoped follow-ups are implemented with retained OWNER_PROVIDED_UNVERIFIED provenance and local SQLite/PostgreSQL integration evidence. A first actual owner submission was correctly rejected for unsupported OBSERVED labeling; successful live owner synthesis/follow-up remains unverified. [Scope, migration0008, free-only budget and precise limitations](docs/MERCHANT_INPUT_AND_CC0_RESEARCH.md). Continue reviewed refresh/ownership work and improve evidence depth; Konga/Jumia are excluded and Firecrawl rights do not block this adapter.
+
+Interface cleanup reduces competing dashboard sections and groups inputs/report navigation while preserving branding/search-first/first500. Earlier dated fixture/setup observations below remain historical, superseded by this current receipt only for the exact verified scope.
 
 ## 1. Delivery rules and status
 
@@ -82,7 +90,7 @@ M0–M1 foundations may be tightened alongside later slices. Founding entitlemen
 
 ### M2 — FIRST functional business research, including Gemini
 
-**Covers:** C02–C04, C06, C16–C18. **Depends on:** M1 boundaries, safe acquisition and approved provider setup. **Status:** PARTIAL IMPLEMENTATION + BLOCKED LIVE.
+**Covers:** C02–C04, C06, C16–C18. **Depends on:** M1 boundaries, safe acquisition and approved provider setup. **Status:** PARTIAL; limited CC0/Gemini worker VERIFIED LIVE, fuller acceptance unfinished.
 
 **Already implemented:** name/link/market/city intake, candidate-selection interface, no-website labeled descriptions; fixed-host Firecrawl search/fetch adapter, explicit source/spend gates, bounded public extraction and dated hashed evidence; leased research jobs; deterministic source observations plus Gemini synthesis after committed evidence, public-only context, absolute inference deadline, persisted model metadata and repeated source validation. Optional Claude remains separate for later evaluated private analysis.
 
@@ -94,9 +102,9 @@ M0–M1 foundations may be tightened alongside later slices. Founding entitlemen
 4. Complete policy acceptance for permitted sources and controlled provider egress/redirect/robots handling. Configuration flags are operator attestations, not evidence that the vendor prevents SSRF or honors access policies.
 5. Verify disambiguation with real Nigerian/Ghanaian businesses, public social/marketplace failures and no-online-presence fallback. No fabricated domain/contact or ownership assumption.
 
-**Live blockers:** `FIRECRAWL_API_KEY` or an approved replacement source adapter; `GEMINI_API_KEY` and available `GEMINI_MODEL`; approved source/egress/terms and provider data policy; explicit spend authorization and limit. Configure secrets through secure runtime settings, never chat/Git. Google Search grounding/URL Context can be evaluated separately; neither bypasses Ayo acquisition policy.
+**Remaining live work:** richer permitted NG/GH sources and independent identity/claim evaluation; a fresh finite dated zero-cost budget for further model calls. Existing Gemini credentials/model and the Wikidata replacement adapter are verified for the limited record path; do not request keys or repeat connectivity. Firecrawl remains a separate optional source review.
 
-**Exit evidence:** at least one real business in Nigeria and one in Ghana researched under permitted access; a **real authorized Gemini API call in this first research milestone**, source snapshots and model receipt tied to the same report; independent source-to-claim check; unsupported output/injection, source denial, absent model, throttling and budget-exhaustion tests. Pre-signup report must already be useful and truthful. This exit is BLOCKED until actual credentials/authorization exist.
+**Exit evidence:** at least one real business in Nigeria and one in Ghana researched under permitted access; a **real authorized Gemini API call in this first research milestone**, source snapshots and model receipt tied to the same report; independent source-to-claim check; unsupported output/injection, source denial, absent model, throttling and budget-exhaustion tests. Pre-signup report must already be useful and truthful. The limited Ghana record run is not the complete two-country exit; products/pricing/multi-source coverage remains unfinished.
 
 ### M3 — Complete search → report → account → leads journey: working MVP
 
@@ -198,8 +206,8 @@ Only this acceptance can support a production-ready/full-platform claim for the 
 | --- | --- | --- |
 | C01 Identity/team/workspaces | M1, M3, M10 | Core local tests; team administration and production identity incomplete. |
 | C02 Discovery/no-site onboarding | M2–M4 | Intake/candidate fixtures and persistent labeled merchant offer/audience/goals; actual matching/ownership acceptance remains open. |
-| C03 Safe acquisition | M1, M2, M4, M10 | Hosted adapter/queue tests; live egress/source policy not established. |
-| C04 Gemini reports | M2, M4, M5 | Public worker integration locally verified; real Gemini/source and multi-page analysis outstanding. |
+| C03 Safe acquisition | M1, M2, M4, M10 | Existing worker now verified live with fixed-host Wikidata CC0 records; broader storefront/multi-page acceptance unfinished. |
+| C04 Gemini reports | M2, M4, M5 | Limited Trashy Bags CC0/Gemini report verified live; owner-input report/follow-up fixtures pass; fuller live/multi-page evaluation unfinished. |
 | C05 Saved research/ownership | M3, M4 | Claim/reopen, filtered history, freshness, comparison/export local tests; domain proof and deeper evidence workflows incomplete. |
 | C06 Unified tools/planning | M2, M5, M7, M9 | Private conversations and five versioned bounded read tools/plans implemented locally; broader orchestration/approvals/history reasoning incomplete. |
 | C07 Merchant application | M3, M5, M7–M10 | Functional persistent Home/Ayo/Work/Grow/Business, Research, activity, settings/security; live hosting and end-state operation surfaces incomplete. |
@@ -232,8 +240,8 @@ E01–E04 require founder acceptance of concrete inclusion or deferral before as
 
 | Blocker | Needed to clear it | Authorized work that can proceed without it |
 | --- | --- | --- |
-| Research credential/source/egress/spend | Server-side key or approved provider; permitted exact sources; verified network/redirect/robots controls; explicit bounded budget | Evidence/schema/worker/citation and adversarial tests; honest unavailable states. |
-| Gemini real-call proof | Secure key, available pinned model, accepted data policy and authorized usage limit | Early source-bound synthesis is implemented/tested; extend real-source evaluations when authorized, never simulate live proof. |
+| Richer permitted research sources | Licensed/source-authorized catalog and business evidence beyond the implemented CC0 entity adapter; fresh finite zero-cost call review | Current licensed worker, report/source refresh and owner-input development. No new key request. |
+| Broader live Gemini evaluation | Existing real connection/company-record proof retained; successful live owner-input/follow-up and fuller sources still need finite dated allowance | Improve source quality, contextual plans and evaluated schemas using fixtures; no repeated connection test. |
 | Verification/recovery mail | Verified sender/domain, secure Resend or approved equivalent credential, actual delivery authorization | Outbox/error/recovery/retention tests and sender setup instructions. |
 | Persistent hosted merchant application | Approved API/worker/DB deployment, durable secrets, backups, monitoring and production policy | Local PostgreSQL, migrations, deployment packaging/runbooks; existing preview remains restricted. |
 | Commerce/payment/outbound integration | Ayo-specific app/sandbox/sender permissions, relevant scopes/consent, approved real test operations | Business-scoped domain models, adapters, policies, typed failures and offline tests; keep external action disabled. |

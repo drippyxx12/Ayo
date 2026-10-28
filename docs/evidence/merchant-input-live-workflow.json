@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-27T15:33:56.137863+00:00",
+  "classification": "AUTHORIZED_SYNTHETIC_NONPERSONAL_REAL_GEMINI_WORKFLOW",
+  "dataset_notice": "Operator-authored synthetic bag studio scenario, not a real merchant or independently verified business.",
+  "authorization": "Latest founder request: use an authorized nonpersonal dataset for this merchant-input live workflow; no paid calls.",
+  "pricing_basis": "Founder-reported existing Ayo Free-tier project plus current official free Standard input/output prices; invoice/account billing telemetry not independently accessed.",
+  "maximum_authorized_charge_usd": "0.00",
+  "provider_call_limit": 2,
+  "firecrawl_calls": 0,
+  "gemini_connectivity_test_repeated": false,
+  "schema_revision": "0008_merchant_analysis",
+  "database": "persistent local PostgreSQL17, existing research report tables; owner-only credential state outside Git",
+  "mail_verification": "Local test outbox capability consumed; no delivered email claimed.",
+  "public_deployment": false,
+  "completed": false,
+  "report_id": "79c942c69b8e829a2c66fea9f026fac011fa7a1d57b4b9bf985481137beea6af",
+  "report_analysis_status": "unavailable",
+  "report_error_code": "unverified_owner_claim",
+  "input_provenance_verified": true,
+  "input_count": 7,
+  "stopped_error_type": "RuntimeError",
+  "free_calls_disarmed": true,
+  "provider_http_receipts": [
+    {
+      "http_status": 200,
+      "response_id": "ZMTgasX7PJ_mqtsP7qytuAQ",
+      "model_version": "gemini-3.5-flash-lite",
+      "usage": {
+        "promptTokenCount": 1231,
+        "candidatesTokenCount": 1220,
+        "totalTokenCount": 2451,
+        "promptTokensDetails": [
+          {
+            "modality": "TEXT",
+            "tokenCount": 1231
+          }
+        ],
+        "serviceTier": "standard"
+      }
+    }
+  ],
+  "actual_generation_reservations": 1,
+  "usage_records": [
+    {
+      "id": "sJ5IVO_QGnplx1Ww6FeqqgdXravDqOvA",
+      "provider": "gemini",
+      "operation": "analyze",
+      "reserved_microusd": 0,
+      "outcome": "succeeded",
+      "usage": {
+        "candidatesTokenCount": 1220,
+        "promptTokenCount": 1231,
+        "totalTokenCount": 2451
+      }
+    }
+  ]
+}

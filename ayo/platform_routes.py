@@ -286,6 +286,8 @@ def install_routes(mod):
     # Static research paths must be registered before /research/{report_id}.
     from ayo.research_workspace_routes import install_routes as install_research_workspace
     install_research_workspace(mod, context, protected, guard)
+    from ayo.merchant_analysis_routes import install_routes as install_merchant_analysis
+    install_merchant_analysis(mod, protected, guard)
 
     @app.get('/research/{report_id}')
     def open_report(report_id: str, request: Request, sess=Depends(mod.db)):
@@ -299,6 +301,9 @@ def install_routes(mod):
         except IdentityError as exc:
             raise HTTPException(exc.status_code, str(exc))
         report = ResearchReport.model_validate_json(row.report_json)
+        if report.origin == 'merchant_provided':
+            return mod.render(request, 'merchant_report.html', report=report, report_record=row,
+                              user=user, business=selected_business, active_page='research')
         return mod.render(request, 'report.html', report=report, report_record=row, saved=bool(row.business_id),
                           user=user, claim_token=request.session.get('pending_claim') if request.session.get('pending_report') == row.id else None)
 

@@ -45,6 +45,7 @@ class BudgetPolicy:
     policy_version: str
     policy_valid_until: int
     configuration_fingerprint: str = ''
+    billing_mode: str = 'paid_reviewed'
 
     def __post_init__(self):
         if not isinstance(self.configuration_fingerprint, str) or (self.configuration_fingerprint and
@@ -58,7 +59,13 @@ class BudgetPolicy:
         amounts = (self.reservation_microusd, self.request_limit_microusd,
                    self.provider_daily_limit_microusd, self.scope_daily_limit_microusd)
         calls = (self.request_call_limit, self.provider_daily_call_limit, self.scope_daily_call_limit)
-        if not all(_positive(value) for value in amounts) or not all(_positive(value, maximum=10**7) for value in calls):
+        free = self.billing_mode == 'free_only_reviewed'
+        if self.billing_mode not in {'paid_reviewed', 'free_only_reviewed'} or (free and
+                not ((self.provider == 'gemini' and self.operation == 'analyze' and self.configuration_fingerprint)
+                     or (self.provider == 'wikidata' and self.operation in {'search', 'fetch'}))):
+            raise BudgetError('invalid_budget_input', 'Free-only budgets require the reviewed Gemini configuration.')
+        valid_amounts = all(type(value) is int and value == 0 for value in amounts) if free else all(_positive(value) for value in amounts)
+        if not valid_amounts or not all(_positive(value, maximum=10**7) for value in calls):
             raise BudgetError('invalid_budget_input', 'Budget limits must be positive bounded integers.')
         if not _positive(self.policy_valid_until) or self.reservation_microusd > min(amounts[1:]):
             raise BudgetError('invalid_budget_input', 'The reservation must fit every reviewed budget limit.')
@@ -103,7 +110,16 @@ class BudgetPolicy:
                     raise ValueError
                 values['configuration_fingerprint'] = model_budget_fingerprint(provider, actual_model,
                     input_bytes, output_tokens, None if reviewed_thinking == 'provider_default' else reviewed_thinking)
-            policy = cls(provider=provider, operation=operation, policy_version=env[prefix + 'BUDGET_POLICY_VERSION'], **values)
+            billing_mode = env.get(prefix + 'BILLING_MODE', 'paid_reviewed')
+            if billing_mode == 'free_only_reviewed':
+                gemini_free = (provider == 'gemini' and operation == 'analyze'
+                    and env.get('GEMINI_MODEL') == 'gemini-3.5-flash-lite'
+                    and env.get('AYO_GEMINI_PROJECT_TIER_REVIEW') == 'free_confirmed')
+                source_free = (provider == 'wikidata' and operation in {'search', 'fetch'}
+                    and env.get('AYO_WIKIDATA_API_REVIEW') == 'cc0_reviewed')
+                if not (gemini_free or source_free):raise ValueError
+            policy = cls(provider=provider, operation=operation, billing_mode=billing_mode,
+                         policy_version=env[prefix + 'BUDGET_POLICY_VERSION'], **values)
         except (KeyError, ValueError, TypeError, BudgetError):
             raise BudgetError('budget_not_configured', 'Provider budget configuration is incomplete or invalid.') from None
         if policy.policy_valid_until <= clock():
@@ -133,7 +149,7 @@ def _usage(value):
         return {}
     allowed = {'input_tokens', 'output_tokens', 'total_tokens', 'prompt_tokens',
                'completion_tokens', 'thoughts_tokens', 'cached_tokens', 'credits_used',
-               'pages', 'searches', 'promptTokenCount', 'candidatesTokenCount',
+               'pages', 'searches', 'http_status', 'promptTokenCount', 'candidatesTokenCount',
                'totalTokenCount', 'thoughtsTokenCount', 'cachedContentTokenCount',
                'toolUsePromptTokenCount', 'cache_creation_input_tokens', 'cache_read_input_tokens'}
     return {key: number for key, number in value.items()
@@ -168,6 +184,8 @@ class UsageLedger:
         now = self.clock()
         if policy.policy_valid_until <= now:
             raise BudgetError('budget_policy_expired', 'Provider budget policy review has expired.')
+        if policy.billing_mode == 'free_only_reviewed' and policy.policy_valid_until > (int(now // 86400) + 1) * 86400:
+            raise BudgetError('invalid_budget_input', 'A free-only review must expire by the next UTC midnight.')
         day = int(now // 86400)
         scope_hash, request_hash = _hash('scope', scope_id), _hash('request', scope_id, request_id)
         dispatch_hash = _hash('dispatch', scope_id, request_id, dispatch_id)
@@ -210,6 +228,55 @@ class UsageLedger:
             result = Reservation(record.id, True)
             session.commit()  # The caller must dispatch only after this succeeds.
             return result
+
+    def review_additional_cc0_reads(self, *, additional_calls, reason):
+        """Explicit operator review for a changed source target, never a reset.
+
+        Only Wikidata's no-charge source API is eligible; Gemini, paid budgets,
+        monetary limits and already consumed calls cannot be changed here.
+        No HTTP endpoint or model tool exposes this administrative operation.
+        """
+        if type(additional_calls) is not int or not 1 <= additional_calls <= 2 or not isinstance(reason, str) or not 10 <= len(reason) <= 250:
+            raise BudgetError('invalid_budget_input', 'A bounded source-target review is required.')
+        day = int(self.clock() // 86400)
+        with self.factory() as session:
+            self._lock(session)
+            account = session.get(ProviderBudgetAccount, _hash('provider_day', 'wikidata', day))
+            if account is None or account.limit_microusd != 0 or account.call_limit + additional_calls > 6:
+                raise BudgetError('invalid_budget_input', 'Only the existing zero-dollar CC0 source allowance can be reviewed.')
+            old_limit = account.call_limit
+            account.call_limit += additional_calls
+            from ayo.models import AuditEvent
+            session.add(AuditEvent(action='budget.cc0_target_review', resource_type='provider_budget',
+                details_json=json.dumps({'provider':'wikidata','old_call_limit':old_limit,
+                    'new_call_limit':account.call_limit,'consumed_calls_retained':account.calls,
+                    'maximum_microusd':0,'reason':reason},sort_keys=True),created_at=self.clock()))
+            session.commit()
+
+    def review_free_gemini_replacement(self, *, reason):
+        """One explicit operator-reviewed replacement for the changed live case.
+
+        Retains all consumed calls/debits. Paid capacity is never increased.
+        Requires the same reviewed Free-tier model and disarmed paid spending.
+        """
+        if (os.getenv('AYO_PROVIDER_SPEND_AUTHORIZED') != '0'
+                or os.getenv('GEMINI_MODEL') != 'gemini-3.5-flash-lite'
+                or os.getenv('AYO_GEMINI_PROJECT_TIER_REVIEW') != 'free_confirmed'
+                or not isinstance(reason, str) or not 20 <= len(reason) <= 250):
+            raise BudgetError('invalid_budget_input', 'An explicit zero-dollar replacement review is required.')
+        day = int(self.clock() // 86400)
+        with self.factory() as session:
+            self._lock(session)
+            account = session.get(ProviderBudgetAccount, _hash('provider_day', 'gemini', day))
+            if account is None or account.limit_microusd != 0 or account.call_limit != 2:
+                raise BudgetError('invalid_budget_input', 'This reviewed replacement is available once only.')
+            account.call_limit = 3
+            from ayo.models import AuditEvent
+            session.add(AuditEvent(action='budget.free_replacement_review', resource_type='provider_budget',
+                details_json=json.dumps({'provider':'gemini','old_call_limit':2,'new_call_limit':3,
+                    'consumed_calls_retained':account.calls,'maximum_microusd':0,'reason':reason},sort_keys=True),
+                created_at=self.clock()))
+            session.commit()
 
     def settle(self, reservation_id, *, outcome, usage=None):
         _identifier(reservation_id)

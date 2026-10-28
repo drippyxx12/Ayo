@@ -32,3 +32,9 @@ Test `upgrade head → downgrade 0001_alpha → upgrade head` on a disposable re
 ## Merchant platform additions
 
 `0005_merchant` adds owner-provided profiles and internal tasks. `0006_lead_crm` adds prospect lists, notes and review-only drafts. Its unique `(business_id,id)` lead index avoids copying populated SQLite parent tables, preserving lead events and task references. `0007_assistant` adds private conversations/messages and versioned read-tool snapshots with composite tenant/user foreign keys. These are internal workspace records; they do not authorize provider actions, outreach or payments. Downgrade removes these new records. The explicit upgrade/downgrade/parity and populated-parent preservation tests run on SQLite and PostgreSQL.
+
+## Merchant-input reports and zero-dollar budget evidence
+
+`0008_merchant_analysis` adds nullable `assistant_conversations.source_report_id` and changes ledger monetary checks to permit exactly-zero reviewed Free-only policies. Application validation still requires finite positive call caps, configuration/data/tier review and expiry. Existing paid policies remain positive; a free switch cannot authorize paid dispatch. SQLite adds the nullable FK column natively to preserve populated conversations/messages. PostgreSQL uses an explicit FK. Report data stays in the existing research tables.
+
+Downgrade refuses while any zero-cost budget/reservation record exists. Retain that ledger and review a backup; never erase consumed evidence to force rollback. `tests/test_merchant_analysis_migration.py` covers populated upgrade/downgrade preservation on SQLite/PostgreSQL. The standard roundtrip suite uses disposable isolated schemas. No existing live database is reset.

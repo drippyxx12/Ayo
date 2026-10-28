@@ -40,6 +40,11 @@ def install_routes(mod, context, protected, guard):
         user, business = protected(request, sess)
         _parameters(request, set())
         inspection = ResearchWorkspace(sess).inspect(user.id, business.id, report_id)
+        if inspection['merchant_provided']:
+            from ayo.merchant_analysis import MerchantAnalysisService
+            row, report = MerchantAnalysisService(sess).load(user.id, business.id, report_id)
+            return mod.render(request, 'merchant_report.html', user=user, business=business,
+                active_page='research', report=report, report_record=row)
         return mod.render(request, 'research_inspect.html', user=user, business=business,
                           active_page='research', inspection=inspection)
 
