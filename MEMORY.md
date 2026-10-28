@@ -47,3 +47,7 @@ Existing protected preview is **interactive intake only**, with private accounts
 **Next:** reviewed source refresh and ownership challenges; richer licensed/owner-supplied product evidence and a successful bounded live owner-input/follow-up evaluation when a fresh dated zero-cost allowance exists. Continue independent roadmap work without Konga/Firecrawl.
 
 **Blocked by:** no blocker to continued local development. Larger live batches need finite dated zero-cost budget/data review; current reviewed calls are consumed. Firecrawl storefront/commercial rights, delivered mail and hosted API/worker/database remain separate unfinished integrations. Paid calls, public deployment, outreach and merge stay unapproved. Do not repeat generic credential instructions.
+
+## Verified GitHub delivery
+
+Application commit **`e325dba6c40a933e470fc0c37d470d6949f3379b`**, tree `b380ec5198c7c9b092230d2999590a885e9cd5d8`, matches the tested/staged local tree exactly. Correct drippyxx12 connector advanced the existing branch from e189c53 with expected-head protection/no force; fetch confirmed matching local/remote and clean working tree. Draft PR #1 remains open/unmerged and its description now distinguishes the actual limited public-record result from owner fixtures. App CI [40657563530](https://github.com/drippyxx12/Ayo/actions/runs/40657563530) completed successfully: Python/contracts/dependency audit and secret-scan jobs both passed;981 local tests passed. This following documentation-only commit records delivery without model/source calls or application changes.
