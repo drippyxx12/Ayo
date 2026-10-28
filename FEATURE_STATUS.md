@@ -10,6 +10,8 @@ Merchant-input/text-upload reports and report-scoped contextual questions are im
 
 **Generic public URLs:** the leased worker now reads a user-pasted ordinary public HTTP/HTTPS page through public-IP-pinned direct transport with robots/per-hop DNS/TLS/redirect/byte/deadline checks and explicit unsupported outcomes. One zero-cost live `example.com` worker run persisted its source on attempt1; Gemini/Firecrawl0 and analysis unavailable were recorded honestly. [Scope and receipt](docs/GENERIC_WEBSITE_RESEARCH.md). This does not mean every site permits access or returns server-readable content, and it does not establish useful merchant evidence.
 
+Final website reliability delivery adds a45-second whole-source deadline, cancellation of blocking I/O and HTML support within the1MB ceiling. **CI1004 tests passed**, including SQLite/PostgreSQL17; dependency audit and secrets passed. [Exact code/CI/live-versus-fixture receipt](docs/evidence/website-worker-verification.json).
+
 ## Evidence rules
 
 **27 October connection recovery:** Gemini connectivity is now **VERIFIED LIVE**: one founder-authorized Free-tier Standard request returned HTTP200, `AYO_GEMINI_OK`, model `gemini-3.5-flash-lite`, and 19 total tokens. [Actual receipt](docs/evidence/gemini-connectivity-attempt.json). No retry/Firecrawl operation; credentials stay outside Git and general providers/mail remain disabled. This confirms basic API connectivity only; full M2 public-business/source-to-report acceptance remains open. [Recovery and cost/policy basis](docs/GEMINI_CONNECTION_RECOVERY.md).
