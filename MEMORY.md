@@ -10,7 +10,7 @@ Supported: static/server-rendered HTML and text, including ordinary WordPress, S
 
 Live zero-cost proof: `python -m ayo.worker --once` retrieved the IANA-reserved `https://example.com/` test page through `direct_public_web`, persisted source evidence and completed job `oxLUgXsgG2i8JsXnSTqyxHz11_R2YTl3` on attempt1. Firecrawl0/Gemini0/paid spending0. Analysis correctly remained unavailable/model_not_configured; this is a transport/worker proof, not business intelligence. [Receipt](docs/evidence/direct-website-live-worker.json), [implementation and exact support limits](docs/GENERIC_WEBSITE_RESEARCH.md). A prior direct adapter check accounts for one additional robots+page pair; no retries/redirects.
 
-Final verification: **1000 tests passed**,0 failed/skipped, SQLite+actual local PostgreSQL17,131.84s, one upstream warning. Focused final generic-site/UI guards passed61. Ruff/dependency/whitespace/Jinja checks pass; final secret scan/delivery receipt follows. The previous real Trashy Bags Gemini report and its965-token receipt remain valid and was not repeated. Current hosted preview is unchanged. Starting checkpoint was clean `833bbbadc59d55df9bd0d859ba468ec808674a71`.
+Verification: the generic-site application passed **1000 tests**,0 failed/skipped, SQLite+actual local PostgreSQL17,131.84s, one upstream warning, plus successful GitHub CI40698330472 including dependency audit and secrets. Final reliability review then added a45-second whole-source deadline across robots/redirects, cancellation that closes the active blocking socket, and support for HTML between the old300KB parser ceiling and existing1MB transport limit. **103 affected regressions pass** after those fixes, including production-boundary pin/Host/TLS checks, cancellation and slow redirects. No extra live/model/source test was needed. The previous real Trashy Bags Gemini report remains verified. Hosted preview is unchanged.
 
 ## Latest milestone — real research worker and Gemini report
 
@@ -52,12 +52,14 @@ Existing protected preview is **interactive intake only**, with private accounts
 
 ## Stopped at / Next / Blocked by
 
-**Stopped at:** generic direct public-site retrieval and a live leased-worker transport check are implemented;1000 tests pass. GitHub delivery receipt follows. The real small-company Gemini report remains verified.
+**Stopped at:** generic direct public-site retrieval and a live leased-worker transport check verified;1000-test baseline/CI and103 reliability regressions pass. Reliability fix delivery follows. The real small-company Gemini report remains verified.
 
-**Next:** finish generic-site full regression/GitHub delivery, then reviewed multi-page refresh/ownership and richer licensed or owner-supplied product evidence.
+**Next:** finish reliability fix GitHub delivery, then reviewed multi-page refresh/ownership and richer licensed or owner-supplied product evidence.
 
 **Blocked by:** no blocker to single-page public URL retrieval. Sites may themselves deny robots/access or require JavaScript rendering. Live Gemini calls remain at the consumed dated cap; hosted API/worker/database, delivered mail and multi-page rendering are separate unfinished work. Paid calls, public deployment, outreach and merge stay unapproved.
 
 ## Verified GitHub delivery
+
+Generic website application commit **`28ba794af9edcf6421851711345e3ed54562e716`**, tree `89253b96ecbce4891334dfe51d906ed01352d4d5`, exactly matched the tested/staged local tree. Correct drippyxx12 connector advanced the existing branch from `833bbba` with expected-head protection/no force; fetch confirmed a clean matching local/remote branch. Draft PR #1 remains open/unmerged. CI [40698330472](https://github.com/drippyxx12/Ayo/actions/runs/40698330472) **completed successfully**, including Python/contracts/dependency audit and secret-scan jobs. Subsequent reliability fixes are tracked above and in the next delivery receipt.
 
 Application commit **`e325dba6c40a933e470fc0c37d470d6949f3379b`**, tree `b380ec5198c7c9b092230d2999590a885e9cd5d8`, matches the tested/staged local tree exactly. Correct drippyxx12 connector advanced the existing branch from e189c53 with expected-head protection/no force; fetch confirmed matching local/remote and clean working tree. Draft PR #1 remains open/unmerged and its description now distinguishes the actual limited public-record result from owner fixtures. App CI [40657563530](https://github.com/drippyxx12/Ayo/actions/runs/40657563530) completed successfully: Python/contracts/dependency audit and secret-scan jobs both passed;981 local tests passed. This following documentation-only commit records delivery without model/source calls or application changes.

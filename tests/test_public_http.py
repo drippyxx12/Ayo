@@ -1,5 +1,6 @@
 """Public-only network transport tests; no test opens a socket."""
 import asyncio
+import threading
 
 import pytest
 
@@ -42,3 +43,74 @@ def test_fixture_response_url_cannot_be_substituted():
     with pytest.raises(ResearchError) as error:
         asyncio.run(client.fetch_once('https://merchant.org/'))
     assert error.value.code == 'provider_malformed'
+
+
+def test_real_transport_boundary_pins_dns_but_keeps_hostname_identity(monkeypatch):
+    from ayo import public_http
+    seen = {}
+
+    class Response:
+        status = 200
+
+        def getheaders(self):
+            return [('Content-Type', 'text/html')]
+
+        def read(self, bound):
+            seen['body_bound'] = bound
+            return b'<html><p>Public fixture page.</p></html>'
+
+    class Connection:
+        sock = None
+
+        def __init__(self, host, port, **kwargs):
+            seen.update(host=host, port=port, **kwargs)
+
+        def request(self, method, target, *, headers):
+            seen.update(method=method, target=target, headers=headers)
+
+        def getresponse(self):
+            return Response()
+
+        def close(self):
+            seen['closed'] = True
+
+    monkeypatch.setattr(public_http, '_PinnedConnection', Connection)
+    monkeypatch.setenv('HTTPS_PROXY', 'http://operator-proxy:8080')
+    client = PublicHTTPClient(resolver=lambda *_args, **_kwargs: rows('93.184.216.34'))
+    result = asyncio.run(client.fetch_once('https://merchant.org/catalog'))
+    assert result.status == 200 and seen['closed']
+    assert seen['address'] == '93.184.216.34' and seen['server_name'] == 'merchant.org'
+    assert seen['tls'] is True and seen['proxy'] == ('operator-proxy', 8080)
+    assert seen['headers']['Host'] == 'merchant.org'
+    assert seen['headers']['Accept-Encoding'] == 'identity'
+    assert 'Cookie' not in seen['headers'] and 'Authorization' not in seen['headers']
+    assert seen['target'] == '/catalog' and seen['body_bound'] == 1_000_001
+
+
+def test_cancelling_fetch_closes_blocking_io_instead_of_only_cancelling_future(monkeypatch):
+    started, stopped = threading.Event(), threading.Event()
+
+    class Socket:
+        def shutdown(self, _how):
+            stopped.set()
+
+    def blocking_fetch(_url, control):
+        control.sock = Socket()
+        started.set()
+        assert stopped.wait(2), 'Cancelling must terminate the active blocking read.'
+        control.check()
+
+    client = PublicHTTPClient()
+    monkeypatch.setattr(client, '_fetch_sync', blocking_fetch)
+
+    async def run():
+        task = asyncio.create_task(client.fetch_once('https://merchant.org/'))
+        async with asyncio.timeout(1):
+            while not started.is_set():
+                await asyncio.sleep(0.001)
+        task.cancel()
+        with pytest.raises(asyncio.CancelledError):
+            await task
+        assert stopped.is_set()
+
+    asyncio.run(run())

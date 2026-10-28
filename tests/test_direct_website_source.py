@@ -153,6 +153,39 @@ def test_direct_provider_requires_url_for_name_discovery():
     assert error.value.code == 'website_url_required'
 
 
+def test_one_deadline_covers_robots_and_redirects_and_stops_further_requests():
+    class SlowRedirects:
+        def __init__(self):
+            self.calls = []
+
+        async def fetch_once(self, url):
+            self.calls.append(url)
+            if url.endswith('/robots.txt'):
+                await asyncio.sleep(0.05)
+                return response(url, ROBOTS, content_type='text/plain')
+            await asyncio.sleep(0.05)
+            return response(url, status=302, location='/second-page')
+
+    client = SlowRedirects()
+    with pytest.raises(ResearchError) as error:
+        run(DirectWebsiteProvider(client, deadline_seconds=0.075).fetch('https://shop.org/'))
+    assert error.value.code == 'research_timeout'
+    assert client.calls == ['https://shop.org/robots.txt', 'https://shop.org/']
+
+
+def test_server_html_between_legacy_parser_limit_and_transport_bound_is_supported():
+    url = 'https://shop.org/'
+    html = (b'<html><title>Public shop</title><body><h1>Our public products</h1>'
+            b'<p>We sell handmade bags and publish delivery information.</p><!--' + b'x' * 310_000 +
+            b'--></body></html>')
+    client = Client({
+        'https://shop.org/robots.txt': [response('https://shop.org/robots.txt', ROBOTS, content_type='text/plain')],
+        url: [response(url, html)],
+    })
+    source = run(DirectWebsiteProvider(client).fetch(url))
+    assert source.title == 'Public shop' and 'handmade bags' in source.content
+
+
 def test_existing_leased_worker_persists_direct_site_before_fixture_analysis(tmp_path):
     from ayo.jobs import enqueue, process_one
     from ayo.models import Base, ResearchJob, ResearchReportRecord

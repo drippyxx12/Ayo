@@ -8,6 +8,7 @@ resolved address and pins the connection before bytes are read.
 """
 from __future__ import annotations
 
+import asyncio
 from datetime import datetime, timezone
 import hashlib
 import json
@@ -99,8 +100,11 @@ def _response_error(response: PublicHTTPResponse, *, robots: bool = False):
 class DirectWebsiteProvider:
     """Retrieve one readable public page; never render scripts or bypass gates."""
 
-    def __init__(self, client: PublicHTTPClient | None = None):
+    def __init__(self, client: PublicHTTPClient | None = None, *, deadline_seconds: float = 45):
+        if not 0 < deadline_seconds <= 45:
+            raise ValueError('Website retrieval deadline must fit within the worker lease.')
         self.client = client or PublicHTTPClient()
+        self.deadline_seconds = deadline_seconds
         self._robots: dict[tuple[str, str, int | None], RobotFileParser | None] = {}
 
     async def search(self, query: str, country: str = '', city: str = '', limit: int = 5) -> tuple[BusinessCandidate, ...]:
@@ -143,6 +147,15 @@ class DirectWebsiteProvider:
             raise ResearchError('robots_denied', 'The website robots policy does not permit this page request.', 403)
 
     async def fetch(self, url: str, country: str = '') -> SourceDocument:
+        # One deadline covers robots AND every page redirect. Per-hop socket
+        # deadlines alone can multiply past the worker's publication lease.
+        try:
+            async with asyncio.timeout(self.deadline_seconds):
+                return await self._fetch(url, country)
+        except TimeoutError:
+            raise ResearchError('research_timeout', 'The public website exceeded its total retrieval deadline.', 504) from None
+
+    async def _fetch(self, url: str, country: str = '') -> SourceDocument:
         initial = current = _public_url(url)
         response = None
         for _ in range(4):
@@ -166,7 +179,9 @@ class DirectWebsiteProvider:
             raise ResearchError('unsupported_content_type',
                                 'The website did not identify readable HTML or text content.', 422)
 
-        observation = extract_public_page(current, raw) if html_like else None
+        # The transport has already capped bytes at 1 MB. Match the parser's
+        # character ceiling to that bound instead of its smaller legacy default.
+        observation = extract_public_page(current, raw, max_chars=1_000_000) if html_like else None
         content = _public_content(raw)
         title = _public_content(observation.title or '')[:240] if observation else ''
         if _access_wall(content, title):

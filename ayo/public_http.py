@@ -14,6 +14,7 @@ import ipaddress
 import os
 import socket
 import ssl
+import threading
 from urllib.parse import urlsplit
 
 from ayo.research import ResearchError
@@ -74,6 +75,31 @@ class _PinnedConnection(http.client.HTTPConnection):
             self.sock = self._context.wrap_socket(self.sock, server_hostname=self._server_name)
 
 
+class _RequestControl:
+    """Close active I/O when the async worker cancels a blocking HTTP read."""
+
+    def __init__(self):
+        self.cancelled = threading.Event()
+        self.connection = None
+        self.sock = None
+
+    def check(self):
+        if self.cancelled.is_set():
+            raise TimeoutError()
+
+    def close(self):
+        self.cancelled.set()
+        current = getattr(self.connection, 'sock', None)
+        for sock in (self.sock, current):
+            if sock is not None:
+                try:
+                    sock.shutdown(socket.SHUT_RDWR)
+                except OSError:
+                    pass
+        if self.connection is not None:
+            self.connection.close()
+
+
 class PublicHTTPClient:
     def __init__(self, *, resolver=socket.getaddrinfo, request=None,
                  max_body_bytes: int = MAX_BODY_BYTES, timeout_seconds: float = 15):
@@ -89,6 +115,7 @@ class PublicHTTPClient:
             url = normalize_public_url(url)
         except SiteInputError as exc:
             raise ResearchError('invalid_url', 'Enter a public website address.', 400) from exc
+        control = _RequestControl()
         try:
             async with asyncio.timeout(min(self.timeout_seconds + 5, 25)):
                 if self.request:
@@ -96,13 +123,18 @@ class PublicHTTPClient:
                     if asyncio.iscoroutine(result):
                         result = await result
                     return self._validate_fixture_response(url, result)
-                return await asyncio.to_thread(self._fetch_sync, url)
+                return await asyncio.to_thread(self._fetch_sync, url, control)
         except ResearchError:
             raise
         except TimeoutError:
             raise ResearchError('research_timeout', 'The public website exceeded its request deadline.', 504) from None
         except (OSError, ssl.SSLError, http.client.HTTPException):
             raise ResearchError('source_unavailable', 'The public website could not be retrieved securely.', 502) from None
+        finally:
+            # Cancelling to_thread alone leaves its socket running. Close the
+            # retained socket even when HTTPConnection already detached it for
+            # a Connection: close response body.
+            control.close()
 
     def _validate_fixture_response(self, url, result):
         if not isinstance(result, PublicHTTPResponse) or result.url != url:
@@ -112,10 +144,12 @@ class PublicHTTPClient:
         return PublicHTTPResponse(result.url, result.status,
                                   {str(k).lower(): str(v) for k, v in result.headers.items()}, result.body)
 
-    def _fetch_sync(self, url: str) -> PublicHTTPResponse:
+    def _fetch_sync(self, url: str, control: _RequestControl) -> PublicHTTPResponse:
+        control.check()
         parsed = urlsplit(url)
         port = parsed.port or (443 if parsed.scheme == 'https' else 80)
         addresses = _public_addresses(parsed.hostname or '', port, self.resolver)
+        control.check()  # DNS completion after cancellation must not dispatch.
         # Prefer IPv4 only for compatibility with inherited CONNECT proxies;
         # IPv6 remains supported when it is the only public destination.
         address = next((value for value in addresses if ':' not in value), addresses[0])
@@ -130,6 +164,7 @@ class PublicHTTPClient:
         connection = _PinnedConnection(parsed.hostname, port, address=address,
             tls=parsed.scheme == 'https', server_name=parsed.hostname, context=context,
             timeout=self.timeout_seconds, proxy=proxy)
+        control.connection = connection
         target = parsed.path or '/'
         if parsed.query:
             target += '?' + parsed.query
@@ -138,6 +173,7 @@ class PublicHTTPClient:
                                or (parsed.scheme == 'http' and parsed.port == 80)):
             host_header += ':' + str(parsed.port)
         try:
+            control.check()
             connection.request('GET', target, headers={
                 'Host': host_header,
                 'User-Agent': USER_AGENT,
@@ -145,6 +181,8 @@ class PublicHTTPClient:
                 'Accept-Encoding': 'identity',
                 'Connection': 'close',
             })
+            control.sock = connection.sock
+            control.check()
             response = connection.getresponse()
             headers: dict[str, str] = {}
             for name, value in response.getheaders():
