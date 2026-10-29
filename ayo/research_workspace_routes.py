@@ -6,6 +6,7 @@ from fastapi.responses import JSONResponse, RedirectResponse
 from ayo.identity import IdentityError
 from ayo.research_workspace import LibraryFilters, ResearchWorkspace
 from ayo.research_refresh import RefreshService
+from ayo.jobs import job_revision
 
 
 def _parameters(request, allowed):
@@ -61,6 +62,37 @@ def install_routes(mod, context, protected, guard):
             'X-Content-Type-Options': 'nosniff',
         })
 
+    @app.get('/research/library/{report_id}/plan')
+    def review_plan(report_id: str, request: Request, sess=Depends(mod.db)):
+        from ayo.research_planning import ResearchPlanning
+        user, business = protected(request, sess)
+        _parameters(request, {'created'})
+        plan = ResearchPlanning(sess).review(user.id, business.id, report_id)
+        return mod.render(request, 'research_plan.html', user=user, business=business,
+                          active_page='research', plan=plan)
+
+    @app.post('/research/library/{report_id}/plan')
+    def create_plan(report_id: str, request: Request, report_hash: str = Form(''),
+                    selected: list[str] = Form([]), reviewed: bool = Form(False),
+                    csrf: str = Form(...), sess=Depends(mod.db)):
+        from ayo.research_planning import ResearchPlanning
+        user, business = protected(request, sess)
+        guard(request, csrf, sess)
+        service = ResearchPlanning(sess)
+        try:
+            service.create(user.id, business.id, report_id,
+                report_hash=report_hash, selected=selected, reviewed=reviewed)
+            sess.commit()
+        except IdentityError as exc:
+            sess.rollback()
+            if exc.status_code in {403, 404}:
+                raise
+            response = mod.render(request, 'research_plan.html', user=user, business=business,
+                active_page='research', plan=service.review(user.id, business.id, report_id), error=str(exc))
+            response.status_code = exc.status_code
+            return response
+        return RedirectResponse('/research/library/' + report_id + '/plan?created=1', 303)
+
     @app.get('/research/library/{report_id}/refresh')
     def review_refresh(report_id: str, request: Request, sess=Depends(mod.db)):
         user, business = protected(request, sess)
@@ -91,7 +123,16 @@ def install_routes(mod, context, protected, guard):
         if job.status == 'succeeded' and job.report_id:
             return RedirectResponse('/research/library/' + job.report_id, 303)
         return mod.render(request, 'research_refresh.html', user=user, business=business,
-                          active_page='research', job=job, original_id=report_id)
+                          active_page='research', job=job, original_id=report_id,
+                          revision=job_revision(sess, job))
+
+    @app.get('/research/library/{report_id}/refresh/{job_id}/updates')
+    def refresh_updates(report_id: str, job_id: str, request: Request, sess=Depends(mod.db)):
+        user, business = protected(request, sess)
+        _parameters(request, set())
+        job = RefreshService(sess, mod.fernet).read(user.id, business.id, report_id, job_id)
+        return JSONResponse({'revision': job_revision(sess, job),
+                             'terminal': job.status in {'succeeded', 'failed'}})
 
     @app.post('/research/library/{report_id}/corrections')
     def request_correction(report_id: str, request: Request, source_id: str = Form(''),

@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "recorded_date": "2026-10-29",
+  "scope": "Research-to-Work plans, automatic report status, shared icons and motion, supervised loopback preview and deployment packaging",
+  "starting_commit": "751cb09738147e8baa76b92bb2de4c430750f3e1",
+  "branch": "codex/africa-platform",
+  "local_suite": {
+    "passed": 1112,
+    "failed": 0,
+    "skipped": 0,
+    "duration_seconds": 132.53,
+    "upstream_warnings": 1,
+    "databases": [
+      "SQLite",
+      "actual isolated PostgreSQL17"
+    ],
+    "subsequent_manifest_and_preview_checks": 17
+  },
+  "browser": {
+    "receipt": "research-experience-browser.json",
+    "widths": [
+      390,
+      768,
+      1440
+    ],
+    "providers": "3 source and 3 model fixtures; synthetic accounts",
+    "automatic_report_open": true,
+    "reviewed_source_linked_tasks": true,
+    "logout_login_reopen": true,
+    "keyboard_disclosures": true,
+    "reduced_motion": true,
+    "search_content_visible_during_motion": true,
+    "actual_loopback_web_worker_supervision": true,
+    "temporary_schema_and_servers_cleaned": true
+  },
+  "quality": {
+    "ruff": "passed",
+    "javascript_syntax": "passed",
+    "jinja": "passed",
+    "dependency_consistency": "41 compatible packages",
+    "secret_scan": "redacted worktree and 29-commit history passed",
+    "whitespace": "passed"
+  },
+  "staging_recovery": {
+    "project": "ayo-merchant-staging",
+    "existing_plan": "hobby",
+    "protection": "all deployments",
+    "existing_bindings_present": [
+      "DATABASE_URL",
+      "TOKEN_ENCRYPTION_KEY",
+      "SESSION_SECRET",
+      "GEMINI_API_KEY",
+      "provider policies"
+    ],
+    "previous_commit": "751cb09738147e8baa76b92bb2de4c430750f3e1",
+    "observed_http_status": 500,
+    "observed_runtime_error": "ModuleNotFoundError: httpx",
+    "build_cause": "pyproject.toml selected with no project dependencies",
+    "fix": "PEP621 manifest matches complete existing requirements.lock graph; no version change",
+    "publication_and_hosted_verification": "pending"
+  },
+  "schema_migration": false,
+  "new_live_provider_calls": 0,
+  "paid_spending_enabled": false,
+  "public_production_deployment": false,
+  "merge": false,
+  "remaining": [
+    "Hosted worker/database/schema/mail verification",
+    "Fresh finite zero-cost model allowance for further live acceptance",
+    "Domain proof",
+    "Isolated JavaScript rendering",
+    "Recurring monitoring",
+    "Complete commerce/action/outreach integration and platform acceptance"
+  ]
+}

@@ -54,7 +54,7 @@ def prepare_public_research(
     input and is returned only in this response, not saved in a signed cookie.
     URL parsing admits an intent, not permission to fetch a network destination.
     """
-    query = _bounded_text(query, "Business name or link", 250)
+    query = _bounded_text(query, "Business name or link", 2048)
     city = _bounded_text(city, "City", 100)
     owner_facts = _bounded_text(owner_facts, "Business description", 2000, multiline=True)
     if country not in ("", *COUNTRIES):

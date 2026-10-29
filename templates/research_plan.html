@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% from "_workspace.html" import workspace_nav %}
+{% block title %}Your evidence, your next moves — Ayo{% endblock %}
+{% block body %}
+<div class="app-shell">{{ workspace_nav('research', business) }}<main class="app-main plan-main" id="main-content">
+<a class="text-link" href="/research/library/{{ plan.record.id }}">← Back to saved report</a>
+<header class="app-page-header"><div class="eyebrow">RESEARCH → YOUR WORK</div><h1>From insight<br><em>to your next move.</em></h1>
+<p class="page-intro">Choose useful next steps from {{ plan.report.business_name }}. Ayo keeps each task connected to the exact evidence behind it.</p></header>
+{% if request.query_params.get('created') == '1' %}<div class="notice" role="status">Your selected steps are in Work. Repeating this review keeps the same tasks.</div>{% endif %}
+{% if error %}<div class="notice" role="alert">{{ error }}</div>{% endif %}
+<aside class="plan-context"><span class="eyebrow">BEFORE YOU DECIDE</span><p>{{ 'These inputs were supplied by a merchant and remain unverified.' if plan.owner_provided else 'These are proposals based on retained public statements, not proven improvements.' }} {{ 'Some evidence is more than 14 days old. Review the saved sources or refresh before relying on it.' if plan.freshness == 'stale' else 'Source freshness could not be established.' if plan.freshness == 'unknown' else 'Check the source dates and your business context before proceeding.' }}</p><p>No messages, website edits or provider actions are sent. This creates internal tasks only.</p></aside>
+{% if plan.choices %}
+<form method="post" action="/research/library/{{ plan.record.id }}/plan" class="plan-form workspace-form">
+<input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="report_hash" value="{{ plan.report_hash }}">
+<fieldset{% if not plan.can_edit %} disabled{% endif %}><legend>Choose your next steps</legend>
+{% for item in plan.choices %}<article class="plan-choice">
+<div class="plan-choice-heading"><span class="plan-number" aria-hidden="true">{{ '%02d'|format(loop.index) }}</span><div><span class="eyebrow">{{ item.origin }} / REVIEW REQUIRED</span><h2><label for="step-{{ item.key }}">{{ item.title }}</label></h2></div>
+{% if item.task %}<a class="text-link" href="/work#task-{{ item.task.id }}">{{ item.task.status|replace('_',' ') }} →</a>{% else %}<input id="step-{{ item.key }}" type="checkbox" name="selected" value="{{ item.key }}" aria-label="Add {{ item.title }} to Work">{% endif %}</div>
+<p class="preserve-lines">{{ item.text }}</p><details><summary>Why this step is here</summary><p>Retained supporting inputs; their statements are not independently certified.</p><ul>{% for source in item.sources %}<li><a href="/research/{{ plan.record.id }}#source-{{ source.id }}">{{ source.title or source.id }}</a> · {{ source.retrieved_at.strftime('%d %b %Y') }}<br><small>{{ source.source_type|replace('_',' ') }}</small></li>{% endfor %}</ul></details>
+</article>{% endfor %}
+<label class="plan-review"><input type="checkbox" name="reviewed" value="true" required> I reviewed these suggestions and want to add my selected steps to Work.</label>
+<button class="pill" type="submit">Add selected steps to Work <span aria-hidden="true">↗</span></button>
+</fieldset></form>
+{% if not plan.can_edit %}<p class="quiet">A verified workspace owner, admin or editor can add reviewed steps.</p>{% endif %}
+{% else %}<section class="workspace-empty"><h2>More evidence before a plan.</h2><p>This report has no supported recommendations to turn into tasks. Supply authorized business information or add a manual task describing what needs to be learned.</p><a class="pill" href="/business-analysis">Add business information ↗</a></section>{% endif %}
+<a class="text-link plan-work-link" href="/work">Open your Work →</a>
+</main></div>
+{% endblock %}

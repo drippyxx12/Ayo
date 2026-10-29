@@ -1,14 +1,17 @@
 {% extends "base.html" %}
 {% block title %}Ayo — Find your business. See your next move.{% endblock %}
 {% block body %}
+{% from "_icons.html" import icon %}
 {% set values = values|default({}) %}
 <main class="wrap discovery-home" id="main-content">
   <div class="eyebrow pt">AYO / BUILT FOR AFRICAN E-COMMERCE</div>
   <section class="discovery-hero" aria-labelledby="discovery-title">
     <div class="discovery-intro">
       <h1 id="discovery-title">Your business.<br><em>A clearer next move.</em></h1>
-      <p class="hero-text">Start with your business name or a public link. Ayo's research starts here, before an account or a store connection.</p>
+      <p class="hero-text">Turn public business information into evidence you can inspect—and a next step you can act on.</p>
       <p class="discovery-caption">Nigeria &amp; Ghana first. For businesses selling online, with or without a website.</p>
+      <div class="research-path" aria-label="The research journey"><span>{{ icon('research') }} Discover</span><i aria-hidden="true"></i><span>{{ icon('source') }} Understand</span><i aria-hidden="true"></i><span>{{ icon('work') }} Decide</span></div>
+      <p class="discovery-promise">Your sources. Your context. Your next move.</p>
     </div>
     <section class="discovery-panel" aria-labelledby="search-title">
       <div class="eyebrow">01 / START WITH YOUR BUSINESS</div>
@@ -18,8 +21,8 @@
       <form method="post" action="/research" class="research-form">
         <input type="hidden" name="csrf" value="{{ csrf }}">
         <label for="query">BUSINESS NAME OR PUBLIC LINK</label>
-        <input id="query" name="query" required maxlength="250" value="{{ values.get('query', '') }}" placeholder="Your business name or https://…" autocomplete="off" aria-describedby="query-hint">
-        <p class="field-hint" id="query-hint">Public HTTP/HTTPS pages on static sites, WordPress, Shopify and WooCommerce are supported when they return readable page content. Keep passwords, private links and customer details out.</p>
+        <input id="query" name="query" required maxlength="2048" value="{{ values.get('query', '') }}" placeholder="Your business name or https://…" autocomplete="off" aria-describedby="query-hint">
+        <p class="field-hint" id="query-hint">Use a public website or product page. Keep passwords, private links and customer details out.</p>
         <div class="research-fields">
           <div><label for="country">MARKET <span>(OPTIONAL)</span></label><select id="country" name="country"><option value="">Choose a market</option><option value="NG"{% if values.get('country') == 'NG' %} selected{% endif %}>Nigeria</option><option value="GH"{% if values.get('country') == 'GH' %} selected{% endif %}>Ghana</option></select></div>
           <div><label for="city">CITY <span>(OPTIONAL)</span></label><input id="city" name="city" maxlength="100" value="{{ values.get('city', '') }}" placeholder="City or area" autocomplete="off"></div>
@@ -31,9 +34,10 @@
           <textarea id="owner-facts" name="owner_facts" maxlength="2000" rows="3" placeholder="Your products, customers and selling channels" aria-describedby="owner-hint">{{ values.get('owner_facts', '') }}</textarea>
           <p class="field-hint" id="owner-hint">These details stay labeled as supplied by you, until independently checked.</p>
         </fieldset></details>
-        <button class="pill full" type="submit">Start with my business <span aria-hidden="true">↗</span></button>
+        <button class="pill full" type="submit">Start with my business {{ icon('arrow') }}</button>
       </form>
-      <p class="research-availability">Public information only. No account required. Ayo checks the site's robots policy and samples up to three relevant public pages. Login walls, bot challenges, private/admin/checkout paths, files and JavaScript-only shells are reported clearly instead of treated as research.</p>
+      <p class="research-availability">Public information only. No account required. Up to three relevant pages per research request.</p>
+      <details class="research-support"><summary>Which websites can Ayo read?</summary><p>Readable public HTML/text, including ordinary WordPress, Shopify and WooCommerce pages. Ayo respects robots rules. Login walls, bot challenges, private pages, files and JavaScript-only sites may prevent research. You can supply authorized business information instead.</p></details>
     </section>
   </section>
   <section class="principles discovery-principles" aria-label="How Ayo works">

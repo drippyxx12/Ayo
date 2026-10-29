@@ -1,8 +1,10 @@
 # Ayo — complete product vision
 
-Version: 2026-10-25. Owner: Ayo founder. Delivery status: **PARTIALLY COMPLETE; live core workflow BLOCKED**. This document defines the intended product; it does not certify that the capabilities below work. [ROADMAP.md](ROADMAP.md) defines dependencies and acceptance; [FEATURE_STATUS.md](FEATURE_STATUS.md) and [PROGRESS.md](PROGRESS.md) record implementation evidence.
+Version: 2026-10-29. Owner: Ayo founder. Delivery status: **PARTIALLY COMPLETE; one limited real Gemini report verified, broader live/hosted acceptance unfinished**. This document defines the intended product; it does not certify that the capabilities below work. [ROADMAP.md](ROADMAP.md) defines dependencies and acceptance; [FEATURE_STATUS.md](FEATURE_STATUS.md) and [PROGRESS.md](PROGRESS.md) record implementation evidence.
 
 Current implementation checkpoint: [merchant platform M3/M4/M5 foundations](docs/MERCHANT_PLATFORM.md). This advances the application; it does not reduce the end-state capabilities below or satisfy real-provider acceptance.
+
+29 October continuation: reviewed source refresh and [research-to-Work plans with a refined accessible interface](docs/RESEARCH_TO_WORK_EXPERIENCE.md) extend the existing product. The founder requests broader functioning website research, useful capabilities, polished icons/animation/hover feedback and continued full-roadmap development. Retain verifiable evidence and partial/unsupported states for each addition. Earlier dated baseline/absence-of-live-proof statements below are historical; current MEMORY/FEATURE_STATUS receipts govern their exact scope. Universal website compatibility, perfect engineering and full completion are not asserted.
 
 ## 1. The finished product
 

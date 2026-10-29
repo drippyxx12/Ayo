@@ -1,0 +1,80 @@
+{
+  "date": "2026-10-29T10:03:11.872914+00:00",
+  "mode": "offline_fixture_research_experience_browser",
+  "story": "Reviewed refresh \u2192 worker fixture \u2192 automatic report open \u2192 reviewed plan \u2192 persisted Work \u2192 logout/login/reopen",
+  "database": "actual isolated PostgreSQL17 schema",
+  "checks": [
+    {
+      "width": 390,
+      "automatic_refresh_report_open": true,
+      "reviewed_source_linked_tasks": true,
+      "tasks_survive_relogin": true,
+      "keyboard_disclosures": true,
+      "no_triangle_markers": true,
+      "reduced_motion": true,
+      "review_form": true,
+      "native_review_validation": true,
+      "checkbox_bounds": true,
+      "no_horizontal_overflow": true,
+      "post_status": 303,
+      "new_private_version": true,
+      "original_immutable": true,
+      "logout_login_reopen": true
+    },
+    {
+      "width": 768,
+      "automatic_refresh_report_open": true,
+      "reviewed_source_linked_tasks": true,
+      "tasks_survive_relogin": true,
+      "keyboard_disclosures": true,
+      "no_triangle_markers": true,
+      "reduced_motion": true,
+      "review_form": true,
+      "native_review_validation": true,
+      "checkbox_bounds": true,
+      "no_horizontal_overflow": true,
+      "post_status": 303,
+      "new_private_version": true,
+      "original_immutable": true,
+      "logout_login_reopen": true
+    },
+    {
+      "width": 1440,
+      "automatic_refresh_report_open": true,
+      "reviewed_source_linked_tasks": true,
+      "tasks_survive_relogin": true,
+      "keyboard_disclosures": true,
+      "no_triangle_markers": true,
+      "reduced_motion": true,
+      "review_form": true,
+      "native_review_validation": true,
+      "checkbox_bounds": true,
+      "no_horizontal_overflow": true,
+      "post_status": 303,
+      "new_private_version": true,
+      "original_immutable": true,
+      "logout_login_reopen": true
+    }
+  ],
+  "fixture_calls": {
+    "fixture_sources": 3,
+    "fixture_models": 3
+  },
+  "workspace_preview_runner": {
+    "configuration_and_postgresql_head": true,
+    "actual_web_and_worker_processes": true,
+    "worker_exit_stops_web_companion": true,
+    "no_orphan_processes": true,
+    "no_migration_or_seed": true
+  },
+  "screenshots": "Labeled synthetic fixtures, captured in local scratch output; not a hosted app",
+  "real_provider_calls": 0,
+  "mail_delivery": false,
+  "public_deployment": false,
+  "page_errors": [],
+  "forbidden_requests": [],
+  "cleanup": {
+    "server_stopped": true,
+    "schema_removed": true
+  }
+}

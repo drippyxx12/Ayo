@@ -2,6 +2,16 @@
 
 Updated: 29 October 2026. Overall platform: **PARTIALLY COMPLETE**.
 
+## Latest milestone — research-to-Work and refined interface
+
+Continued clean751cb09738147e8baa76b92bb2de4c430750f3e1, same branch/PR #1. Public/private research pages poll persisted opaque job revisions and open finished reports automatically; bounded GET-only checks retain manual/no-JS navigation. Product URLs accept2048 characters; names remain250. Actual catalogue/category/product-category links extend static coverage under unchanged page/deadline/robots/egress controls.
+
+Saved public/merchant-input recommendations become selected, reviewed source-linked Work tasks. Exact-report hashes, role/CSRF/consent/current-membership checks, source IDs/times/hashes, stable task IDs and cross-team locking fence stale/foreign/repeat/concurrent requests. Owner statements remain unverified; no extra model request, invented priority or external action. Shared SVG icons, plus/minus disclosures, refined hierarchy and reduced-motion-aware hover/transform feedback preserve branding/first500. A separate loopback PostgreSQL runner supervises real web+worker processes without migration/seeding/provider activation. [Contract](docs/RESEARCH_TO_WORK_EXPERIENCE.md).
+
+**Full local suite1112 passed,0 failed/skipped**, PostgreSQL17+SQLite,132.53s, one upstream warning; subsequent manifest regression+16 preview checks pass. Chromium390/768/1440 verifies native keyboard disclosures, visible search, reduced motion, reviewed refresh→worker fixture→automatic new report→reviewed Work→logout/login/reopen. Actual runner preflight/process supervision passes; servers/schema cleaned. All3 source/3 model calls/accounts are explicit fixtures; real provider calls0. [Browser receipt](docs/evidence/research-experience-browser.json). Harness fixes addressed optional Playwright interpreter selection, strict fixture provenance and managed-kernel process enumeration. Ruff/JS syntax/dependency consistency/Jinja/whitespace and redacted working-tree/29-commit history scans pass. Publication/CI follows.
+
+**Recovered hosted staging:** the existing Hobby team also has protected Git-linked `ayo-merchant-staging`, with DB/encryption/provider/policy bindings already present. Its751cb09 deployment is READY but HTTP500: runtime `ModuleNotFoundError: httpx`; build selected pyproject with no dependency list. Added PEP621 metadata mirroring the complete locked graph and a parity test, no version changes. Do not request replacement keys or infer live access from binding presence. Existing Git integration may rebuild the protected preview after publication. No production release, paid request, billing/policy/protection change or new provider test.
+
 ## Latest milestone — reviewed private source refresh
 
 Continued clean local/remote013df6c602160ba49715a499edb8ed000df1c9ca, existing branch/PR #1. Verified owners/admins/editors can review a saved public report's target/scope and queue a new private version. Original JSON/citations/export remain immutable. Existing encrypted jobs/research/audit/history tables are reused; no migration. [Workflow and precise boundaries](docs/REVIEWED_RESEARCH_REFRESH.md).
@@ -68,17 +78,19 @@ Read this memory each session and update verified milestones. Preserve architect
 
 ## Direct browser preview
 
+Separate Git-linked staging (751cb09/HTTP500 from missing dependency; fix prepared): https://ayo-merchant-staging-liy7cecnj-ayodejiiolatunbosun-7460.vercel.app/ . All deployments require Vercel Authentication. Actual hosted research/DB/worker/mail remains unverified; publication receipt follows. Preserve its observed existing bindings.
+
 https://ayo-development-preview-5icko1nq4-ayodejiiolatunbosun-7460.vercel.app/
 
 Existing protected preview is **interactive intake only**, with private accounts/providers disabled. `/static/tour.html` is historical screenshot evidence. New local worker/private features and layout have not been deployed there. Do not claim the hosted site changed.
 
 ## Stopped at / Next / Blocked by
 
-**Stopped at:** reviewed private refresh/versioning delivered as23d977a on codex/africa-platform;1066 tests pass locally and in CI40849924327, plus responsive browser refresh/relogin verification. PR #1 remains draft/open/unmerged. Earlier live single-page/Gemini milestones are preserved; the hosted intake-only preview is unchanged.
+**Stopped at:** research-to-Work, automatic report opening and refined icons/motion verified with1112 tests and responsive PostgreSQL browser flows. Recovered protected staging's missing-dependency failure and prepared locked metadata. Publication/CI/staging result follows; earlier live Gemini evidence preserved.
 
-**Next:** implement explicit domain-ownership proof without granting merchant-write permissions, then richer licensed/owner-supplied evidence. JavaScript rendering and independently verified live refresh remain unfinished.
+**Next:** publish and inspect the existing protected staging rebuild, then domain proof/richer evidence without granting merchant writes. JavaScript rendering and independently verified live refresh remain unfinished.
 
-**Blocked by:** no blocker to continued local development or bounded public-page sampling. Individual sites may deny robots/access or require JavaScript rendering. New live Gemini calls need a current finite zero-cost policy; the previous dated allowance is not renewed automatically. Hosted services, delivered mail and JavaScript rendering remain unfinished. Paid calls, public deployment, outreach and merge stay unapproved.
+**Blocked by:** no blocker to local engineering. Site denials/JavaScript-only content remain unsupported. Merchant-staging bindings exist but DB/schema/worker/mail operation remains unverified; original restricted preview stays intake-only. New live Gemini calls need a finite current zero-cost policy; old allowances do not renew automatically. Paid calls, public production deployment, outreach and merge stay unapproved.
 
 ## Verified GitHub delivery
 

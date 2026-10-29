@@ -46,7 +46,7 @@ def selected_page_links(source_url: str, links: tuple[str, ...], limit: int = 2)
             continue
         seen.add(identity)
         path = parsed.path.casefold()
-        if re.search(r'/(?:products?|collections?|shop|catalog|categories)(?:/|[-.]|$)', path):
+        if re.search(r'/(?:products?|collections?|shop|catalog(?:ue)?|categor(?:y|ies)|product-categor(?:y|ies))(?:/|[-.]|$)', path):
             groups['product'].append(url)
         elif re.search(r'/(?:[^/]*[-_])?(?:shipping|delivery|returns?|refunds?|about)(?:[-_./]|$)', path):
             groups['policy'].append(url)

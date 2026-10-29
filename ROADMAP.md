@@ -4,6 +4,8 @@ Version: 2026-10-29. Overall status: **PARTIALLY COMPLETE; one limited real rese
 
 ## Current checkpoint — 29 October 2026
 
+**Research-to-Work experience:** saved recommendations become selected, reviewed, source-linked tasks with current-report hashes and cross-team deduplication. Research pages open finished reports automatically; long public URLs and additional catalog/category paths are supported. Shared SVG icons, plus/minus disclosures and reduced-motion-aware hover/entrance feedback refine the interface. A loopback runner supervises actual web+worker processes on PostgreSQL.1112 tests and390/768/1440 browser journeys pass with explicit provider/account fixtures. [Scope and exact hosted dependencies](docs/RESEARCH_TO_WORK_EXPERIENCE.md). Hosted preview remains intake-only; next independent work is domain proof/richer evidence.
+
 **29 October reviewed refresh continuation:** M4 now includes explicit review→private queued research→new immutable saved version, with source/model checkpointing, nonce/concurrency fences, revoked-access handling and removal/retention cleanup.1066 tests and the responsive loopback PostgreSQL browser story pass with labeled provider fixtures. [Scope and remaining work](docs/REVIEWED_RESEARCH_REFRESH.md). Domain ownership, scheduled monitoring, JavaScript rendering and independently verified live refresh remain open.
 
 Application23d977a is published on the existing development branch/PR #1. CI40849924327 passed1066 tests, dependency audit and secrets; [delivery receipt](docs/evidence/research-refresh-verification.json). Next independent development task: explicit domain-ownership proof, keeping research and merchant-write authorization separate. No deployment or merge.

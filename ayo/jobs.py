@@ -3,7 +3,7 @@ import json
 import time
 from datetime import datetime, timezone
 
-from sqlalchemy import or_, select
+from sqlalchemy import func, or_, select
 
 from ayo.identity import IdentityError, IdentityService, token_hash
 from ayo.models import AuditEvent, ResearchJob
@@ -81,6 +81,16 @@ def get_job(session, job_id, anonymous_id):
     if not row or not anonymous_id or row.anonymous_session_hash != token_hash(anonymous_id):
         raise IdentityError('job_unavailable', 'Research job not found.', 404)
     return row
+
+
+def job_revision(session, job):
+    """Opaque status revision; caller must authorize job access first.
+
+    Polling reads persisted progress only; it cannot enqueue or dispatch work.
+    """
+    last = session.scalar(select(func.max(AuditEvent.id)).where(
+        AuditEvent.resource_type == 'research_job', AuditEvent.resource_id == job.id))
+    return token_hash(json.dumps([job.status, job.attempts, job.report_id, job.finished_at, last]))
 
 
 def job_progress(session, job_id, anonymous_id):

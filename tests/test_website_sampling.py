@@ -50,6 +50,11 @@ def test_selects_actual_same_site_product_and_policy_without_guessing_or_query_c
     assert selected_page_links(ROOT, ('http://sample-shop.org/products/insecure',)) == ()
 
 
+@pytest.mark.parametrize('path', ['catalogue/books', 'category/bags', 'product-category/accessories'])
+def test_selects_actual_catalogue_and_singular_category_paths(path):
+    assert selected_page_links(ROOT, (ROOT + path, POLICY)) == (ROOT + path, POLICY)
+
+
 def test_three_page_report_attaches_products_and_policy_to_the_correct_evidence():
     client = fixture_client()
     report = run(ResearchService(DirectWebsiteProvider(client)).research(ROOT, 'GH'))

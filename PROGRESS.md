@@ -1,6 +1,14 @@
 # Ayo implementation progress
 
-Updated: 2026-10-27. Overall delivery: **PARTIALLY COMPLETE**. This log distinguishes imported functionality, locally tested development and actual external verification.
+Updated: 2026-10-29. Overall delivery: **PARTIALLY COMPLETE**. This log distinguishes imported functionality, locally tested development and actual external verification.
+
+## Latest checkpoint — research-to-Work experience, 29 October 2026
+
+- Continued clean751cb09 on codex/africa-platform/PR #1. Added finite capability/tenant-scoped GET-only status polling and automatic report opening, with manual/no-JS alternatives and useful source-failure recovery. Long URL intake uses2048 characters; business names remain250. Actual catalogue/category/product-category links extend sampling without widening existing egress/robots/page/deadline limits.
+- Added selected reviewed Work plans from saved public/merchant-input recommendations. Original JSON hash, supporting input IDs/times/hashes and provenance are retained. Verified role/CSRF/consent/current scope, stable task IDs and team locks fence stale/foreign/repeat/concurrent submissions. Owner claims remain unverified, empty plans stay empty, no external action/model request/new migration. Exact original/export stays unchanged; tasks survive relogin.
+- Refined shared SVG icons, plus/minus disclosures, heading hierarchy, hover feedback and reduced-motion-aware transform movement. Entrance effects keep forms visible. Fixed preview builder asset omissions. Added a separate loopback PostgreSQL web+worker supervisor with current-schema checks, shared durable configuration and companion shutdown; no automatic provisioning/migration/seed/provider activation.
+- **1112 full tests passed,0 failed/skipped**, SQLite+actual PostgreSQL17,132.53s, one upstream warning. Subsequent deployment-manifest regression+16 preview checks also pass. Chromium390/768/1440 verifies keyboard disclosures, reduced motion, no overflow, reviewed refresh→worker fixture→automatic report→plan→linked Work→logout/login/reopen. Actual web/worker child lifecycle verified. [Browser receipt](docs/evidence/research-experience-browser.json).3 source/3 model calls and accounts are fixtures; real provider calls0. Harness fixes addressed optional browser interpreter, strict fixture HTML/product provenance and managed-kernel child enumeration; final run succeeds and cleans servers/schema.
+- Recovered a second existing protected Hobby project, `ayo-merchant-staging`, with Git/DB/encryption/provider/policy bindings already present.751cb09 runtime returns500 from missing httpx; build installed an empty pyproject dependency set. Added PEP621 metadata matching the complete existing locked graph and a parity regression. No package versions changed. Original intake-only preview remains separate; existing branch integration may rebuild protected staging. No production release, paid operation, data-policy/billing/protection change, outreach or merge. [Contract and hosted boundaries](docs/RESEARCH_TO_WORK_EXPERIENCE.md). GitHub/CI/staging delivery receipt follows.
 
 ## Source and evidence baseline
 

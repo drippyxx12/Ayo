@@ -16,7 +16,7 @@ from ayo.identity import IdentityError, IdentityService, token_hash
 from ayo.intelligence import IntelligenceContext, IntelligenceError, IntelligenceOrchestrator, SourceEvidence
 from ayo.leads import LeadError, PipelineEvidence, discover_leads, transition_lead
 from ayo.mailer import queue_identity_mail
-from ayo.jobs import enqueue, get_job, job_progress
+from ayo.jobs import enqueue, get_job, job_progress, job_revision
 from ayo.provider_usage import budget_context
 from ayo.account_deletion import remove_account
 from ayo.models import AuditEvent, Business, IntelligenceRun, Lead, LeadEvent, Membership, ResearchReportRecord
@@ -235,7 +235,14 @@ def install_routes(mod):
             request.session['pending_report'] = job.report_id
             return RedirectResponse('/research/' + job.report_id, 303)
         return mod.render(request, 'research_job.html', job=job, user=mod.session_user(request, sess),
+                          revision=job_revision(sess, job),
                           progress=job_progress(sess, job.id, request.session.get('anonymous_id')))
+
+    @app.get('/research/jobs/{job_id}/updates')
+    def job_updates(job_id: str, request: Request, sess=Depends(mod.db)):
+        job = get_job(sess, job_id, request.session.get('anonymous_id'))
+        return JSONResponse({'revision': job_revision(sess, job),
+                             'terminal': job.status in {'succeeded', 'failed'}})
 
     @app.post('/research')
     async def research(request: Request, query: str = Form(''), country: str = Form(''), city: str = Form(''),

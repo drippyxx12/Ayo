@@ -53,6 +53,8 @@ def build(evidence: Path, output: Path, screenshot_prefix: str = 'gemini') -> No
             if '__pycache__' not in source.parts:
                 files[source.relative_to(ROOT)] = source
     files[Path('static/ayo.css')] = ROOT / 'static/ayo.css'
+    files[Path('static/experience.css')] = ROOT / 'static/experience.css'
+    files[Path('static/workspace.js')] = ROOT / 'static/workspace.js'
     for name in FONTS:
         files[Path('static/fonts') / name] = ROOT / 'static/fonts' / name
     files[Path('static/tour.html')] = ROOT / 'preview/tour.html'

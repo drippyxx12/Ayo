@@ -120,11 +120,13 @@ def normalize_public_url(text: str) -> str:
 def classify_website_input(text: str) -> WebsiteIntent:
     """Distinguish candidate name search from a URL; never asserts ownership."""
     raw = text.strip()
-    if not raw or len(raw) > 250:
+    if not raw or len(raw) > 2048:
         raise SiteInputError('Enter a company name or a website address.')
     is_url = raw.lower().startswith(('http://', 'https://', 'www.')) or (' ' not in raw and '.' in raw)
     if is_url:
         return WebsiteIntent('url', normalize_public_url(raw), False)
+    if len(raw) > 250:
+        raise SiteInputError('Business names must be 250 characters or fewer.')
     cleaned = re.sub(r'\s+', ' ', raw)
     return WebsiteIntent('search', cleaned, False)
 

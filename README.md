@@ -1,5 +1,7 @@
 # Ayo — Africa-first commerce intelligence
 
+Current research-to-Work update: automatic report status, reviewed source-linked plans, refined icons/motion and a separate supervised PostgreSQL workspace preview runner. [Scope, verification and exact hosted limits](docs/RESEARCH_TO_WORK_EXPERIENCE.md).
+
 **Status: PARTIALLY COMPLETE.** Ayo is one commerce intelligence application for Nigeria and Ghana. It preserves the supplied FastAPI/SQLAlchemy/Jinja source; it is not a framework rewrite. A landing page is not its completion criterion.
 
 **Current stopping point:** [MEMORY.md](MEMORY.md) records the latest milestone, preview, verified work, blockers and next action. Read it first when returning to the project; it is updated at each handoff.

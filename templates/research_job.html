@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Research status — Ayo{% endblock %}
 {% block body %}
-<main class="wrap research-page" id="main-content">
+<main class="wrap research-page" id="main-content"{% if job.status not in ['succeeded','failed'] %} data-research-watch="/research/jobs/{{ job.id }}/updates" data-research-revision="{{ revision }}"{% endif %}>
   <div class="eyebrow">PUBLIC RESEARCH / {{ job.status|upper }}</div>
   <h1>{{ 'Research needs attention.' if job.status == 'failed' else 'Evidence takes a moment.' }}</h1>
   <div role="status" aria-live="polite">
@@ -40,8 +40,10 @@
   {% endif %}
   {% if job.status == 'failed' %}
     <a class="pill" href="/">Start another search ↗</a>
+    <section class="research-recovery"><h2>Keep the research moving.</h2><p>Try a readable public product or about page. If this is your business, supply its description, products, pricing or an authorized text document instead.</p><a class="text-link" href="/business-analysis">Use your business information →</a><p class="quiet smallprint">Supplied information stays labeled as unverified merchant input.</p></section>
   {% else %}
-    <p class="quiet">Refresh this page to check the persisted job status. These milestones record actual processing; they do not estimate a completion percentage.</p>
+    <p class="quiet" data-research-poll-status role="status">This page checks for saved progress automatically and opens the report when ready. You can also check manually.</p>
+    <noscript><p class="quiet">JavaScript is off. Use the status button to open the report when the worker completes.</p></noscript>
     <a class="pill" href="/research/jobs/{{ job.id }}">Check research status ↗</a>
   {% endif %}
 </main>
