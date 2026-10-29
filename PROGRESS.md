@@ -1,5 +1,12 @@
 # Ayo implementation progress
 
+## 29 October 2026 — exact-host site-control continuation
+
+- Recovered clean local/remote15a5997, PR #1 draft/open/unmerged. Preserved live hosted research and Gemini milestones without repeating external tests.
+- Separate site-control model/service/HTTPS reader/Business UI and additive migration0009: bounded robots/file GETs, encrypted expiring challenges, hashed leases, role/session/tenant/CSRF protections, renewal, workspace-host revocation, account/retention cleanup. Research ownership labels remain immutable; proof grants no external writes.
+- **1203 full tests pass**,0 failures/skips,146.95s, one upstream warning, SQLite+actual PostgreSQL17;66 focused cases pass. Chromium390/768/1440 creation/check/relogin/reopen/revoke passes with synthetic accounts/HTTPS fixtures; screenshots visually reviewed. No outbound browser/page errors/overflow; temporary server/schema cleanup verified. Harness email-label selector corrected. [Receipt](docs/evidence/site-control-browser.json), [contract](docs/SITE_CONTROL_VERIFICATION.md).
+- No actual website/Gemini/Firecrawl/mail call; provider chargeUSD0. No hosted migration or domain-file publication. Delivery follows; prior protected source-worker preview remains intact.
+
 Updated: 2026-10-29. Overall delivery: **PARTIALLY COMPLETE**. This log distinguishes imported functionality, locally tested development and actual external verification.
 
 ## Latest checkpoint — research-to-Work experience, 29 October 2026

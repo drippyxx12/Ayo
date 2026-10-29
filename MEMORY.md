@@ -2,7 +2,17 @@
 
 Updated: 29 October 2026. Overall platform: **PARTIALLY COMPLETE**.
 
-## Current verified milestone — hosted source worker and visible reports
+## Current continuation — exact-host site-control verification
+
+Recovered clean remote/local `15a59977784e516f7852f85d5705fe5decf91000`, same `codex/africa-platform`, PR #1 draft/open/unmerged. Implemented Business → Your websites: encrypted one-hour HTTPS-file challenges, exact-host seven-day proofs, explicit two-GET checks through existing pinned public egress, robots/size/deadline/rate/lease limits, verified owner/admin roles, CSRF, post-I/O role/session rechecks, renewal/revocation and removal/retention handling. Report JSON/ownership flags and consumed provider ledgers remain untouched. Additive migration0009; old0008 databases show the new page unavailable without blocking existing research/account cleanup.
+
+**1,203 full tests passed**,0 failures/skips,146.95s, one upstream Starlette/httpx warning, SQLite+actual PostgreSQL17;66 focused tests passed. Chromium390/768/1440 create → check → logout/login/reopen → revoke passes, no horizontal overflow/page errors/outbound browser requests. [Fixture receipt](docs/evidence/site-control-browser.json), [scope/limits](docs/SITE_CONTROL_VERIFICATION.md). Synthetic account/HTTPS fixtures; no real domain file published/read. Browser harness email-label selector corrected to existing WORK EMAIL. Server and isolated schema cleanup verified. Publication/checkpoint follows; no code published yet for this slice.
+
+Actual usage this continuation: Gemini0/Firecrawl0/mail0/provider chargeUSD0. Existing [protected e22fd8d preview](https://ayo-merchant-staging-53n3x73i8-ayodejiiolatunbosun-7460.vercel.app/) retains the verified source worker/report. New site feature is locally fixture-verified and needs migration0009 in the target database; no hosted migration performed. No public release, paid call, outreach or merge. Real-domain acceptance requires an owner-published generated file, not another API key.
+
+Next: publish verified changes on the same branch/PR, then continue source-review/correction and contextual planning acceptance without blocking research on domain proof. Sections below preserve historical milestones.
+
+## Preserved verified milestone — hosted source worker and visible reports
 
 **WORKER VERIFIED LIVE / SOURCE REPORT CREATED.** Exactly one real public-demo job on protected merchant staging retrieved3 permitted Books to Scrape pages, published a PARTIAL source report and reopened the retained hashes unchanged in a new HTTP client using the same anonymous capability. Worker command1.349s; Gemini0/Firecrawl0/mail0/provider chargeUSD0. No account was created/claimed, no hosted logout/login/mail verification, no real merchant or complete audit asserted. [Actual receipt](docs/evidence/hosted-source-only-worker.json), [readable evidence](docs/evidence/hosted-demo-source-report.md). Do not repeat this live source test or Gemini connectivity.
 

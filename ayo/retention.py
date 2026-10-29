@@ -1,6 +1,8 @@
 """Bounded deletion of expired anonymous/security artifacts, never user grants."""
 import time
-from sqlalchemy import delete, select
+from sqlalchemy import delete, or_, select, update
+from ayo.site_control import schema_ready
+from ayo.site_control_models import SiteControlClaim
 from ayo.models import AuditEvent, AuthAttempt, AuthSession, IdentityToken, MailOutbox, ReportClaim, ResearchJob, ResearchReportRecord
 
 
@@ -22,4 +24,10 @@ def cleanup_expired(session, now=None):
         delete(AuthAttempt).where(AuthAttempt.window_started <= now - 86400),
         delete(MailOutbox).where(MailOutbox.created_at <= now - 86400),
     ]
-    return sum(session.execute(query).rowcount for query in queries)
+    count = sum(session.execute(query).rowcount for query in queries)
+    if schema_ready(session):
+        count += session.execute(update(SiteControlClaim).where(or_(
+            (SiteControlClaim.status.in_(['pending', 'failed', 'checking'])) & (SiteControlClaim.expires_at <= now),
+            (SiteControlClaim.status == 'verified') & (SiteControlClaim.verified_until <= now),
+        )).values(status='expired', token_cipher=None, lease_hash=None, lease_until=None)).rowcount
+    return count

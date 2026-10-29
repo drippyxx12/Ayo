@@ -276,3 +276,4 @@ class ProviderUsageReservation(Base):
 from ayo.merchant_models import BusinessProfile, Task  # noqa: E402,F401
 from ayo.lead_models import LeadList, LeadListItem, LeadNote, OutreachDraft  # noqa: E402,F401
 from ayo.assistant_models import AssistantConversation, AssistantMessage, AssistantToolRun  # noqa: E402,F401
+from ayo.site_control_models import SiteControlClaim  # noqa: E402,F401

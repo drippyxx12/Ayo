@@ -511,10 +511,12 @@ def install_routes(mod):
     from ayo.lead_routes import install_routes as install_lead_management
     from ayo.assistant_routes import install_routes as install_assistant
     from ayo.account_management import install_routes as install_account_management
+    from ayo.site_control_routes import install_routes as install_site_control
     install_merchant(mod, context, protected, guard)
     install_lead_management(mod, context, protected, guard)
     install_assistant(mod, context, protected, guard)
     install_account_management(mod, context, guard, start_session)
+    install_site_control(mod, protected, guard)
 
     @app.get('/activity')
     def activity(request: Request, page: int = 1, sess=Depends(mod.db)):

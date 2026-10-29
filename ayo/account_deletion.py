@@ -9,6 +9,8 @@ from ayo.models import (AuditEvent, AuthAttempt, AuthSession, Business, Identity
 from ayo.merchant_models import BusinessProfile, Task
 from ayo.lead_models import LeadList, LeadListItem, LeadNote, OutreachDraft
 from ayo.assistant_models import AssistantConversation, AssistantMessage, AssistantToolRun
+from ayo.site_control import schema_ready
+from ayo.site_control_models import SiteControlClaim
 
 
 def remove_account(session, user_id, password, confirmation):
@@ -44,6 +46,13 @@ def remove_account(session, user_id, password, confirmation):
         session.execute(delete(ResearchJob).where(ResearchJob.id.in_(refresh_ids)))
     for model in (AssistantToolRun, AssistantMessage, AssistantConversation):
         session.execute(delete(model).where(model.user_id == user_id))
+    if schema_ready(session):
+        # Do not leave a departing account's pending challenges usable. Already
+        # verified shared-workspace proofs retain their immutable check history.
+        session.execute(update(SiteControlClaim).where(SiteControlClaim.created_by == user_id,
+            SiteControlClaim.status.in_(['pending', 'failed', 'checking'])).values(
+                status='revoked', token_cipher=None, lease_hash=None, lease_until=None))
+        session.execute(update(SiteControlClaim).where(SiteControlClaim.created_by == user_id).values(created_by=None))
     if exclusive:
         reports = select(ResearchReportRecord.id).where(ResearchReportRecord.business_id.in_(exclusive))
         jobs = select(ResearchJob.id).where(ResearchJob.report_id.in_(reports))
