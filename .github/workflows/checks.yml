@@ -43,7 +43,7 @@ jobs:
       - name: Check dependency consistency
         run: python -m pip check
       - name: Lint correctness
-        run: python -m ruff check ayo tests scripts/check-provider-readiness.py scripts/check-secret-migration.py scripts/verify-m2-browser.py scripts/verify-merchant-browser.py scripts/with-private-runtime.py
+        run: python -m ruff check ayo tests scripts/check-provider-readiness.py scripts/check-secret-migration.py scripts/verify-m2-browser.py scripts/verify-merchant-browser.py scripts/verify-refresh-browser.py scripts/with-private-runtime.py
       - name: Test offline application contracts
         run: python -m pytest -q
       - name: Audit locked dependencies

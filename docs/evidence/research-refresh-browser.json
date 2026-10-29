@@ -1,0 +1,54 @@
+{
+  "date": "2026-10-29T09:20:37.057643+00:00",
+  "mode": "offline_fixture_refresh_browser",
+  "story": "Saved report \u2192 reviewed form \u2192 private queued job \u2192 source/model fixtures \u2192 new version \u2192 logout/login/reopen",
+  "database": "actual isolated PostgreSQL17 schema",
+  "checks": [
+    {
+      "width": 390,
+      "review_form": true,
+      "native_review_validation": true,
+      "checkbox_bounds": true,
+      "no_horizontal_overflow": true,
+      "post_status": 303,
+      "new_private_version": true,
+      "original_immutable": true,
+      "logout_login_reopen": true
+    },
+    {
+      "width": 768,
+      "review_form": true,
+      "native_review_validation": true,
+      "checkbox_bounds": true,
+      "no_horizontal_overflow": true,
+      "post_status": 303,
+      "new_private_version": true,
+      "original_immutable": true,
+      "logout_login_reopen": true
+    },
+    {
+      "width": 1440,
+      "review_form": true,
+      "native_review_validation": true,
+      "checkbox_bounds": true,
+      "no_horizontal_overflow": true,
+      "post_status": 303,
+      "new_private_version": true,
+      "original_immutable": true,
+      "logout_login_reopen": true
+    }
+  ],
+  "fixture_calls": {
+    "fixture_sources": 3,
+    "fixture_models": 3
+  },
+  "real_provider_calls": 0,
+  "mail_delivery": false,
+  "public_deployment": false,
+  "page_errors": [],
+  "forbidden_requests": [],
+  "cleanup": {
+    "server_stopped": true,
+    "schema_removed": true
+  }
+}

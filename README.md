@@ -21,6 +21,7 @@ Current merchant-stage implementation and verification boundaries: [M3/M4/M5 mer
 - Browser-bound, expiring, single-use report claims into verified accounts; private dashboard, reports, opportunities, activity, lead records and workspace switching.
 - Persistent Business profiles with labeled merchant-provided offer/audience/goals; source-linked Work tasks with due dates, statuses, audit and conflict protection; real-record overview and activity.
 - Saved research library, evidence freshness/history, retained product/category/channel inspection, report comparisons and contact-redacted export.
+- Reviewed source refresh from a saved public report creates a separate private version, with current role/consent checks and replay protection. Original reports remain immutable. [Refresh contract and verification](docs/REVIEWED_RESEARCH_REFRESH.md).
 - Searchable prospect lists, notes, qualification evidence, follow-up tasks and editable sourced introduction drafts. Drafting never sends a message or establishes a commercial outcome.
 - Private persisted Ayo conversations, versioned read tools, bounded source snapshots, retry/replay fences and honest blocked/partial AI states. Conversation history is retained but is not yet sent to the model.
 - Password-confirmed password/session controls, atomic account confirmation and cleanup of new private records.

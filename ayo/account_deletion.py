@@ -1,7 +1,7 @@
 """Local account-data removal with shared-workspace ownership protection."""
 import secrets
 import time
-from sqlalchemy import delete, func, select, update
+from sqlalchemy import delete, func, or_, select, update
 from ayo.identity import IdentityError, IdentityService, password_hash, password_verify, token_hash
 from ayo.models import (AuditEvent, AuthAttempt, AuthSession, Business, IdentityToken, IntelligenceRun,
                         Lead, LeadEvent, MailOutbox, Membership, ReportClaim, ResearchJob,
@@ -32,6 +32,16 @@ def remove_account(session, user_id, password, confirmation):
             exclusive.append(membership.business_id)
     # Validate ownership transfers before making any deletion. Conversations are
     # personal to an account even in a shared business.
+    refresh_ids = list(session.scalars(select(AuditEvent.resource_id).where(
+        AuditEvent.action == 'research.refresh_requested', AuditEvent.resource_type == 'research_job',
+        or_(AuditEvent.actor_user_id == user_id, AuditEvent.business_id.in_(exclusive)))))
+    if refresh_ids:
+        pending = select(ResearchJob.report_id).where(ResearchJob.id.in_(refresh_ids))
+        session.execute(delete(ResearchReportRecord).where(ResearchReportRecord.id.in_(pending),
+            ResearchReportRecord.status == 'PENDING_ANALYSIS'))
+        session.execute(delete(AuditEvent).where(AuditEvent.resource_type == 'research_job',
+                                                AuditEvent.resource_id.in_(refresh_ids)))
+        session.execute(delete(ResearchJob).where(ResearchJob.id.in_(refresh_ids)))
     for model in (AssistantToolRun, AssistantMessage, AssistantConversation):
         session.execute(delete(model).where(model.user_id == user_id))
     if exclusive:

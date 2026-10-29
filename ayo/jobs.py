@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 
 from sqlalchemy import or_, select
 
-from ayo.identity import IdentityError, token_hash
+from ayo.identity import IdentityError, IdentityService, token_hash
 from ayo.models import AuditEvent, ResearchJob
 from ayo.report_storage import ReportStore
 from ayo.research import ResearchError, ResearchService, _public_url
@@ -56,15 +56,20 @@ def _progress(session, job, stage, now, *, reason=None, retry_at=None, analysis_
         resource_id=job.id, details_json=json.dumps(details, sort_keys=True), created_at=now))
 
 
-def enqueue(session, fernet, *, url, country, business_name, anonymous_id, request_id=None):
+def enqueue(session, fernet, *, url, country, business_name, anonymous_id, request_id=None,
+            job_id=None, refresh_scope=None):
     url = _public_url(url)
     if country not in ('', 'NG', 'GH') or len(business_name) > 240:
         raise ResearchError('invalid_input', 'Choose a supported market and business name.', 400)
     payload = {'url': url, 'country': country, 'business_name': business_name, 'anonymous_id': anonymous_id}
     if request_id is not None:
         payload['request_id'] = request_id
+    if refresh_scope is not None:
+        payload['refresh'] = refresh_scope
     row = ResearchJob(anonymous_session_hash=token_hash(anonymous_id),
                       payload_cipher=fernet.encrypt(json.dumps(payload).encode()).decode())
+    if job_id is not None:
+        row.id = job_id
     session.add(row)
     session.flush()
     _progress(session, row, 'queued', row.created_at)
@@ -146,28 +151,47 @@ async def process_one(factory, fernet, research_factory=ResearchService.from_env
         return (row is not None and row.status == 'running' and row.attempts == attempt and
                 row.lease_until is not None and row.lease_until > clock())
 
-    report, error = None, None
+    report, error, refresh, refresh_actor = None, None, False, None
+
+    def locked_job(session):
+        # Account removal locks User before deleting jobs. Keep the same order
+        # when a private refresh stages/publishes, rather than Job -> User.
+        if refresh_actor is not None:
+            IdentityService(session, clock).lock_user(refresh_actor)
+        return session.scalar(select(ResearchJob).where(ResearchJob.id == job_id).with_for_update())
+
     try:
         payload = json.loads(fernet.decrypt(cipher.encode()))
+        refresh = 'refresh' in payload
+        if refresh:
+            from ayo.research_refresh import RefreshService
+            with factory() as session:
+                refresh_actor = RefreshService(session, fernet, clock).context(session.get(ResearchJob, job_id))['user_id']
+                scope, _ = RefreshService(session, fernet, clock).validate(session.get(ResearchJob, job_id))
+                session.commit()
         usage_scope = {'scope_id': 'anonymous:' + anonymous_hash,
                        'request_id': payload.get('request_id') or job_id, 'dispatch_prefix': f'{job_id}:{attempt}'}
+        if refresh:
+            usage_scope['scope_id'] = 'business:' + scope['business_id']
         if report_id is None:
             with budget_context(factory, **usage_scope):
                 evidence_report = await research_factory().research(payload['url'], country=payload['country'], business_name=payload['business_name'])
             with factory() as session:
-                row = session.scalar(select(ResearchJob).where(ResearchJob.id == job_id).with_for_update())
+                row = locked_job(session)
                 if not current(row):
                     return True
-                checkpoint = ReportStore(session, clock).stage_preview(evidence_report, payload['anonymous_id'])
+                checkpoint = (RefreshService(session, fernet, clock).stage(row, evidence_report) if refresh else
+                              ReportStore(session, clock).stage_preview(evidence_report, payload['anonymous_id']))
                 report_id, row.report_id = checkpoint.id, checkpoint.id
                 row.lease_until = clock() + 60
                 _progress(session, row, 'evidence_stored', clock())
                 session.commit()  # Immutable sources exist durably BEFORE inference.
         with factory() as session:
-            row = session.scalar(select(ResearchJob).where(ResearchJob.id == job_id).with_for_update())
+            row = locked_job(session)
             if not current(row):
                 return True
-            evidence_report = ReportStore(session, clock).pending_preview(report_id, payload['anonymous_id'])
+            evidence_report = (RefreshService(session, fernet, clock).pending(row)[1] if refresh else
+                               ReportStore(session, clock).pending_preview(report_id, payload['anonymous_id']))
             row.lease_until = clock() + 60
             _progress(session, row, 'analyzing', clock())
             session.commit()
@@ -187,7 +211,7 @@ async def process_one(factory, fernet, research_factory=ResearchService.from_env
         # The UI and logs never receive provider bodies, keys, raw HTML or PII.
         error = 'research_failed'
     with factory() as session:
-        row = session.scalar(select(ResearchJob).where(ResearchJob.id == job_id).with_for_update())
+        row = locked_job(session)
         if not current(row):
             return True
         if report is None:
@@ -199,12 +223,25 @@ async def process_one(factory, fernet, research_factory=ResearchService.from_env
                 _progress(session, row, 'retry_scheduled', clock(), reason=error, retry_at=retry_at)
                 session.commit()
                 return True
+            if refresh:
+                RefreshService(session, fernet, clock).discard_pending(row)
             row.status, row.error_code = 'failed', error
             _progress(session, row, 'failed', clock(), reason=error)
         else:
-            record, claim = ReportStore(session, clock).finalize_preview(report_id, report, payload['anonymous_id'])
+            if refresh:
+                try:
+                    record = RefreshService(session, fernet, clock).publish(row, report)
+                except IdentityError:
+                    RefreshService(session, fernet, clock).discard_pending(row)
+                    row.status, row.error_code, row.finished_at, row.lease_until = 'failed', 'evidence_unavailable', clock(), None
+                    _progress(session, row, 'failed', clock(), reason='evidence_unavailable')
+                    session.commit()
+                    return True
+                claim = None
+            else:
+                record, claim = ReportStore(session, clock).finalize_preview(report_id, report, payload['anonymous_id'])
             row.status, row.report_id = 'succeeded', record.id
-            row.claim_cipher = fernet.encrypt(claim.encode()).decode()
+            row.claim_cipher = fernet.encrypt(claim.encode()).decode() if claim else None
             _progress(session, row, 'partial' if report.status == 'PARTIAL' else 'completed',
                       clock(), analysis_status=report.analysis_status)
         row.finished_at, row.lease_until = clock(), None

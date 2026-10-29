@@ -2,6 +2,16 @@
 
 Updated: 29 October 2026. Overall platform: **PARTIALLY COMPLETE**.
 
+## Latest milestone — reviewed private source refresh
+
+Continued clean local/remote013df6c602160ba49715a499edb8ed000df1c9ca, existing branch/PR #1. Verified owners/admins/editors can review a saved public report's target/scope and queue a new private version. Original JSON/citations/export remain immutable. Existing encrypted jobs/research/audit/history tables are reused; no migration. [Workflow and precise boundaries](docs/REVIEWED_RESEARCH_REFRESH.md).
+
+Encrypted scope binds actor/workspace/original ID/exact JSON hash. Nonce replay/concurrent submissions share one private job; persistent audit tombstones prevent re-dispatch after job expiry. Three new refreshes/business/hour; existing provider budgets unchanged. Current permissions and reviewed-input hash are checked before source/model work and publication, with User→Job lock order aligned to removal. Revoked access discards only unpublished new evidence. Owner-input reports cannot be crawled. No public refresh claim/capability is issued.
+
+Sources commit privately before one existing Gemini step; unavailable analysis remains explicit partial research. New source URLs remain actual captures while the reviewed target/history key stays stable. Removal clears queued/running ciphertext; retention removes unpublished checkpoints/expired jobs and preserves saved versions and replay tombstones. Existing reports/ledger/first500 rules remain unchanged.
+
+**Full suite:1066 passed,0 failed/skipped**, SQLite+actual PostgreSQL17,116.89s, one upstream warning.36 focused refresh tests pass, including concurrency/revocation/relogin/export/deletion/retention. Chromium refresh flow passes390/768/1440px with native review validation, correctly sized checkbox, no overflow, private job→new version→logout/login/reopen and immutable original. [Browser receipt](docs/evidence/research-refresh-browser.json); temporary server/schema cleaned. The verifier's Playwright API/async-worker bridge/disclosure checks were corrected before the successful run. All source/model/account/mail data is synthetic; no new real provider request or hosted deployment is claimed. Final quality/publication receipt follows.
+
 ## Latest milestone — bounded multi-page research
 
 Continued clean local/remote `48189a8d2531933741ad46a78dd89f3e1d729aa6`, existing branch/PR #1 draft/open/unmerged. Current managed environment spec3 is running/current with enforced unrestricted HTTP and no managed runtime/secret bindings. Restarted only the existing local PostgreSQL container after workspace restart; its persistent public database was preserved. Tests use isolated schemas.
@@ -64,9 +74,9 @@ Existing protected preview is **interactive intake only**, with private accounts
 
 ## Stopped at / Next / Blocked by
 
-**Stopped at:** bounded multi-page sampling, per-source reports/citations and robots-rule hardening delivered as e663ba6; local and GitHub CI1030 tests passed. Earlier live single-page and Gemini milestones are preserved.
+**Stopped at:** reviewed private refresh/versioning implemented;1066 tests and responsive browser refresh/relogin flow pass. Quality/publication/CI receipt follows. Earlier live single-page/Gemini milestones are preserved.
 
-**Next:** reviewed refresh/ownership and richer licensed/owner-supplied evidence. JavaScript rendering remains unfinished and is reported explicitly.
+**Next:** finish refresh delivery, then explicit domain-ownership proof and richer licensed/owner-supplied evidence. JavaScript rendering and independently verified live refresh remain unfinished.
 
 **Blocked by:** no blocker to continued local development or bounded public-page sampling. Individual sites may deny robots/access or require JavaScript rendering. New live Gemini calls need a current finite zero-cost policy; the previous dated allowance is not renewed automatically. Hosted services, delivered mail and JavaScript rendering remain unfinished. Paid calls, public deployment, outreach and merge stay unapproved.
 

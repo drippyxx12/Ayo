@@ -1,9 +1,11 @@
-"""Private saved-evidence views and internal correction-review requests."""
+"""Private saved-evidence views, reviewed refresh and correction requests."""
+import secrets
 from fastapi import Depends, Form, Request
 from fastapi.responses import JSONResponse, RedirectResponse
 
 from ayo.identity import IdentityError
 from ayo.research_workspace import LibraryFilters, ResearchWorkspace
+from ayo.research_refresh import RefreshService
 
 
 def _parameters(request, allowed):
@@ -58,6 +60,38 @@ def install_routes(mod, context, protected, guard):
             'Cache-Control': 'private, no-store', 'Pragma': 'no-cache',
             'X-Content-Type-Options': 'nosniff',
         })
+
+    @app.get('/research/library/{report_id}/refresh')
+    def review_refresh(report_id: str, request: Request, sess=Depends(mod.db)):
+        user, business = protected(request, sess)
+        _parameters(request, set())
+        row, report = RefreshService(sess, mod.fernet).original(user.id, business.id, report_id, write=True)
+        return mod.render(request, 'research_refresh.html', user=user, business=business, active_page='research',
+            original=row, report=report, request_id=secrets.token_urlsafe(24))
+
+    @app.post('/research/library/{report_id}/refresh')
+    def start_refresh(report_id: str, request: Request, request_id: str = Form(''),
+                      reviewed: bool = Form(False), csrf: str = Form(...), sess=Depends(mod.db)):
+        user, business = protected(request, sess)
+        guard(request, csrf, sess)
+        try:
+            job = RefreshService(sess, mod.fernet).request(user.id, business.id, report_id,
+                                                        request_id=request_id, reviewed=reviewed)
+            sess.commit()
+        except IdentityError:
+            sess.rollback()
+            raise
+        return RedirectResponse('/research/library/' + report_id + '/refresh/' + job.id, 303)
+
+    @app.get('/research/library/{report_id}/refresh/{job_id}')
+    def refresh_status(report_id: str, job_id: str, request: Request, sess=Depends(mod.db)):
+        user, business = protected(request, sess)
+        _parameters(request, set())
+        job = RefreshService(sess, mod.fernet).read(user.id, business.id, report_id, job_id)
+        if job.status == 'succeeded' and job.report_id:
+            return RedirectResponse('/research/library/' + job.report_id, 303)
+        return mod.render(request, 'research_refresh.html', user=user, business=business,
+                          active_page='research', job=job, original_id=report_id)
 
     @app.post('/research/library/{report_id}/corrections')
     def request_correction(report_id: str, request: Request, source_id: str = Form(''),
