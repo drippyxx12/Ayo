@@ -1,5 +1,7 @@
 # Research that leads to reviewed work
 
+**Hosted follow-up:** the protected staging dependency failure is repaired, and the [bounded worker host](ON_DEMAND_RESEARCH_WORKER.md) now has [actual three-page source-report/reopen evidence](evidence/hosted-source-only-worker.json). Current preview: https://ayo-merchant-staging-53n3x73i8-ayodejiiolatunbosun-7460.vercel.app/ . The source-only run made no Gemini/Firecrawl/mail call. Earlier preparation/dependency descriptions below are historical; genuine hosted account verification and fresh AI acceptance remain open.
+
 29 October 2026. Continues the existing branch, PostgreSQL workspace and research pipeline. No framework rewrite, migration, new provider, paid call or public deployment.
 
 ## Research and plans

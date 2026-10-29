@@ -1,5 +1,7 @@
 # Ayo — Africa-first commerce intelligence
 
+**Protected development preview:** [Open Ayo](https://ayo-merchant-staging-53n3x73i8-ayodejiiolatunbosun-7460.vercel.app/). Readable public URL→bounded worker→visible source report is verified live on a public scraping demo; source-only mode makes no Gemini request. [Exact proof and limits](docs/evidence/hosted-source-only-worker.json). Private account/mail and fresh Gemini acceptance remain separate; overall platform partially complete.
+
 Current research-to-Work update: automatic report status, reviewed source-linked plans, refined icons/motion and a separate supervised PostgreSQL workspace preview runner. [Scope, verification and exact hosted limits](docs/RESEARCH_TO_WORK_EXPERIENCE.md).
 
 **Status: PARTIALLY COMPLETE.** Ayo is one commerce intelligence application for Nigeria and Ghana. It preserves the supplied FastAPI/SQLAlchemy/Jinja source; it is not a framework rewrite. A landing page is not its completion criterion.

@@ -1,5 +1,7 @@
 # Generic public website research
 
+**29 October hosted acceptance:** one actual protected-staging worker command retained3 Books to Scrape public-demo pages, published a visible source-only report and reopened unchanged hashes. Gemini/Firecrawl/mail0, provider chargeUSD0. [Receipt](evidence/hosted-source-only-worker.json), [bounded worker-host contract](ON_DEMAND_RESEARCH_WORKER.md). This extends the historical single-page transport proof below; it does not establish universal domain support, merchant identity or AI/full-audit quality.
+
 Updated 28 October 2026. Ayo's existing leased research worker now accepts a user-supplied ordinary public HTTP or HTTPS website without requiring a Firecrawl host allowlist or paid crawler call. The web request only queues encrypted work; the worker performs every source request.
 
 **29 October extension:** ordinary direct-website jobs now sample up to three relevant linked pages under one shared deadline and retain separate citations. [Current multi-page contract](MULTI_PAGE_RESEARCH.md). The one-page live transport receipt below remains historical; multi-page behavior is verified separately with fixtures.

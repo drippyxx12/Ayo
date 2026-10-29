@@ -2,6 +2,18 @@
 
 Updated: 29 October 2026. Overall platform: **PARTIALLY COMPLETE**.
 
+## Current verified milestone — hosted source worker and visible reports
+
+**WORKER VERIFIED LIVE / SOURCE REPORT CREATED.** Exactly one real public-demo job on protected merchant staging retrieved3 permitted Books to Scrape pages, published a PARTIAL source report and reopened the retained hashes unchanged in a new HTTP client using the same anonymous capability. Worker command1.349s; Gemini0/Firecrawl0/mail0/provider chargeUSD0. No account was created/claimed, no hosted logout/login/mail verification, no real merchant or complete audit asserted. [Actual receipt](docs/evidence/hosted-source-only-worker.json), [readable evidence](docs/evidence/hosted-demo-source-report.md). Do not repeat this live source test or Gemini connectivity.
+
+Backend application `b6839e11c28037d03894ffe76ef82b763d1ca852`, exact staged/tested tree `77142a23a952e5c3906a6d51af6803e58c8770b4`, CI40902795220 **1137 passed**,0 failures/skips,186.23s, one upstream warning; audit/no known vulnerabilities and secrets pass. New current application `e22fd8d235d52c4416a42845bbc6b7db23ec3626`, tree `9241ac9ec172f800d1c6068ae73622f6ca11dc4c`, adds a verified busy202 browser guard: wait/poll without automatic repost. [Focused browser receipt](docs/evidence/worker-busy-browser.json). Backend blobs remain identical to the live-tested b6839e1; no repeat source request needed. CI40905022083 passed1137 tests,0 failures/skips,189.10s; dependency audit/no known vulnerabilities and secrets passed. The following evidence-only receipt leaves application/provider state unchanged.
+
+**Current protected preview:** https://ayo-merchant-staging-53n3x73i8-ayodejiiolatunbosun-7460.vercel.app/ . READY/e22fd8d, GET200 with updated icons/styles; all deployments retain Vercel Authentication on the existing Hobby team. URL→queue→explicit bounded worker→source report now works for readable permitted public pages. Source-only mode never initializes Gemini and clearly discloses it. Existing keys/bindings were reused without disclosure. The actual test's15-minute access capability was revoked and its private config deleted; no provider key changed. No public production release, paid call, outreach or merge. PR #1 remains draft/open/unmerged on codex/africa-platform.
+
+Local verification:1137 full tests,130.17s, SQLite+actual PostgreSQL17;111 focused worker/origin/refresh cases; responsive390/768/1440 source/plan/report stories, no-JS native keyboard forms and a busy-response no-repost browser probe. Source/model/account fixtures are labeled separately from the single actual hosted source receipt. New line icons/plus-minus disclosures, hover/reduced-motion feedback, automatic report opening and reviewed source-linked Work plans are delivered. Protected hosted account/email and fresh Gemini acceptance remain open; private save/relogin/planning use fixture verification. No full-platform completion or universal website compatibility claim.
+
+Earlier preparation/recovery checkpoints below are historical; this verified source-worker milestone supersedes their pending-hosted-source statements.
+
 **Verified delivery:** application `6ee91ad5580af37cc86ea699458df19ea4e0f745`, exact tested/staged tree `b957a9f6f63f69654075c82cbe10904ebc52d2f5`, existing branch advanced non-forced from751cb09 with expected-head protection; PR #1 remains draft/open/unmerged. CI40895239282 passed **1113 tests**,0 failures/skips,178.62s, one upstream warning; dependency audit/no known vulnerabilities and secrets passed. This includes the new manifest regression after the1112-test local full suite.
 
 **Actual protected staging recovered:** https://ayo-merchant-staging-n2ev828gv-ayodejiiolatunbosun-7460.vercel.app/ is READY from6ee91ad. Authenticated GET `/` returned200 with the revised interface, and GET `/research/jobs/ayo-readiness-nonexistent/updates` returned the expected application404, proving the research-table query is reachable. Missing-httpx import failure is resolved; no live source/model call or full hosted research claim. Existing original intake-only preview is separate. All deployments remain protected on the existing Hobby team.
@@ -86,7 +98,7 @@ Read this memory each session and update verified milestones. Preserve architect
 
 ## Direct browser preview
 
-Current Git-linked staging: https://ayo-merchant-staging-n2ev828gv-ayodejiiolatunbosun-7460.vercel.app/ . All deployments require Vercel Authentication. Revised interface GET200/research-table404 verified after dependency repair. Browser POST/worker/report/mail acceptance remains unfinished; on-demand worker/origin fixes are in progress. Preserve the existing observed DB/encryption/provider bindings.
+Current Git-linked staging: https://ayo-merchant-staging-53n3x73i8-ayodejiiolatunbosun-7460.vercel.app/ . Vercel Authentication protects every deployment. Revised interface and live URL→bounded source-worker→visible retained report are verified; source-only mode makes no Gemini request. Hosted delivered mail/account claim/relogin remain unfinished. Preserve the existing DB/encryption/provider bindings.
 
 https://ayo-development-preview-5icko1nq4-ayodejiiolatunbosun-7460.vercel.app/
 
@@ -94,11 +106,11 @@ Existing protected preview is **interactive intake only**, with private accounts
 
 ## Stopped at / Next / Blocked by
 
-**Stopped at:** research-to-Work, automatic report opening and refined icons/motion verified with1112 tests and responsive PostgreSQL browser flows. Recovered protected staging's missing-dependency failure and prepared locked metadata. Publication/CI/staging result follows; earlier live Gemini evidence preserved.
+**Stopped at:** protected hosted source worker/report live proof, source-linked Work plans and revised icons/motion delivered;1137 full tests pass. Earlier real Gemini/company-record evidence preserved. Application e22fd8d and CI40905022083 passed1137 tests; the following evidence-only delivery preserves the tested application and provider state.
 
-**Next:** publish and inspect the existing protected staging rebuild, then domain proof/richer evidence without granting merchant writes. JavaScript rendering and independently verified live refresh remain unfinished.
+**Next:** explicit domain-control proof and richer merchant/source evidence, plus genuine hosted account verification. Fresh Gemini/owner-input live quality, JavaScript rendering and monitoring remain unfinished.
 
-**Blocked by:** no blocker to local engineering. Site denials/JavaScript-only content remain unsupported. Merchant-staging bindings exist but DB/schema/worker/mail operation remains unverified; original restricted preview stays intake-only. New live Gemini calls need a finite current zero-cost policy; old allowances do not renew automatically. Paid calls, public production deployment, outreach and merge stay unapproved.
+**Blocked by:** no blocker to readable public-page research or local engineering. Robots/access walls and JavaScript-only pages remain unsupported. Fresh Gemini calls need a finite current zero-cost/data-policy allowance; existing consumed allowances do not renew. Genuine hosted account claim needs authorized verified transactional mail/sender configuration; no new key requested. Paid calls, production release, outreach and merge stay unapproved. Original older restricted preview remains an intake-only archive.
 
 ## Verified GitHub delivery
 

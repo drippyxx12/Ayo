@@ -61,7 +61,7 @@
   "new_paid_calls": 0,
   "schema_migration": false,
   "hosted_acceptance": {
-    "status": "pending",
+    "status": "verified live",
     "candidate": "https://books.toscrape.com/",
     "kind": "Public scraping demo, not real merchant",
     "maximum_jobs": 1,
@@ -70,8 +70,47 @@
     "gemini_calls": 0,
     "firecrawl_calls": 0,
     "mail_calls": 0,
-    "maximum_provider_charge_usd": 0
+    "maximum_provider_charge_usd": 0,
+    "receipt": "hosted-source-only-worker.json",
+    "actual_sampled_pages": 3,
+    "real_partial_report_created": true,
+    "retained_hashes_reopened": true,
+    "actual_provider_charge_usd": 0,
+    "account_claim_or_relogin_verified": false
   },
   "merge": false,
-  "public_production_release": false
+  "public_production_release": false,
+  "application_commit": "b6839e11c28037d03894ffe76ef82b763d1ca852",
+  "application_tree": "77142a23a952e5c3906a6d51af6803e58c8770b4",
+  "tested_staged_tree_exact_match": true,
+  "application_ci": {
+    "run_id": 40902795220,
+    "conclusion": "success",
+    "passed": 1137,
+    "failed": 0,
+    "skipped": 0,
+    "duration_seconds": 186.23,
+    "dependency_audit": "No known vulnerabilities found",
+    "secrets": "success"
+  },
+  "busy_response_followup": {
+    "commit": "e22fd8d235d52c4416a42845bbc6b7db23ec3626",
+    "tree": "9241ac9ec172f800d1c6068ae73622f6ca11dc4c",
+    "browser_receipt": "worker-busy-browser.json",
+    "backend_unchanged": true,
+    "preview": "https://ayo-merchant-staging-53n3x73i8-ayodejiiolatunbosun-7460.vercel.app",
+    "root_status": 200,
+    "ci_run": 40905022083,
+    "ci_status": "success",
+    "ci_passed": 1137,
+    "ci_duration_seconds": 189.1,
+    "dependency_audit": "No known vulnerabilities found",
+    "secrets": "success"
+  },
+  "final_quality": {
+    "ruff": "passed",
+    "javascript_syntax": "passed",
+    "json_document_links_whitespace": "passed",
+    "redacted_secret_scan": "worktree +32 commits, no leaks"
+  }
 }
