@@ -1,4 +1,4 @@
-"""Single-page public website evidence for the existing research worker.
+"""Bounded public website evidence for the existing research worker.
 
 This adapter handles ordinary public HTTP(S) pages without a paid crawler. It
 checks robots.txt, follows only bounded same-site redirects, retains immutable
@@ -14,7 +14,6 @@ import hashlib
 import json
 import re
 from urllib.parse import urljoin, urlsplit, urlunsplit
-from urllib.robotparser import RobotFileParser
 
 from ayo.public_http import PublicHTTPClient, PublicHTTPResponse, USER_AGENT
 from ayo.research import (
@@ -28,6 +27,8 @@ from ayo.research import (
     _public_url,
 )
 from ayo.website_research import extract_public_page
+from ayo.website_sampling import WebsiteEvidence, selected_page_links
+from ayo.robots_policy import RobotsPolicy
 
 
 _REDIRECTS = frozenset({301, 302, 303, 307, 308})
@@ -98,14 +99,16 @@ def _response_error(response: PublicHTTPResponse, *, robots: bool = False):
 
 
 class DirectWebsiteProvider:
-    """Retrieve one readable public page; never render scripts or bypass gates."""
+    """Retrieve a public page or small linked sample; never render or bypass gates."""
 
     def __init__(self, client: PublicHTTPClient | None = None, *, deadline_seconds: float = 45):
         if not 0 < deadline_seconds <= 45:
             raise ValueError('Website retrieval deadline must fit within the worker lease.')
         self.client = client or PublicHTTPClient()
         self.deadline_seconds = deadline_seconds
-        self._robots: dict[tuple[str, str, int | None], RobotFileParser | None] = {}
+        self._robots: dict[tuple[str, str, int | None], RobotsPolicy | None] = {}
+        self._page_links: dict[str, tuple[str, ...]] = {}
+        self._last_page_request: dict[tuple[str, str, int | None], float] = {}
 
     async def search(self, query: str, country: str = '', city: str = '', limit: int = 5) -> tuple[BusinessCandidate, ...]:
         raise ResearchError('website_url_required',
@@ -139,12 +142,17 @@ class DirectWebsiteProvider:
                 text = _decode(response, robots=True)
                 if len(text) > 200_000:
                     raise ResearchError('source_unavailable', 'The website robots policy is too large to evaluate.', 503)
-                rules = RobotFileParser()
-                rules.set_url(current)
-                rules.parse(text.splitlines())
+                if _access_wall(text):
+                    raise ResearchError('robots_denied', 'The website did not return an accessible robots policy.', 403)
+                rules = RobotsPolicy(text)
             self._robots[origin] = rules
         if rules is not None and not rules.can_fetch(USER_AGENT, target):
             raise ResearchError('robots_denied', 'The website robots policy does not permit this page request.', 403)
+        delay = rules.delay_seconds(USER_AGENT) if rules is not None else 0
+        previous = self._last_page_request.get(origin)
+        if previous is not None and delay:
+            await asyncio.sleep(max(0, previous + delay - asyncio.get_running_loop().time()))
+        self._last_page_request[origin] = asyncio.get_running_loop().time()
 
     async def fetch(self, url: str, country: str = '') -> SourceDocument:
         # One deadline covers robots AND every page redirect. Per-hop socket
@@ -154,6 +162,48 @@ class DirectWebsiteProvider:
                 return await self._fetch(url, country)
         except TimeoutError:
             raise ResearchError('research_timeout', 'The public website exceeded its total retrieval deadline.', 504) from None
+
+    async def fetch_bundle(self, url: str, country: str = '') -> WebsiteEvidence:
+        """Read the selected page and up to two linked public pages, once each.
+
+        One deadline includes all robots, rate delays and redirects. An initial
+        page failure remains a failed job; a linked-page denial/timeout retains
+        the committed-quality initial evidence with an explicit limitation.
+        """
+        sources, limitations = [], []
+        self._robots.clear()
+        self._page_links.clear()
+        self._last_page_request.clear()
+        try:
+            async with asyncio.timeout(self.deadline_seconds):
+                first = await self._fetch(url, country)
+                sources.append(first)
+                seen = {first.url}
+                for link in selected_page_links(first.url, self._page_links.get(first.url, ())):
+                    if link in seen:
+                        continue
+                    seen.add(link)
+                    try:
+                        page = await self._fetch(link, country)
+                    except ResearchError as error:
+                        code = error.code if re.fullmatch(r'[a-z_]{1,80}', error.code or '') else 'source_unavailable'
+                        limitations.append('A selected linked page was not retained: ' + code + '. Its contents remain unknown.')
+                        if error.code in {'provider_rate_limited', 'provider_service_unavailable', 'research_timeout'}:
+                            break
+                    else:
+                        if page.url not in {item.url for item in sources}:
+                            sources.append(page)
+                        else:
+                            limitations.append('A selected link redirected to a page already retained; it was not counted twice.')
+        except TimeoutError:
+            if not sources:
+                raise ResearchError('research_timeout', 'The public website exceeded its total retrieval deadline.', 504) from None
+            limitations.append('The shared retrieval deadline stopped linked-page research; unretained pages remain unknown.')
+        finally:
+            self._page_links.clear()
+        limitations.append('Research sampled ' + str(len(sources)) +
+                           ' public page(s), with at most three selected-page attempts; this is not a complete business audit.')
+        return WebsiteEvidence(tuple(sources), tuple(limitations))
 
     async def _fetch(self, url: str, country: str = '') -> SourceDocument:
         initial = current = _public_url(url)
@@ -223,8 +273,10 @@ class DirectWebsiteProvider:
         content = content[:MAX_SOURCE_CHARS]
         digest = hashlib.sha256(content.encode()).hexdigest()
         raw_hash = hashlib.sha256(response.body).hexdigest() if html_like else None
+        self._page_links[current] = observation.links if observation else ()
         return SourceDocument(
-            id='source-' + digest[:32], url=current, retrieved_at=datetime.now(timezone.utc),
+            id='source-' + hashlib.sha256((current + '\n' + digest).encode()).hexdigest()[:32],
+            url=current, retrieved_at=datetime.now(timezone.utc),
             source_hash=digest, title=title, excerpt=content[:600], content=content,
             provider='direct_public_web', provider_receipt_id='direct-' + hashlib.sha256(
                 (current + raw_hash if raw_hash else current + digest).encode()).hexdigest()[:32],

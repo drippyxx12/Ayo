@@ -174,11 +174,16 @@ class _PageParser(HTMLParser):
         if tag == 'meta' and (at.get('name') or '').lower() == 'description':
             self.description = _clean(at.get('content'))
         if tag == 'a' and len(self.links) < self.max_links:
-            href = at.get('href') or ''
-            if href.startswith(('/', 'http://', 'https://')) and not href.startswith('//'):
-                url = urljoin(self.source_url, href)
-                if urlsplit(url).scheme in {'http', 'https'}:
-                    self.links.append(url)
+            href = (at.get('href') or '').strip()
+            if href and not href.startswith('#'):
+                try:
+                    url = urljoin(self.source_url, href)
+                    if urlsplit(url).scheme in {'http', 'https'}:
+                        self.links.append(url)
+                except ValueError:
+                    # One malformed source link must not discard an otherwise
+                    # readable page. Admission happens again before any fetch.
+                    pass
 
     def handle_data(self, data: str):
         if self._jsonld_depth:

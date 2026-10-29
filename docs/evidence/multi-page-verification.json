@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "recorded_date": "2026-10-29",
+  "scope": "Bounded direct multi-page research, combined reports and robots policy matching",
+  "starting_commit": "48189a8d2531933741ad46a78dd89f3e1d729aa6",
+  "branch": "codex/africa-platform",
+  "local_suite": {
+    "passed": 1030,
+    "failed": 0,
+    "skipped": 0,
+    "duration_seconds": 102.92,
+    "upstream_warnings": 1,
+    "databases": ["SQLite", "actual local PostgreSQL17 isolated schemas"],
+    "source_model_account_mail": "Explicit synthetic fixtures"
+  },
+  "implemented_bounds": {
+    "selected_page_attempts": 3,
+    "extra_link_targets": 2,
+    "shared_retrieval_deadline_seconds": 45,
+    "body_bytes_per_page": 1000000,
+    "redirects_per_page": 3,
+    "source_link_candidates": 100,
+    "model_generations_per_job": 1
+  },
+  "verified_paths": [
+    "Actual same-site link selection with product/policy preference; no guessed URLs",
+    "External/private/file/shared-profile/identity-query exclusion before dispatch",
+    "Most-specific robots group/path matching, wildcard/end markers and pacing",
+    "Denied/rate-limited/timed-out secondary pages remain unknown with retained initial evidence",
+    "Identical text at distinct URLs retains distinct source IDs",
+    "Complete source bundle committed before fixture Gemini synthesis",
+    "Exact-page product citations and actual public source numbering",
+    "NG/GH HTTP claim, logout/login, immutable reopen and three-source export",
+    "Stranger access denial and unchanged optional-provider operation boundaries"
+  ],
+  "schema_migration": false,
+  "new_live_multi_page_acceptance": false,
+  "new_live_gemini_calls": 0,
+  "new_live_firecrawl_calls": 0,
+  "new_business_source_requests": 0,
+  "paid_spending_enabled": false,
+  "public_deployment": false,
+  "merge": false,
+  "remaining": ["JavaScript rendering", "Deeper/full-audit coverage", "Reviewed refresh and ownership", "Independent live source-quality acceptance", "Hosted services"]
+}

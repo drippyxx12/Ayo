@@ -679,6 +679,18 @@ class ConfiguredResearchProvider:
         from ayo.direct_website import DirectWebsiteProvider
         return await DirectWebsiteProvider().fetch(url, country)
 
+    async def fetch_bundle(self, url: str, country: str = ''):
+        from ayo.website_sampling import WebsiteEvidence
+        parsed = urlsplit(_public_url(url))
+        is_record = (self.source == 'wikidata_cc0' and parsed.hostname == 'www.wikidata.org'
+                     and re.fullmatch(r'/wiki/Special:EntityData/Q[1-9][0-9]{0,11}\.json', parsed.path))
+        if self.source == 'firecrawl' or is_record:
+            # Optional paid/CC0 adapters keep their existing one-operation
+            # boundaries. Sampling cannot silently expand their authorization.
+            return WebsiteEvidence((await self.fetch(url, country),))
+        from ayo.direct_website import DirectWebsiteProvider
+        return await DirectWebsiteProvider().fetch_bundle(url, country)
+
 
 class ResearchService:
     def __init__(self, provider: ResearchProvider):
@@ -713,14 +725,88 @@ class ResearchService:
         url = _public_url(url)
         country = _country(country)
         business_name = _text(business_name, 240, "Business name")
-        source = await self.provider.fetch(url, country)
+        from ayo.website_sampling import WebsiteEvidence
+        fetch_bundle = getattr(self.provider, 'fetch_bundle', None)
+        bundle = (await fetch_bundle(url, country) if callable(fetch_bundle) else
+                  WebsiteEvidence((await self.provider.fetch(url, country),)))
+        if not isinstance(bundle, WebsiteEvidence) or not 1 <= len(bundle.sources) <= 3:
+            raise ResearchError('provider_malformed', 'Research provider returned invalid page coverage.', 502)
         try:
-            source = SourceDocument.model_validate(source)
+            sources = tuple(SourceDocument.model_validate(source) for source in bundle.sources)
+            limitations = tuple(_text(value, 600, 'Coverage limitation') for value in bundle.limitations)
         except (ValueError, TypeError, ResearchError) as exc:
             raise ResearchError("provider_malformed", "Research provider returned invalid evidence.", 502) from exc
-        if not _same_research_target(url, source.url):
+        if len({source.id for source in sources}) != len(sources) or len(limitations) > 10:
+            raise ResearchError('provider_malformed', 'Research provider returned invalid source identities or coverage.', 502)
+        if any(not _same_research_target(url, source.url) for source in sources):
             raise ResearchError("provider_unsafe_redirect", "Evidence does not match the requested business host or public profile.", 502)
-        return build_report(source, country=country, business_name=business_name)
+        if len(sources) == 1:
+            report = build_report(sources[0], country=country, business_name=business_name)
+        else:
+            if any(source.provider != 'direct_public_web' for source in sources):
+                raise ResearchError('provider_malformed', 'Multi-page sampling requires the direct public website adapter.', 502)
+            report = build_sampled_report(sources, country=country, business_name=business_name)
+        return ResearchReport.model_validate({**report.model_dump(),
+            'limitations': tuple(dict.fromkeys((*report.limitations, *limitations)))})
+
+
+def build_sampled_report(sources: tuple[SourceDocument, ...], *, country: str = '', business_name: str = '') -> ResearchReport:
+    """Combine retained observations across a small sample, without inventing coverage.
+
+    Missing information is evaluated across all retained pages rather than
+    copying a homepage's unknowns onto product/policy evidence found elsewhere.
+    All observations stay attached to the exact page that supplied them.
+    """
+    claims = [ReportClaim(text='The retrieved public page contains this excerpt: “' + source.excerpt[:480] + '”',
+        kind='OBSERVED', evidence_ids=(source.id,), observed_at=source.retrieved_at) for source in sources]
+    observed_products, channels = {}, {}
+    for source in sources:
+        for product in source.product_observations:
+            observed_products.setdefault((product.name, product.listed_price, product.currency), (product, source))
+        for channel in source.channel_observations:
+            channels.setdefault(channel, []).append(source)
+    for product, source in list(observed_products.values())[:20]:
+        price = (f' Listed price: {product.currency or "currency not established"} {product.listed_price}.'
+                 if product.listed_price is not None else ' A usable listed price was not established.')
+        claims.append(ReportClaim(text=f'Public product markup names “{product.name}”.' + price +
+            ' This is not verified stock, checkout or sales data.', kind='OBSERVED', evidence_ids=(source.id,),
+            observed_at=source.retrieved_at))
+    if not observed_products:
+        claims.append(ReportClaim(text='The sampled pages did not establish a structured product catalog; other pages may contain products.',
+                                  kind='UNKNOWN', evidence_ids=tuple(s.id for s in sources)))
+    for channel, pages in list(channels.items())[:10]:
+        claims.append(ReportClaim(text=f'The sampled public pages include a link to {channel}. Profile ownership and actual transactions are unverified.',
+            kind='OBSERVED', evidence_ids=tuple(s.id for s in pages), observed_at=pages[0].retrieved_at))
+    opportunities = []
+    checks = (
+        ('delivery', ('delivery', 'shipping', 'dispatch'), 'Review delivery information', 'Check the actual delivery locations, fees and timing.'),
+        ('returns', ('return', 'refund', 'exchange policy'), 'Review returns information', 'Check the actual returns, refund and exchange policy.'),
+        ('selling channels', ('whatsapp', 'instagram', 'marketplace', 'add to cart', 'shop now', 'buy now'),
+         'Review the buying route', 'Review the route from product discovery to an authorized order or enquiry.'),
+    )
+    for topic, terms, title, next_step in checks:
+        matches = [(source, next((term for term in terms if term in source.content.casefold()), None)) for source in sources]
+        found = [(source, term) for source, term in matches if term]
+        if found:
+            source, term = found[0]
+            claims.append(ReportClaim(text=f'The retrieved page mentions “{term}” in its public text.', kind='OBSERVED',
+                evidence_ids=(source.id,), observed_at=source.retrieved_at))
+        else:
+            ids = tuple(source.id for source in sources)
+            claims.append(ReportClaim(text=f'The sampled public pages do not establish {topic}; this does not prove the information is absent from the business.',
+                                      kind='UNKNOWN', evidence_ids=ids))
+            opportunities.append(ReportOpportunity(title=title, description=f'The sampled pages leave {topic} unknown. '
+                'Review the real business context before treating this as an improvement opportunity.', evidence_ids=ids, next_step=next_step))
+    claims.append(ReportClaim(text='Revenue, conversion, stock, customer counts and payment settlement remain unknown from this public sample.', kind='UNKNOWN'))
+    return ResearchReport(business_name=business_name or sources[0].title or urlsplit(sources[0].url).hostname,
+        target_url=sources[0].url, country=country, status='PARTIAL', source_documents=sources,
+        claims=tuple(claims), opportunities=tuple(opportunities), created_at=_now(), limitations=(
+            'Coverage is a bounded sample of public pages, not the full website, product catalog or a complete business audit.',
+            'Public page statements and product listings remain unverified; ownership, stock, checkout and sales are separate.',
+            'Each retained page passed direct public-egress and robots checks; links alone do not establish ownership or source accuracy.',
+            'Source-observation opportunities are rules-based hypotheses. Gemini synthesis is labeled separately.',
+            'At most twenty distinct product/price observations and ten linked channel labels appear in this summary; inspect retained sources for their full bounded evidence.',
+        ))
 
 
 def build_report(source: SourceDocument, *, country: str = "", business_name: str = "") -> ResearchReport:

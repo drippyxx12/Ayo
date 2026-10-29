@@ -2,6 +2,8 @@
 
 Updated 28 October 2026. Ayo's existing leased research worker now accepts a user-supplied ordinary public HTTP or HTTPS website without requiring a Firecrawl host allowlist or paid crawler call. The web request only queues encrypted work; the worker performs every source request.
 
+**29 October extension:** ordinary direct-website jobs now sample up to three relevant linked pages under one shared deadline and retain separate citations. [Current multi-page contract](MULTI_PAGE_RESEARCH.md). The one-page live transport receipt below remains historical; multi-page behavior is verified separately with fixtures.
+
 ## Supported website behavior
 
 The direct adapter is platform-neutral. Static HTML, server-rendered WordPress, Shopify and WooCommerce pages use the same path. Ayo checks `/robots.txt`, retrieves one selected page, extracts readable text, title/description/headings, public Product JSON-LD and links to known selling channels, redacts email addresses and phone numbers, then stores the final URL, capture time, content hash, raw HTML hash and access-policy result before Gemini is considered.

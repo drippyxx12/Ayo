@@ -24,6 +24,15 @@ def test_scheme_mismatched_ports_are_rejected(url):
         normalize_public_url(url)
 
 
+def test_relative_and_protocol_relative_links_are_extracted_without_malformed_link_failure():
+    html = '<a href="products/tote">Product</a><a href="/policies/returns">Returns</a>' \
+           '<a href="//other.org/anything">External</a><a href="http://[">Invalid</a>' \
+           '<a href="javascript:alert(1)">Ignore</a><a href="#part">Section</a>'
+    page = extract_public_page('https://shop.org/', html)
+    assert page.links == ('https://shop.org/products/tote', 'https://shop.org/policies/returns',
+                          'https://other.org/anything')
+
+
 @pytest.mark.parametrize('url', [
     'file:///etc/passwd', 'ftp://public.com', 'http://localhost',
     'http://127.0.0.1', 'http://[::1]',

@@ -1,6 +1,18 @@
 # Ayo project memory and stopping point
 
-Updated: 28 October 2026. Overall platform: **PARTIALLY COMPLETE**.
+Updated: 29 October 2026. Overall platform: **PARTIALLY COMPLETE**.
+
+## Latest milestone — bounded multi-page research
+
+Continued clean local/remote `48189a8d2531933741ad46a78dd89f3e1d729aa6`, existing branch/PR #1 draft/open/unmerged. Current managed environment spec3 is running/current with enforced unrestricted HTTP and no managed runtime/secret bindings. Restarted only the existing local PostgreSQL container after workspace restart; its persistent public database was preserved. Tests use isolated schemas.
+
+The direct worker now selects the initial page plus up to two actual same-site product/category/policy/about links, at most three selected-page attempts. No guessed URLs, external/shared-profile expansion, identity-query conflation or paid-provider fallback. One45-second budget covers robots, pacing, redirects and all pages; denied/rate-limited/timed-out secondary pages leave explicit unknowns with retained initial evidence. Firecrawl/Wikidata operation limits remain unchanged.
+
+Each source retains its own URL/time/hashes and a URL+content-bound ID. Combined reports assess missing products/policies across all sampled pages and cite the correct source. All sources commit before one existing Gemini step; saved claim/logout/login/reopen/export and isolation reuse the existing PostgreSQL workspace. Existing reports and schema remain unchanged. Public citation labels now use actual source numbers.
+
+Tests caught/fixed a broad-Allow masking a specific robots denial in the old standard-library parser. The reader now applies most-specific matching groups/rules, wildcard/end markers and pacing with bounded non-backtracking matching. Relative/malformed source links are handled without poisoning otherwise readable HTML. [Scope and exact limits](docs/MULTI_PAGE_RESEARCH.md).
+
+This milestone uses synthetic source/model/account/outbox fixtures and actual SQLite/PostgreSQL. **Final suite:1030 passed,0 failed/skipped**,102.92s, one upstream warning. Ruff/dependency consistency/whitespace pass. No new live website/Gemini/Firecrawl/mail call, paid spending, deployment or merge. Earlier live receipts remain valid; do not rerun connectivity. [Verification receipt](docs/evidence/multi-page-verification.json). Publication/CI receipt follows.
 
 ## Latest milestone — generic public website worker
 
@@ -52,9 +64,9 @@ Existing protected preview is **interactive intake only**, with private accounts
 
 ## Stopped at / Next / Blocked by
 
-**Stopped at:** generic public-site retrieval/live leased-worker proof and reliability fixes delivered; final CI1004 passes, secret/dependency checks pass. Code f4c0931 is retained on the existing branch/PR #1. The real small-company Gemini report remains verified.
+**Stopped at:** bounded multi-page sampling, per-source reports/citations and robots-rule hardening verified with1030 passing tests. GitHub delivery/CI receipt follows. Earlier live single-page and Gemini milestones are preserved.
 
-**Next:** reviewed multi-page refresh/ownership and richer licensed or owner-supplied product evidence. JavaScript rendering remains unfinished and is reported explicitly.
+**Next:** finish multi-page publication/CI, then reviewed refresh/ownership and richer licensed/owner-supplied evidence. JavaScript rendering remains unfinished and is reported explicitly.
 
 **Blocked by:** no blocker to single-page public URL retrieval. Sites may themselves deny robots/access or require JavaScript rendering. Live Gemini calls remain at the consumed dated cap; hosted API/worker/database, delivered mail and multi-page rendering are separate unfinished work. Paid calls, public deployment, outreach and merge stay unapproved.
 
