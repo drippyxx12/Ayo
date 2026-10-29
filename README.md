@@ -1,0 +1,90 @@
+# Ayo — Africa-first commerce intelligence
+
+**Protected development preview:** [Open Ayo](https://ayo-merchant-staging-53n3x73i8-ayodejiiolatunbosun-7460.vercel.app/). Readable public URL→bounded worker→visible source report is verified live on a public scraping demo; source-only mode makes no Gemini request. [Exact proof and limits](docs/evidence/hosted-source-only-worker.json). Private account/mail and fresh Gemini acceptance remain separate; overall platform partially complete.
+
+Current research-to-Work update: automatic report status, reviewed source-linked plans, refined icons/motion and a separate supervised PostgreSQL workspace preview runner. [Scope, verification and exact hosted limits](docs/RESEARCH_TO_WORK_EXPERIENCE.md).
+
+**Status: PARTIALLY COMPLETE.** Ayo is one commerce intelligence application for Nigeria and Ghana. It preserves the supplied FastAPI/SQLAlchemy/Jinja source; it is not a framework rewrite. A landing page is not its completion criterion.
+
+**Current stopping point:** [MEMORY.md](MEMORY.md) records the latest milestone, preview, verified work, blockers and next action. Read it first when returning to the project; it is updated at each handoff.
+
+Read [PRODUCT_VISION.md](PRODUCT_VISION.md) for the complete product and [ROADMAP.md](ROADMAP.md) for the path beyond the MVP. They preserve the original architecture and distinguish working behavior, evidence and unfinished scope. The worker persists public evidence before Gemini synthesis. A limited real Ghana CC0/Gemini report and generic website transport are verified; broader live NG/GH source acceptance remains open.
+
+The current code implements persistent identity/workspaces, a bounded multi-page research worker, source-backed reports, private merchant screens, sourced leads, owner-input analysis and guarded Gemini/Claude-compatible analysis. The HTTP journey passes on SQLite and actual PostgreSQL with explicit source/model/mail fixtures. Earlier limited real-provider receipts remain in MEMORY/PROGRESS; delivered email, live Shopify/payment integration, full audits and hosted merchant release remain unverified. No production deployment or paid provider call was performed.
+
+Current merchant-stage implementation and verification boundaries: [M3/M4/M5 merchant platform](docs/MERCHANT_PLATFORM.md). Live-provider blockers remain recorded separately; they do not stop independent merchant development.
+
+## What is implemented
+
+- Public search-first name/URL/social/marketplace intake, explicit candidate selection, and a clearly unverified no-website owner-description path. No Shopify requirement.
+- The leased worker samples an initial public HTTP/HTTPS page and up to two relevant same-site links, retaining separate citations. Public-IP-pinned egress, TLS/DNS checks, most-specific robots rules and pacing, bounded redirects,1MB per page and one45-second total deadline apply. Static, WordPress, Shopify and WooCommerce pages work when they return readable server HTML. Login/bot walls, private/admin/checkout paths, files and JavaScript-only shells stop with explicit states. [Multi-page contract](docs/MULTI_PAGE_RESEARCH.md). The web process never fetches submitted URLs.
+- Optional fixed-host Wikidata CC0 discovery and the existing Firecrawl adapter remain available. Firecrawl keeps its separate key, spend and source-policy gates; direct website reads do not silently activate it.
+- Durable encrypted research jobs commit a hidden source checkpoint before Gemini synthesis. Validated public analysis is persisted with citations/model/policy/usage; missing or rejected AI yields an explicitly partial report. Leases fence stale publication and crash recovery reuses evidence without recrawling.
+- PostgreSQL-ready relational models and eight explicit Alembic migrations. Existing alpha account/store/snapshot data is preserved by tested upgrade paths.
+- Hashed database sessions, server revocation, persisted throttling, normalized accounts, business memberships, email verification/reset capabilities, encrypted transactional outbox and recovery that revokes old sessions.
+- Browser-bound, expiring, single-use report claims into verified accounts; private dashboard, reports, opportunities, activity, lead records and workspace switching.
+- Persistent Business profiles with labeled merchant-provided offer/audience/goals; source-linked Work tasks with due dates, statuses, audit and conflict protection; real-record overview and activity.
+- Saved research library, evidence freshness/history, retained product/category/channel inspection, report comparisons and contact-redacted export.
+- Reviewed source refresh from a saved public report creates a separate private version, with current role/consent checks and replay protection. Original reports remain immutable. [Refresh contract and verification](docs/REVIEWED_RESEARCH_REFRESH.md).
+- Searchable prospect lists, notes, qualification evidence, follow-up tasks and editable sourced introduction drafts. Drafting never sends a message or establishes a commercial outcome.
+- Private persisted Ayo conversations, versioned read tools, bounded source snapshots, retry/replay fences and honest blocked/partial AI states. Conversation history is retained but is not yet sent to the model.
+- Password-confirmed password/session controls, atomic account confirmation and cleanup of new private records.
+- Real-provider organization candidate contracts, evidence and domain/profile-aware deduplication. Qualification records a review; contacted/replied/converted require separate evidence. There is no send endpoint or invented outcome.
+- Interchangeable Gemini/Claude HTTP adapters, structured output validation, tenant-scoped excerpts, literal source checks, bounded requests and no execution tools or write credentials.
+- Permanent, transactional first-500 distinct-user grants covering all available and future features. Extra workspaces do not consume slots; no automatic billing or expiry.
+- Optional preserved Shopify alpha under Connections, with server-consumed OAuth state, signed webhook identity binding, encrypted rotation, private server-held answers and currency-aware money validation. Payment-state contracts distinguish pending MoMo/transfers from settled cash.
+- Premium editorial UI: Syne headings, DM Sans UI, DM Mono metrics, self-hosted fonts, responsive forms and evidence views.
+
+## Run locally
+
+Use Python 3.12 and a virtual environment:
+
+```sh
+python3 -m venv .venv
+. .venv/bin/activate
+pip install --require-hashes -r requirements.lock
+```
+
+Create a private, ignored `.env` from `.env.example` without overwriting an existing configuration. Set a generated durable `SESSION_SECRET` and Fernet `TOKEN_ENCRYPTION_KEY` securely. Set `DATABASE_URL` to PostgreSQL for durable multi-worker operation; SQLite is supported for local development/tests only. Load the environment in your shell, then:
+
+```sh
+python -m alembic upgrade head
+uvicorn ayo.app:app --host 127.0.0.1 --port 8000
+```
+
+Run the research worker separately with the same database and encryption key:
+
+```sh
+python -m ayo.worker
+```
+
+Provider execution stays unavailable with the example defaults. Setup, policy gates, encrypted mail delivery, retention cleanup, legacy migration procedure and operational limitations are in [RUNBOOK.md](RUNBOOK.md). Do not use a production database, enable spend or deploy without approval.
+
+## Verify
+
+```sh
+python -m pytest -q
+python -m ruff check .
+python -m pip_audit --require-hashes -r requirements.lock
+sh scripts/check-secrets.sh
+```
+
+Set `AYO_TEST_POSTGRES_URL` to a disposable local PostgreSQL database to include migration, concurrent founding-allocation and full HTTP journey checks. Tests use isolated schemas. GitHub CI provisions its own test PostgreSQL service.
+
+The current verified counts and provider boundaries are recorded in [MEMORY.md](MEMORY.md) and [PROGRESS.md](PROGRESS.md); older counts in historical documents remain dated evidence. Browser checks cover 390/768/1440px search → committed evidence → offline Gemini synthesis → cited report → signup → verification-token fixture → private save → reopen → sourced lead discovery/qualification. Fixture-backed checks are never described as live business or merchant evidence.
+
+## Delivery records
+
+- [PLAN.md](PLAN.md): ordered milestones and acceptance gates.
+- [PROGRESS.md](PROGRESS.md): test/browser/GitHub receipts and blockers.
+- [FEATURE_STATUS.md](FEATURE_STATUS.md): code-versus-live status per capability.
+- [RISK_REGISTER.md](RISK_REGISTER.md): remaining release gates.
+- [Latest repository audit](docs/LATEST_REPOSITORY_AUDIT.md): original source and architecture audit.
+
+The original ZIP and its SHA-256/file manifest are preserved. Older architecture documents contain historical requirements and unimplemented targets; the current status files and latest founder instructions take precedence.
+
+M2 provider setup: [controlled live-test runbook](docs/M2_LIVE_TEST_RUNBOOK.md). Run `python scripts/check-provider-readiness.py --mode prepare --scope provider` for a safe offline configuration check. It never verifies live credentials or authorizes spending. Durable reservations are conservative authorization debits, not measured provider invoices.
+
+Secure preparation: [exact environment/model/setup instructions](docs/M2_SECURE_SETUP.md), [draft founder review](config/m2-live-test-review.json) and [.env.m2-prepare.example](.env.m2-prepare.example). Keep both provider/mail switches 0 while preparing; only the reviewed configuration shape is checked, with no calls or implicit authorization.
+
+The founder-authorized workspace credentials are loaded without displaying values using `.venv/bin/python scripts/with-private-runtime.py`. The owner-only file is outside Git; managed/deployment secret bindings remain separate. Spending/mail stay disabled and data/source/budget approvals remain pending.

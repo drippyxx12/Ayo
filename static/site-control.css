@@ -1,0 +1,7 @@
+/* Site-control steps share the existing editorial workspace, with bounded text. */
+.site-section{padding:0 0 2rem;margin:0 0 2rem;border-bottom:1px solid var(--line,#d8d0c4);min-width:0}
+.site-section h2{font-family:var(--font-display,'Syne',sans-serif);font-size:clamp(1.4rem,3vw,2rem);overflow-wrap:anywhere}
+.site-section p{line-height:1.65}.site-steps{padding-left:1.35rem}.site-steps>li{padding:0 0 1.5rem .4rem}.site-steps h3{font-size:1rem}
+.site-proof-text{padding:1rem;background:#EDE5D8;border-radius:8px;white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-all;font-size:.83rem;line-height:1.6}
+.site-proof-address{overflow-wrap:anywhere;font-size:.85rem}.site-revoke{margin-top:1.5rem}.site-revoke button{white-space:normal;text-align:left}
+.site-history{list-style:none;padding:0}.site-history li{padding:1rem 0;border-bottom:1px solid #d8d0c4;overflow-wrap:anywhere}.site-history li span{display:block;margin-top:.4rem;font-size:.8rem;color:#59534b}

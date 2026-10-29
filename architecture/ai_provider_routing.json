@@ -1,0 +1,57 @@
+{
+  "schema_version": "1.0.0",
+  "status": "recommendation_not_live_integration",
+  "default_discovery_provider": "gemini",
+  "complex_reasoning_secondary_provider": "claude_optional",
+  "no_immutable_provider_lock_in": true,
+  "runtime_model_ids": "configured_pinned_ids_only_after_provider_availability_check",
+  "task_routes": [
+    {
+      "task": "public_entity_discovery",
+      "provider": "gemini",
+      "tool": "search_grounding",
+      "fallback": "configured_licensed_search_or_unavailable"
+    },
+    {
+      "task": "public_page_analysis",
+      "provider": "gemini",
+      "tool": "url_context_or_ayo_safe_content_fetcher",
+      "fallback": "bounded_safe_fetcher_or_partial"
+    },
+    {
+      "task": "mini_report",
+      "provider": "gemini",
+      "tool": "schema_validated_evidence_citations",
+      "fallback": "honest_insufficient_evidence"
+    },
+    {
+      "task": "lead_qualification",
+      "provider": "gemini",
+      "tool": "sourced_organization_candidates",
+      "fallback": "unavailable_if_no_real_leads"
+    },
+    {
+      "task": "complex_business_planning",
+      "provider": "benchmark_choose_claude_or_gemini",
+      "tool": "deterministic_permitted_skills",
+      "fallback": "validated_read_only"
+    },
+    {
+      "task": "external_write",
+      "provider": "ayo_policy_engine_only",
+      "tool": "merchant_scoped_adapter",
+      "fallback": "blocked"
+    }
+  ],
+  "mandatory_controls": [
+    "server_side_secrets_only",
+    "costs_metered",
+    "country_language_evaluations",
+    "citation_checker",
+    "source_fact_separation",
+    "tenant_isolation",
+    "ai_cannot_authorize_writes",
+    "consent_before_provider_switch_private_data"
+  ],
+  "promises_first_500_all_features_free": true
+}

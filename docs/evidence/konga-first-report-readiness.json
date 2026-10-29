@@ -1,0 +1,201 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-27T15:10:02.328281+00:00",
+  "classification": "PROVIDER_ACCOUNT_ACCESS_AND_OPERATOR_SOURCE_POLICY_REVIEW_ONLY",
+  "firecrawl_status": "CONNECTED",
+  "gemini_business_analysis_status": "NOT_VERIFIED",
+  "real_report_status": "NOT_CREATED",
+  "gemini_connectivity_retested": false,
+  "account_receipt": "docs/evidence/firecrawl-account-readiness.json",
+  "observed_remaining_credits": 1000,
+  "observed_plan_credits": 1000,
+  "plan_name_verified": false,
+  "free_credit_classification_verified": false,
+  "automatic_purchases_setting_verified": false,
+  "actual_this_session": {
+    "firecrawl_account_metadata_requests": 1,
+    "firecrawl_search_requests": 0,
+    "firecrawl_crawl_requests": 0,
+    "firecrawl_pages_billed_by_our_operations": 0,
+    "gemini_requests": 0,
+    "chargeable_operations_dispatched": 0,
+    "invoice_inspected": false
+  },
+  "konga": {
+    "candidate_name": "Konga",
+    "market": "NG",
+    "proposed_source": "https://www.konga.com/",
+    "identity_evidence": "Own-domain homepage title: Konga Nigeria | Online Shopping for Genuine Electronics, Phones, Fashion & More",
+    "identity_status": "Nigerian storefront self-identification confirmed; legal ownership/control not verified",
+    "robots_url": "https://www.konga.com/robots.txt",
+    "robots_review": {
+      "recorded_at": "2026-10-27T15:04:03.747256+00:00",
+      "purpose": "operator source-access policy review only; not research evidence",
+      "url": "https://www.konga.com/robots.txt",
+      "public_dns_pinned": true,
+      "redirects_followed": 0,
+      "curl_exit": 0,
+      "status": "200",
+      "secret_headers_sent": false,
+      "sha256": "863a5a7a362acc200cb17d763a981a598778bbb3096b4c2cea5445d1cfff1793"
+    },
+    "robots_rules": {
+      "home_allowed_for_declared_review_agent": true,
+      "disallowed_paths": [
+        "/product/*/details",
+        "/account/",
+        "/cart/",
+        "/checkout/",
+        "/search",
+        "/category/-",
+        "/product/-"
+      ]
+    },
+    "terms_url": "https://www.konga.com/content/terms-and-conditions",
+    "terms_status": "HTTP200 page shell and metadata only; legal content not exposed in downloaded response; no source terms approval inferred",
+    "policy_page_reviews": [
+      {
+        "url": "https://www.konga.com/",
+        "recorded_at": "2026-10-27T15:04:28.314192+00:00",
+        "status": "200",
+        "curl_exit": 0,
+        "sha256": "d1c3a927569e6db5a2301efe64eb529c312978bbcd36e826fade4d976894707d",
+        "robots_allowed_for_review_agent": true,
+        "public_dns_pinned": true,
+        "redirects_followed": 0,
+        "purpose": "operator identity/access-policy review, not pipeline research evidence"
+      },
+      {
+        "url": "https://www.konga.com/content/terms-and-conditions",
+        "recorded_at": "2026-10-27T15:04:34.811629+00:00",
+        "status": "200",
+        "curl_exit": 0,
+        "sha256": "59e6833e077452b7504c7822f0f2c4a25daac70e14714d330cdb9f3bfd1eae81",
+        "robots_allowed_for_review_agent": true,
+        "public_dns_pinned": true,
+        "redirects_followed": 0,
+        "purpose": "operator identity/access-policy review, not pipeline research evidence"
+      }
+    ],
+    "operator_review_not_pipeline_evidence": true,
+    "firecrawl_source_access_approved": false
+  },
+  "provider_documentation": {
+    "recorded_at": "2026-10-27T15:02:52.288343+00:00",
+    "sources": [
+      {
+        "name": "credits",
+        "url": "https://docs.firecrawl.dev/api-reference/endpoint/credit-usage",
+        "final_url": "https://docs.firecrawl.dev/api-reference/endpoint/credit-usage",
+        "status": 200,
+        "sha256": "0c3c063d94f3d6ed005b0c9c519501b3e9a2a126753605a6b0abc2e158e98c4b",
+        "bytes": 304239
+      },
+      {
+        "name": "pricing",
+        "url": "https://www.firecrawl.dev/pricing",
+        "final_url": "https://www.firecrawl.dev/pricing",
+        "status": 200,
+        "sha256": "dcc79868f8f13ae22ec357d3db6ffc4a03557ddb3b5804cab96193ed28e85d3e",
+        "bytes": 766798
+      },
+      {
+        "name": "crawl",
+        "url": "https://docs.firecrawl.dev/api-reference/endpoint/crawl-post",
+        "final_url": "https://docs.firecrawl.dev/api-reference/endpoint/crawl-post",
+        "status": 200,
+        "sha256": "f935e1d3a66986308d84d4e15f70f742cfbb1a0e48df18b41b319e773e48ca13",
+        "bytes": 447337
+      },
+      {
+        "name": "search",
+        "url": "https://docs.firecrawl.dev/features/search",
+        "final_url": "https://docs.firecrawl.dev/features/search",
+        "status": 200,
+        "sha256": "7ec4037591d0102c567bd5eaeb659aab00655118ec11c881727e293b3b5f38dc",
+        "bytes": 734676
+      },
+      {
+        "name": "terms",
+        "url": "https://www.firecrawl.dev/terms-of-service",
+        "final_url": "https://www.firecrawl.dev/terms-of-service",
+        "status": 200,
+        "sha256": "09a22a74f0962383f0b25da669d7b573f1ddceb3e3b0f1d8a32879c04628a13c",
+        "bytes": 408478
+      },
+      {
+        "name": "privacy",
+        "url": "https://www.firecrawl.dev/privacy-policy",
+        "final_url": "https://www.firecrawl.dev/privacy-policy",
+        "status": 200,
+        "sha256": "8615d8679348bfa49ea5272e9f177ecaa8d5bd940629dd29a17621284658f7f9",
+        "bytes": 398705
+      },
+      {
+        "name": "zero-retention",
+        "url": "https://docs.firecrawl.dev/features/zero-data-retention",
+        "status": 404
+      },
+      {
+        "name": "robots",
+        "url": "https://docs.firecrawl.dev/features/crawl",
+        "final_url": "https://docs.firecrawl.dev/features/crawl",
+        "status": 200,
+        "sha256": "876d9d6ae81f2a32072e031b515e6499f2115093aa553971e33a79ee6544037c",
+        "bytes": 615083
+      }
+    ]
+  },
+  "policy_findings": [
+    "Firecrawl public terms 5.d.1 prohibit commercial purposes except as expressly authorized by Firecrawl; Ayo applicable authorization not evidenced.",
+    "Firecrawl crawl ignoreRobotsTxt defaults false; cache opt-out is not proof of zero retention.",
+    "Zero-data-retention crawl option defaults false and requires contacting provider for enablement; no claim of enabled ZDR.",
+    "Firecrawl privacy text describes US storage/transfers and PII retention until written deletion request; nonpersonal-only data minimization remains required.",
+    "Google unpaid-data improvement/human-review policy acceptance remains pending for public business excerpts.",
+    "Hosted source egress/redirect safety and exact host policy remain unreviewed in Ayo configuration."
+  ],
+  "budget_findings": [
+    "Existing durable committed per-request/provider/scope USD/call reservations, policy expiry and model configuration binding are present.",
+    "Positive conservative USD debits are local authorization reservations, not invoices or a proof of free credits.",
+    "Current general provider/mail switches remain0, source/data/host/budget reviews incomplete, offline preparation exits2 with zero requests.",
+    "No credit purchase, billing toggle, allowance increase, ledger reset or source bypass occurred."
+  ],
+  "proposed_operations_not_authorized": {
+    "candidate_url": "https://www.konga.com/",
+    "search": 0,
+    "crawl_create": 1,
+    "limit_pages": 1,
+    "depth": 0,
+    "respect_robots": true,
+    "allow_external_links": false,
+    "allow_subdomains": false,
+    "sitemap": "skip",
+    "proxy": "basic",
+    "cache_store": false,
+    "formats": [
+      "markdown",
+      "html"
+    ],
+    "redactPII": true,
+    "status_gets_max": 15,
+    "cancellation_deletes_max": 1,
+    "gemini_generations_max": 1,
+    "gemini_model": "gemini-3.5-flash-lite",
+    "gemini_input_max_utf8_bytes": 32768,
+    "gemini_output_max_tokens": 1500,
+    "thinking": "MINIMAL",
+    "retries": 0,
+    "expected_firecrawl_base_credits": 1,
+    "maximum_authorized_charge_usd": "0.00",
+    "maximum_possible_provider_charge": "UNVERIFIED; do not dispatch",
+    "source_review_and_data_approval_required": true
+  },
+  "founder_next_actions": [
+    "Confirm dashboard plan is Free and pay-as-you-go/auto-credit purchases disabled for this exact credential/account.",
+    "Accept the limited nonpersonal public excerpt data policy, including Google Free-tier improvement/human review and Firecrawl normal retention rather than assumed ZDR.",
+    "Provide a readable Konga source-terms review or actual permission applicable to one-page automated research; robots alone is insufficient.",
+    "Confirm the applicable Firecrawl plan/contract authorizes Ayo commercial research use; founder consent cannot override provider/source terms.",
+    "After those facts are established, freeze the exact-host egress review and same-window one-crawl/one-Gemini USD0 test policy; current proposal is not armed."
+  ],
+  "platform_complete": false
+}

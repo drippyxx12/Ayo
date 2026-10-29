@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "recorded_date": "2026-10-29",
+  "scope": "Explicit bounded PostgreSQL on-demand research worker and trusted preview origin",
+  "starting_commit": "6ee91ad5580af37cc86ea699458df19ea4e0f745",
+  "branch": "codex/africa-platform",
+  "local_suite": {
+    "passed": 1137,
+    "failed": 0,
+    "skipped": 0,
+    "duration_seconds": 130.17,
+    "upstream_warnings": 1,
+    "databases": [
+      "SQLite",
+      "actual isolated PostgreSQL17"
+    ],
+    "focused_worker_refresh_inference_origin_passed": 111
+  },
+  "browser": {
+    "receipt": "on-demand-worker-browser.json",
+    "widths": [
+      390,
+      768,
+      1440
+    ],
+    "exactly_one_worker_post": true,
+    "status_poll_during_worker_command": true,
+    "automatic_visible_source_report": true,
+    "source_attempts_per_job": 1,
+    "native_javascript_disabled_keyboard_post": true,
+    "fixture_sources": 4,
+    "fixture_models": 0,
+    "real_source_model_calls": 0,
+    "server_schema_cleaned": true
+  },
+  "worker_guards": [
+    "Explicit authenticated-capability/CSRF POST only; GET never dispatches",
+    "Exact authorized job ID selected; no foreign queue fallback",
+    "PostgreSQL/direct public source/paid switch0 required",
+    "Queued never-attempted jobs only; repeated or concurrent commands do not refetch",
+    "100-second worker command inside120-second function; existing45-second source bound",
+    "Source-only default never constructs a model provider",
+    "Extra model switch never replaces current data/finite free-budget gates",
+    "Existing source checkpoints, leases and uncertain-dispatch recovery preserved",
+    "Trusted VERCEL_URL origin; no request Host/forwarded-header trust"
+  ],
+  "configuration_correction": {
+    "project": "ayo-merchant-staging",
+    "target": "preview",
+    "setting": "AYO_PROVIDER_SPEND_AUTHORIZED",
+    "previous": "1",
+    "current": "0",
+    "production": "already0",
+    "mail": "already0",
+    "money_caps_raised": false,
+    "consumed_ledger_reset": false,
+    "provider_keys_changed": false,
+    "protection_changed": false,
+    "new_build_required": true
+  },
+  "new_paid_calls": 0,
+  "schema_migration": false,
+  "hosted_acceptance": {
+    "status": "verified live",
+    "candidate": "https://books.toscrape.com/",
+    "kind": "Public scraping demo, not real merchant",
+    "maximum_jobs": 1,
+    "maximum_worker_commands": 1,
+    "maximum_pages": 3,
+    "gemini_calls": 0,
+    "firecrawl_calls": 0,
+    "mail_calls": 0,
+    "maximum_provider_charge_usd": 0,
+    "receipt": "hosted-source-only-worker.json",
+    "actual_sampled_pages": 3,
+    "real_partial_report_created": true,
+    "retained_hashes_reopened": true,
+    "actual_provider_charge_usd": 0,
+    "account_claim_or_relogin_verified": false
+  },
+  "merge": false,
+  "public_production_release": false,
+  "application_commit": "b6839e11c28037d03894ffe76ef82b763d1ca852",
+  "application_tree": "77142a23a952e5c3906a6d51af6803e58c8770b4",
+  "tested_staged_tree_exact_match": true,
+  "application_ci": {
+    "run_id": 40902795220,
+    "conclusion": "success",
+    "passed": 1137,
+    "failed": 0,
+    "skipped": 0,
+    "duration_seconds": 186.23,
+    "dependency_audit": "No known vulnerabilities found",
+    "secrets": "success"
+  },
+  "busy_response_followup": {
+    "commit": "e22fd8d235d52c4416a42845bbc6b7db23ec3626",
+    "tree": "9241ac9ec172f800d1c6068ae73622f6ca11dc4c",
+    "browser_receipt": "worker-busy-browser.json",
+    "backend_unchanged": true,
+    "preview": "https://ayo-merchant-staging-53n3x73i8-ayodejiiolatunbosun-7460.vercel.app",
+    "root_status": 200,
+    "ci_run": 40905022083,
+    "ci_status": "success",
+    "ci_passed": 1137,
+    "ci_duration_seconds": 189.1,
+    "dependency_audit": "No known vulnerabilities found",
+    "secrets": "success"
+  },
+  "final_quality": {
+    "ruff": "passed",
+    "javascript_syntax": "passed",
+    "json_document_links_whitespace": "passed",
+    "redacted_secret_scan": "worktree +32 commits, no leaks"
+  }
+}

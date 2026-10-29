@@ -1,0 +1,55 @@
+{
+  "date": "2026-10-29T15:16:17.466827+00:00",
+  "mode": "offline_fixture_on_demand_worker_browser",
+  "story": "Public URL -> queued command -> exactly one worker POST -> polling -> source report",
+  "database": "actual isolated PostgreSQL17 schema",
+  "checks": [
+    {
+      "width": 390,
+      "submitted_url": true,
+      "one_explicit_worker_post": true,
+      "status_poll_during_command": true,
+      "automatic_report_open": true,
+      "source_evidence_visible": true,
+      "source_only_not_ai": true,
+      "attempts": 1,
+      "no_horizontal_overflow": true
+    },
+    {
+      "width": 768,
+      "submitted_url": true,
+      "one_explicit_worker_post": true,
+      "status_poll_during_command": true,
+      "automatic_report_open": true,
+      "source_evidence_visible": true,
+      "source_only_not_ai": true,
+      "attempts": 1,
+      "no_horizontal_overflow": true
+    },
+    {
+      "width": 1440,
+      "submitted_url": true,
+      "one_explicit_worker_post": true,
+      "status_poll_during_command": true,
+      "automatic_report_open": true,
+      "source_evidence_visible": true,
+      "source_only_not_ai": true,
+      "attempts": 1,
+      "no_horizontal_overflow": true
+    }
+  ],
+  "fixture_calls": {
+    "fixture_sources": 4,
+    "fixture_models": 0
+  },
+  "javascript_disabled_manual_post": true,
+  "new_real_provider_calls": 0,
+  "mail_delivery": false,
+  "public_deployment": false,
+  "page_errors": [],
+  "forbidden_requests": [],
+  "cleanup": {
+    "server_stopped": true,
+    "schema_removed": true
+  }
+}

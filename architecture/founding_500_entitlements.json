@@ -1,0 +1,26 @@
+{
+  "schema_version": "2026-10-25",
+  "state": "founder_confirmed_requirement_not_implemented",
+  "cohort_name": "ayo_founding_500_users",
+  "unit": "distinct_customer_user_account",
+  "cap": 500,
+  "rule": "all_released_ayo_features_free",
+  "premium_feature_gating_for_cohort": false,
+  "includes_future_released_features": true,
+  "feature_entitlement_requires_payment": false,
+  "count_separate_businesses_again": false,
+  "enforce_on_backend": true,
+  "slot_assignment": "transactional_unique_immutable_ordinal",
+  "independent_checks": [
+    "feature_is_implemented",
+    "integration_country_supported",
+    "authorized_tenant_and_role",
+    "provider_permission",
+    "security_and_abuse_safeguards"
+  ],
+  "third_party_provider_costs": "separate_explicit_opt_in_no_silent_charges",
+  "lifetime_contractual_wording": "not_yet_founder_approved",
+  "automatic_expiry_or_downgrade": false,
+  "later_cohort_pricing": "founder_decision_pending",
+  "mock_implementation_must_not_be_described_as_live": true
+}

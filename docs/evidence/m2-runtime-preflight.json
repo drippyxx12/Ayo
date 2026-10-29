@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "mode": "offline_configuration_only",
+  "network_requests_made": 0,
+  "live_verified": false,
+  "provider_configuration_ready": false,
+  "account_journey_configuration_ready": false,
+  "provider_checks": [
+    {
+      "id": "gemini_credential",
+      "status": "blocked",
+      "detail": "Presence and basic syntax only; validity is unverified."
+    },
+    {
+      "id": "gemini_model",
+      "status": "blocked",
+      "detail": "An explicit server model identifier is required; availability and capability are unverified."
+    },
+    {
+      "id": "firecrawl_credential",
+      "status": "blocked",
+      "detail": "Presence and basic syntax only; validity is unverified."
+    },
+    {
+      "id": "spend_authorization",
+      "status": "blocked",
+      "detail": "Enable only after separate owner approval for a bounded real test."
+    },
+    {
+      "id": "ai_data_policy",
+      "status": "blocked",
+      "detail": "Operator attestation; vendor retention, training and jurisdiction review remain independent evidence."
+    },
+    {
+      "id": "source_egress_policy",
+      "status": "blocked",
+      "detail": "Operator attestation; it does not independently establish redirect, robots or network safety."
+    },
+    {
+      "id": "approved_source_hosts",
+      "status": "blocked",
+      "detail": "At least one exact public host is required; wildcards, addresses and private targets are rejected."
+    },
+    {
+      "id": "firecrawl_search_budget",
+      "status": "blocked",
+      "detail": "A complete, consistent and unexpired reviewed reservation/call policy is required."
+    },
+    {
+      "id": "firecrawl_fetch_budget",
+      "status": "blocked",
+      "detail": "A complete, consistent and unexpired reviewed reservation/call policy is required."
+    },
+    {
+      "id": "gemini_analyze_budget",
+      "status": "blocked",
+      "detail": "A complete, consistent and unexpired reviewed reservation/call policy is required."
+    }
+  ],
+  "application_checks": [
+    {
+      "id": "durable_session_secret",
+      "status": "blocked"
+    },
+    {
+      "id": "encryption_key",
+      "status": "blocked"
+    },
+    {
+      "id": "postgres_configuration",
+      "status": "blocked"
+    },
+    {
+      "id": "application_origin",
+      "status": "blocked"
+    },
+    {
+      "id": "merchant_backend_enabled",
+      "status": "configured"
+    },
+    {
+      "id": "transactional_mail",
+      "status": "blocked"
+    }
+  ],
+  "remaining_verification": [
+    "Credentials and model access require a separately authorized actual provider request.",
+    "Approved sources need documented permission, robots/terms and egress review.",
+    "Configured reservations are conservative budget debits, not measured invoice costs.",
+    "Database migrations, connectivity, backup/restore, email delivery and end-to-end outcomes are not tested here.",
+    "An offline pass never authorizes spending, outreach, merchant writes or deployment."
+  ]
+}

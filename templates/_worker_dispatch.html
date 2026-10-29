@@ -1,0 +1,7 @@
+{% if on_demand and job.status == 'queued' and not job.attempts %}
+<form method="post" action="{{ dispatch_path }}" class="worker-dispatch" data-research-dispatch>
+<input type="hidden" name="csrf" value="{{ csrf }}">
+<button class="pill" type="submit">Run this research <span aria-hidden="true">↗</span></button>
+<p class="quiet smallprint" data-worker-dispatch-status role="status">Ayo can start this queued research now. Automatic updates will open the result.</p>
+</form>
+{% endif %}

@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-27T14:47:48.330650+00:00",
+  "classification": "SINGLE_REAL_GEMINI_CONNECTIVITY_ATTEMPT",
+  "model_requested": "gemini-3.5-flash-lite",
+  "endpoint": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent",
+  "request": {
+    "contents": [
+      {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Reply with exactly AYO_GEMINI_OK."
+          }
+        ]
+      }
+    ],
+    "generationConfig": {
+      "candidateCount": 1,
+      "maxOutputTokens": 64,
+      "temperature": 0,
+      "thinkingConfig": {
+        "thinkingLevel": "MINIMAL",
+        "includeThoughts": false
+      }
+    }
+  },
+  "authorization": {
+    "source": "Founder: one request only if zero cost; founder reports this Ayo key belongs to a Free-tier project",
+    "maximum_requests": 1,
+    "maximum_cost_usd": 0,
+    "free_tier_standard_input_and_output": "Free of charge in current official pricing",
+    "paid_fallback": false
+  },
+  "data_classification": "nonpersonal operator-authored synthetic sentence",
+  "credential_values_recorded": false,
+  "automatic_retries": 0,
+  "provider_generation_requests_attempted": 1,
+  "firecrawl_requests_made": 0,
+  "general_application_providers_armed": false,
+  "live_verified": true,
+  "http_status": 200,
+  "duration_seconds": 1.534,
+  "returned_text": "AYO_GEMINI_OK",
+  "modelVersion": "gemini-3.5-flash-lite",
+  "responseId": "lLngarKdJ4HAqtsPgonv0AM",
+  "usageMetadata": {
+    "promptTokenCount": 12,
+    "candidatesTokenCount": 7,
+    "totalTokenCount": 19,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 12
+      }
+    ],
+    "serviceTier": "standard"
+  },
+  "finish_reasons": [
+    "STOP"
+  ],
+  "outcome": "connected_exact_synthetic_response",
+  "billing_invoice_independently_verified": false,
+  "research_milestone_accepted": false
+}

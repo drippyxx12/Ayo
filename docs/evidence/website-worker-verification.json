@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "recorded_date": "2026-10-28",
+  "scope": "Generic single-page public website worker and retrieval reliability",
+  "application_commit": "f4c0931346dc81a69ab31b2ade242fe1a0fad66b",
+  "application_tree": "58279e50e60343838a923c1ce04c76762a871f69",
+  "local_staged_tree_verified_equal": true,
+  "branch": "codex/africa-platform",
+  "pull_request": {"number": 1, "state": "open", "draft": true, "merged": false},
+  "ci": {
+    "run_id": 40740953363,
+    "url": "https://github.com/drippyxx12/Ayo/actions/runs/40740953363",
+    "conclusion": "success",
+    "jobs": {"python": "success", "secrets": "success"},
+    "test_result": "1004 passed, 1 warning in 159.35s",
+    "databases": ["SQLite", "actual PostgreSQL17 service"],
+    "dependency_audit": "No known vulnerabilities found",
+    "source_model_mail_cases": "Explicit offline fixtures"
+  },
+  "local_checks": {
+    "baseline_tests_passed": 1000,
+    "followup_affected_tests_passed": 103,
+    "ruff": "passed",
+    "dependency_consistency": "41 packages compatible",
+    "redacted_worktree_history_scan": "passed, 23 commits scanned",
+    "whitespace_and_handoff_links": "passed"
+  },
+  "live_transport_and_worker": {
+    "receipt": "direct-website-live-worker.json",
+    "target": "https://example.com/",
+    "purpose": "IANA-reserved documentation-domain transport check, not a merchant report",
+    "source_persisted": true,
+    "job_status": "succeeded",
+    "attempts": 1,
+    "gemini_calls": 0,
+    "firecrawl_calls": 0,
+    "model_analysis": "unavailable, deliberately disarmed",
+    "duplicate_live_reliability_check": false
+  },
+  "support": "Public server-readable HTTP/HTTPS HTML/text; one selected page, robots checked, public IP/TLS/redirect/time/byte bounds",
+  "limitations": [
+    "Does not render JavaScript-only pages or crawl an entire website.",
+    "Robots, login, bot challenges, files and unsafe redirects return explicit failure states.",
+    "The live transport check does not establish useful business evidence for arbitrary merchants.",
+    "Further Gemini analysis remains subject to its reviewed data policy and finite zero-cost allowance."
+  ],
+  "paid_spending_enabled": false,
+  "public_deployment": false,
+  "merge": false
+}

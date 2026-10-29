@@ -1,0 +1,20 @@
+{
+  "recorded_at": "2026-10-28T07:43:49.424047+00:00",
+  "source": "Wikidata CC0",
+  "operation": "One fixed-host wbsearchentities GET for Trashy Bags; no crawl or Firecrawl",
+  "maximum_charge_usd": "0.00",
+  "candidates": [
+    {
+      "id": "Q7835749",
+      "name": "Trashy Bags",
+      "url": "https://www.wikidata.org/wiki/Special:EntityData/Q7835749.json",
+      "snippet": "organization",
+      "country": "GH",
+      "source_id": "wikidata-search-Q7835749",
+      "discovered_at": "2026-10-28T07:43:54.915441Z",
+      "provider": "wikidata_cc0",
+      "source_type": "PUBLIC_SEARCH_INDEX",
+      "ownership_verified": false
+    }
+  ]
+}

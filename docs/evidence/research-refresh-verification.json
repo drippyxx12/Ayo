@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "recorded_date": "2026-10-29",
+  "scope": "Reviewed private source refresh and immutable report versions",
+  "starting_commit": "013df6c602160ba49715a499edb8ed000df1c9ca",
+  "branch": "codex/africa-platform",
+  "application_commit": "23d977a4a07b2604f17883d4901d780feeaf1211",
+  "application_tree": "f0354f8a32da09e40e96b87159438f674eee2b18",
+  "tested_staged_tree_exact_match": true,
+  "publication": {
+    "account": "drippyxx12",
+    "expected_head_protected": true,
+    "force": false,
+    "local_remote_equal_after_fetch": true,
+    "pull_request": 1,
+    "pull_request_state": "draft, open, unmerged"
+  },
+  "application_ci": {
+    "run_id": 40849924327,
+    "url": "https://github.com/drippyxx12/Ayo/actions/runs/40849924327",
+    "conclusion": "success",
+    "passed": 1066,
+    "failed": 0,
+    "skipped": 0,
+    "duration_seconds": 171.90,
+    "upstream_warnings": 1,
+    "dependency_audit": "No known vulnerabilities found",
+    "secrets_job": "success"
+  },
+  "local_suite": {
+    "passed": 1066,
+    "failed": 0,
+    "skipped": 0,
+    "duration_seconds": 116.89,
+    "focused_refresh_tests": 36,
+    "upstream_warnings": 1,
+    "databases": ["SQLite", "actual PostgreSQL17 isolated schemas"],
+    "external_sources_model_mail": "Explicit synthetic fixtures"
+  },
+  "browser": {
+    "receipt": "research-refresh-browser.json",
+    "widths": [390, 768, 1440],
+    "flow": "Review form -> private job -> fixture source/model -> new version -> logout/login/reopen",
+    "original_immutable": true,
+    "native_review_validation": true,
+    "no_horizontal_overflow": true,
+    "real_provider_calls": 0,
+    "server_stopped": true,
+    "disposable_schema_removed": true
+  },
+  "quality_checks": {
+    "ruff": "passed",
+    "dependency_consistency": "41 packages compatible",
+    "redacted_worktree_and_history_secret_scan": "passed, 27 commits",
+    "jinja_whitespace": "passed"
+  },
+  "guardrails": [
+    "Verified owner/admin/editor and explicit scope review",
+    "Encrypted actor/workspace/original-ID/JSON-hash binding",
+    "Stable nonce job ID and audit replay tombstone after job expiry",
+    "Three new refreshes per business/hour; replay and concurrent submit reuse one job",
+    "Fresh access checks before/after async work and at publication",
+    "Private hidden checkpoint, no anonymous report claim token",
+    "Original JSON/export unchanged; new immutable version/history",
+    "Permission revocation and source denial never fabricate a version",
+    "Account removal clears queued/running ciphertext; expiry removes unpublished checkpoints",
+    "Owner-provided descriptions/uploads cannot become crawl targets"
+  ],
+  "schema_migration": false,
+  "new_live_refresh_acceptance": false,
+  "new_live_provider_calls": 0,
+  "paid_spending_enabled": false,
+  "public_deployment": false,
+  "merge": false,
+  "remaining": ["Independent live refresh quality", "Actual domain ownership proof", "Scheduled monitoring", "JavaScript rendering", "Hosted service release"]
+}

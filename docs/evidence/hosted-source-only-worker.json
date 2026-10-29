@@ -1,0 +1,105 @@
+{
+  "recorded_at": "2026-10-29T15:37:38.665397+00:00",
+  "target": "https://books.toscrape.com/",
+  "target_kind": "Public scraping demonstration; not a real African merchant",
+  "deployment_url": "https://ayo-merchant-staging-2wk1ryhq0-ayodejiiolatunbosun-7460.vercel.app",
+  "mode": "actual_hosted_source_only_worker",
+  "allowed_research_jobs": 1,
+  "allowed_worker_commands": 1,
+  "maximum_sampled_pages": 3,
+  "gemini_calls": 0,
+  "firecrawl_calls": 0,
+  "mail_calls": 0,
+  "maximum_provider_charge_usd": 0,
+  "account_created": false,
+  "account_save_relogin_verified": false,
+  "public_production_deployment": false,
+  "http": [
+    {
+      "operation": "protected_access",
+      "status": 200
+    },
+    {
+      "operation": "intake",
+      "status": 200
+    },
+    {
+      "operation": "queue_one_research_job",
+      "status": 303
+    },
+    {
+      "operation": "queued_status",
+      "status": 200
+    },
+    {
+      "operation": "one_worker_command",
+      "status": 200
+    },
+    {
+      "operation": "saved_worker_outcome",
+      "status": 303
+    },
+    {
+      "operation": "open_actual_report",
+      "status": 200
+    },
+    {
+      "operation": "reopen_retained_report_new_http_client",
+      "status": 200
+    }
+  ],
+  "real_report_created": true,
+  "job_id": "dABktwXOLix3H4cW_7Qnc2QLS0LN_UHs",
+  "worker_duration_seconds": 1.349,
+  "report_id": "8XsY_LzKY6K6RPlLRuOaKdistjVNr4A5",
+  "report_title": "All products | Books to Scrape - Sandbox — Ayo research",
+  "analysis_status": "unavailable",
+  "analysis_reason": "model_not_authorized_for_on_demand",
+  "actual_sources": [
+    {
+      "url": "https://books.toscrape.com/",
+      "captured_at": "2026-10-29 15:37:41.997018+00:00",
+      "content_sha256": "ef2ccad18dfc6b9eb305d64d34cb87d64ecec3514393f8c1afa8748be1bc08c3",
+      "title": "All products | Books to Scrape - Sandbox",
+      "provider": "direct_public_web",
+      "access": "robots checked; no bypass"
+    },
+    {
+      "url": "https://books.toscrape.com/catalogue/category/books_1/index.html",
+      "captured_at": "2026-10-29 15:37:42.129010+00:00",
+      "content_sha256": "95f26dfc4f04d5fe8c89cebd9f12781c18bf40d5cd3406a6e5f0708a5bfb4501",
+      "title": "Books | Books to Scrape - Sandbox",
+      "provider": "direct_public_web",
+      "access": "robots checked; no bypass"
+    },
+    {
+      "url": "https://books.toscrape.com/catalogue/category/books/travel_2/index.html",
+      "captured_at": "2026-10-29 15:37:42.240423+00:00",
+      "content_sha256": "3837f073c654ba7c8212c62463f25f4c0ce5ca761c9e6c0a164a0f214826b81d",
+      "title": "Travel | Books to Scrape - Sandbox",
+      "provider": "direct_public_web",
+      "access": "robots checked; no bypass"
+    }
+  ],
+  "actual_sampled_page_count": 3,
+  "retained_report_reopened": true,
+  "provider_charge_usd": 0,
+  "limitations": [
+    "Public scraping demo with fictional products/prices; not a real merchant audit.",
+    "Retained public source statements only; Gemini was not invoked.",
+    "No delivered mail, account claim or logout/login verification in this hosted check.",
+    "No claim of compatibility with every website or JavaScript-only site."
+  ],
+  "application_commit": "b6839e11c28037d03894ffe76ef82b763d1ca852",
+  "application_tree": "77142a23a952e5c3906a6d51af6803e58c8770b4",
+  "preview_paid_provider_mode": "0 required and observed through worker host availability",
+  "on_demand_gemini_mode": "0/default source-only; report confirms no Gemini request",
+  "temporary_test_access": {
+    "ttl_seconds": 900,
+    "revoked": true,
+    "private_access_config_removed": true
+  },
+  "subsequent_application_commit": "e22fd8d235d52c4416a42845bbc6b7db23ec3626",
+  "subsequent_backend_unchanged": true,
+  "latest_application_preview": "https://ayo-merchant-staging-53n3x73i8-ayodejiiolatunbosun-7460.vercel.app"
+}

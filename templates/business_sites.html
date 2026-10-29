@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% from '_workspace.html' import workspace_nav %}
+{% block title %}Your websites — Ayo{% endblock %}
+{% block head %}<link rel="stylesheet" href="/static/merchant-work.css"><link rel="stylesheet" href="/static/site-control.css">{% endblock %}
+{% block body %}
+<div class="app-shell">
+{{ workspace_nav('business', business) }}
+<main class="app-main merchant-main" id="main-content">
+  <header class="app-page-header"><div class="eyebrow">BUSINESS / YOUR WEBSITES</div><h1>Your website.<br><em>A clear connection.</em></h1><p class="page-intro">Show that your workspace controls an exact website host. Research is available with or without this proof.</p><a class="text-link" href="/business">← Business context</a></header>
+  {% if error %}<div class="notice" role="alert">{{ error }}</div>{% endif %}
+  {% if not ready %}
+  <section class="site-section"><h2>Website verification is being prepared.</h2><p>The database update for this feature hasn’t been applied to this environment yet.</p><a class="text-link" href="/research/library">Open your research →</a></section>
+  {% else %}
+  <div class="merchant-layout">
+  <div>
+  {% if selected %}
+    {% set state = effective_status(selected) %}
+    <section class="site-section" aria-labelledby="site-selected-title">
+      <div class="eyebrow">01 / {{ state|upper }}</div><h2 id="site-selected-title">{{ selected.host }}</h2>
+      {% if state == 'verified' %}
+      <p role="status">HTTPS file control verified on {{ stamp(selected.verified_at) }}. Valid until {{ stamp(selected.verified_until) }}.</p><p>The verification text has been removed from Ayo’s stored challenge. You can remove the file from your website.</p>
+      {% elif state == 'expired' %}<p>This challenge or proof has expired. Create a fresh request to verify control again.</p>
+      {% elif state == 'revoked' %}<p>This workspace has revoked its proofs for this host. You can remove the verification file from the website.</p>
+      {% else %}
+        {% if selected.error_code %}<p role="alert">{{ errors.get(selected.error_code, 'The website check did not complete.') }}</p>{% endif %}
+        {% if challenge_text %}
+        <ol class="site-steps"><li><h3>Create a plain text file</h3><p>Name it <code>ayo-site-verification.txt</code> and use exactly this line:</p><pre class="site-proof-text" tabindex="0">{{ challenge_text }}</pre></li><li><h3>Publish it on this exact host</h3><p>Serve it publicly over HTTPS at:</p><p class="site-proof-address"><code>https://{{ selected.host }}{{ proof_path }}</code></p><p>Use plain text with no sign-in, redirect or compression. The request expires {{ stamp(selected.expires_at) }}.</p></li><li><h3>Ask Ayo to check the file</h3><p>One check makes at most two GET requests: your robots policy and this file. No Gemini or Firecrawl credits are used. Up to five checks, at least one minute apart.</p><form method="post" action="/business/sites/{{ selected.id }}/check"><input type="hidden" name="csrf" value="{{ csrf }}"><button class="pill" type="submit"{% if state == 'checking' or selected.attempts >= 5 %} disabled{% endif %}>{{ 'Check in progress' if state == 'checking' else 'Check verification file' }}</button></form></li></ol>
+        {% else %}<p>A verified workspace owner or admin can view the file instructions and check this request.</p>{% endif %}
+      {% endif %}
+      {% if can_manage and state != 'revoked' %}<form class="site-revoke" method="post" action="/business/sites/{{ selected.id }}/revoke"><input type="hidden" name="csrf" value="{{ csrf }}"><button class="textbutton" type="submit">Revoke this workspace’s proofs for {{ selected.host }}</button></form>{% endif %}
+    </section>
+  {% endif %}
+    <section class="site-section" aria-labelledby="site-new-title"><div class="eyebrow">{{ '02' if selected else '01' }} / NEW REQUEST</div><h2 id="site-new-title">Connect a website you control.</h2>
+    {% if can_manage %}<form method="post" action="/business/sites" class="merchant-form"><input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="nonce" value="{{ nonce }}"><label for="site-host">Exact website host</label><input id="site-host" name="host" type="text" required maxlength="253" placeholder="your-business.com" autocomplete="off" spellcheck="false"><p class="merchant-hint">Use the host only. www and other subdomains need their own proof. Creating a request does not fetch the website.</p><button class="pill" type="submit">Create verification file ↗</button></form>
+    {% else %}<p>A verified workspace owner or admin can create and manage website proofs.</p>{% if not user.email_verified_at %}<a href="/security" class="text-link">Verify your email →</a>{% endif %}{% endif %}</section>
+    <section class="site-section" aria-labelledby="site-history-title"><div class="eyebrow">HISTORY / THIS WORKSPACE</div><h2 id="site-history-title">Website proofs.</h2>{% if claims %}<ul class="site-history">{% for claim in claims %}<li><a href="/business/sites/{{ claim.id }}">{{ claim.host }}</a><span>{{ effective_status(claim)|capitalize }} · {{ stamp(claim.created_at) }}</span></li>{% endfor %}</ul>{% else %}<p>No website verification requests yet.</p>{% endif %}</section>
+  </div>
+  <aside class="merchant-aside"><div class="eyebrow">CONTROL / WITH CLARITY</div><h2>One host.<br>One limited proof.</h2><p>This check shows control of the HTTPS file at the time it was checked. Proof expires after seven days.</p><p>It does not certify legal business ownership or independently verify your products, prices or research findings.</p><div class="merchant-aside-rule"></div><h3>You stay in control.</h3><p>Editing your website, connecting commerce accounts and sending messages each need their own authorization. This proof grants none of those permissions.</p><a class="text-link" href="/research/library">Continue with your research →</a></aside>
+  </div>
+  {% endif %}
+</main></div>
+{% endblock %}

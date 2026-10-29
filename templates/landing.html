@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Ayo — Find your business. See your next move.{% endblock %}
+{% block body %}
+{% from "_icons.html" import icon %}
+{% set values = values|default({}) %}
+<main class="wrap discovery-home" id="main-content">
+  <div class="eyebrow pt">AYO / BUILT FOR AFRICAN E-COMMERCE</div>
+  <section class="discovery-hero" aria-labelledby="discovery-title">
+    <div class="discovery-intro">
+      <h1 id="discovery-title">Your business.<br><em>A clearer next move.</em></h1>
+      <p class="hero-text">Turn public business information into evidence you can inspect—and a next step you can act on.</p>
+      <p class="discovery-caption">Nigeria &amp; Ghana first. For businesses selling online, with or without a website.</p>
+      <div class="research-path" aria-label="The research journey"><span>{{ icon('research') }} Discover</span><i aria-hidden="true"></i><span>{{ icon('source') }} Understand</span><i aria-hidden="true"></i><span>{{ icon('work') }} Decide</span></div>
+      <p class="discovery-promise">Your sources. Your context. Your next move.</p>
+    </div>
+    <section class="discovery-panel" aria-labelledby="search-title">
+      <div class="eyebrow">01 / START WITH YOUR BUSINESS</div>
+      <h2 id="search-title">Search for your business.</h2>
+      <p>Paste an ordinary public website, or enter a business name to use a configured discovery source.</p>
+      {% if error %}<div class="notice" role="alert">{{ error }}</div>{% endif %}
+      <form method="post" action="/research" class="research-form">
+        <input type="hidden" name="csrf" value="{{ csrf }}">
+        <label for="query">BUSINESS NAME OR PUBLIC LINK</label>
+        <input id="query" name="query" required maxlength="2048" value="{{ values.get('query', '') }}" placeholder="Your business name or https://…" autocomplete="off" aria-describedby="query-hint">
+        <p class="field-hint" id="query-hint">Use a public website or product page. Keep passwords, private links and customer details out.</p>
+        <div class="research-fields">
+          <div><label for="country">MARKET <span>(OPTIONAL)</span></label><select id="country" name="country"><option value="">Choose a market</option><option value="NG"{% if values.get('country') == 'NG' %} selected{% endif %}>Nigeria</option><option value="GH"{% if values.get('country') == 'GH' %} selected{% endif %}>Ghana</option></select></div>
+          <div><label for="city">CITY <span>(OPTIONAL)</span></label><input id="city" name="city" maxlength="100" value="{{ values.get('city', '') }}" placeholder="City or area" autocomplete="off"></div>
+        </div>
+        <details class="discovery-owner"{% if values.get('no_website') or values.get('owner_facts') %} open{% endif %}><summary>Selling without a website?</summary><fieldset class="owner-input">
+          <legend class="visually-hidden">Business details without a website</legend>
+          <label class="checkbox-label" for="no-website"><input id="no-website" name="no_website" type="checkbox" value="true"{% if values.get('no_website') %} checked{% endif %}> I don't have a website</label>
+          <label for="owner-facts">DESCRIBE WHAT YOU SELL <span>(NO-WEBSITE OPTION)</span></label>
+          <textarea id="owner-facts" name="owner_facts" maxlength="2000" rows="3" placeholder="Your products, customers and selling channels" aria-describedby="owner-hint">{{ values.get('owner_facts', '') }}</textarea>
+          <p class="field-hint" id="owner-hint">These details stay labeled as supplied by you, until independently checked.</p>
+        </fieldset></details>
+        <button class="pill full" type="submit">Start with my business {{ icon('arrow') }}</button>
+      </form>
+      <p class="research-availability">Public information only. No account required. Up to three relevant pages per research request.</p>
+      <details class="research-support"><summary>Which websites can Ayo read?</summary><p>Readable public HTML/text, including ordinary WordPress, Shopify and WooCommerce pages. Ayo respects robots rules. Login walls, bot challenges, private pages, files and JavaScript-only sites may prevent research. You can supply authorized business information instead.</p></details>
+    </section>
+  </section>
+  <section class="principles discovery-principles" aria-label="How Ayo works">
+    <div><span>01 / DISCOVER</span><h2>Begin in public.</h2><p>Research starts with publicly accessible information. Your private sales and customers require separate authorization.</p></div>
+    <div><span>02 / UNDERSTAND</span><h2>Know the source.</h2><p>Research will cite what was actually found, explain the gaps and distinguish facts from recommendations.</p></div>
+    <div><span>03 / DECIDE</span><h2>Move with intent.</h2><p>Create your workspace when ready. Connect Shopify optionally, and review proposed work before any action.</p></div>
+  </section>
+  <p class="fineprint">All available Ayo features are free for the first 500 distinct customer accounts. No card required. Independent provider charges and protective usage limits may apply.</p>
+</main>
+{% endblock %}

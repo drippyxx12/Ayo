@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-27T14:53:40.136191+00:00",
+  "scope": "M4 correction-review Work intake (C05/C13 internal only)",
+  "base_commit": "711f7aedf3798568b00931091c3544dc66f1b91c",
+  "tests": {
+    "command": "AYO_TEST_POSTGRES_URL=<disposable loopback PostgreSQL> .venv/bin/python -m pytest -q tests/test_research_corrections.py tests/test_research_workspace.py tests/test_merchant_work.py tests/test_merchant_deletion.py --tb=short",
+    "passed": 111,
+    "failed": 0,
+    "skipped": 0,
+    "duration_seconds": 90.76,
+    "databases": [
+      "SQLite",
+      "PostgreSQL17"
+    ],
+    "provider_inputs": "offline fixtures only",
+    "warning": "One upstream Starlette/httpx deprecation warning"
+  },
+  "checks": {
+    "ruff": "passed",
+    "uv_pip_dependency_consistency": "passed",
+    "working_tree_and_history_redacted_secret_scan": "passed",
+    "whitespace": "passed"
+  },
+  "verified_boundaries": [
+    "Report/source JSON and export immutability",
+    "Persisted source ID/hash/capture audit provenance",
+    "Verified owner/admin/editor writes; analyst denial",
+    "CSRF, foreign workspace and foreign source denial",
+    "HTML escaping and native CRLF input",
+    "Validation, rollback, relogin persistence, account removal",
+    "Task completion remains unverified correction"
+  ],
+  "schema_migrations_changed": false,
+  "original_branding_and_first_500_preserved": true,
+  "full_suite_unnecessarily_rerun_locally": false,
+  "browser_retested_this_followup": false,
+  "protected_preview_updated": false,
+  "full_M4_accepted": false,
+  "limitations": [
+    "Review intake only; no applied correction, refetch, domain ownership or multi-source fetch.",
+    "No browser accessibility certification from HTTP tests.",
+    "Separate actual Gemini synthetic response receipt does not certify real-business research."
+  ],
+  "github_delivery": {
+    "application_commit": "70f715f590d5b32ea28850b87c0968de3a484b02",
+    "application_tree": "53cae5afa3afcd17fd89dd16ec996d7c7f144dbf",
+    "tested_tree_matches_remote": true,
+    "branch": "codex/africa-platform",
+    "pr_number": 1,
+    "pr_open": true,
+    "pr_draft": true,
+    "merged": false,
+    "ci_at_receipt": [
+      {
+        "id": 40525714122,
+        "status": "in_progress"
+      },
+      {
+        "id": 40525701563,
+        "status": "in_progress"
+      }
+    ],
+    "recorded_at": "2026-10-27T14:55:39.692380+00:00"
+  }
+}

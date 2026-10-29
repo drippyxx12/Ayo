@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-27T14:45:05.200374+00:00",
+  "classification": "RECOVERY_AND_PUBLIC_DOCUMENTATION_ONLY",
+  "overall_platform_status": "PARTIALLY_COMPLETE",
+  "github": {
+    "repository": "drippyxx12/Ayo",
+    "visibility": "public",
+    "branch": "codex/africa-platform",
+    "recovered_head": "711f7aedf3798568b00931091c3544dc66f1b91c",
+    "recovered_tree": "5a5c0c306373209df7923da0406e230c502cb279",
+    "initial_working_tree": "clean fresh clone; prior uncommitted workspace state unavailable",
+    "pr": 1,
+    "pr_state": "open",
+    "pr_draft": true,
+    "merged": false,
+    "latest_pr_ci": {
+      "id": 40469700236,
+      "conclusion": "success"
+    },
+    "application_commit": "09c6abc965030cf47cc0d292fe0833f0c0e00e5c",
+    "application_pr_ci": {
+      "id": 40469115737,
+      "conclusion": "success"
+    }
+  },
+  "prior_evidence": {
+    "receipt": "docs/evidence/merchant-stage-verification.json",
+    "provider_live_workflows_verified": false,
+    "offline_readiness_network_requests_made": 0,
+    "offline_readiness_live_verified": false,
+    "tests_passed_historically": 888,
+    "tests_rerun_this_session": false,
+    "limitation": "Recovered records contain no successful real Gemini request. Private prior workspace logs and provider account telemetry are unavailable; cannot exclude an unrecorded request there."
+  },
+  "current_runtime": {
+    "observations_current": true,
+    "observed_spec_revision": "1",
+    "network_policy": "unrestricted/enforced",
+    "managed_secret_bindings": 0,
+    "managed_runtime_variables": 0,
+    "outbound_identities": 0,
+    "gemini_api_key_present": false,
+    "google_api_key_present": false,
+    "previous_private_runtime_file_exists": false,
+    "credential_values_read_or_recorded": false,
+    "previous_workspace_recovered": false
+  },
+  "gemini": {
+    "model": "gemini-3.5-flash-lite",
+    "catalogue_status": "stable; structured outputs supported; no shutdown date announced",
+    "free_tier_standard_input": "Free of charge",
+    "free_tier_standard_output_including_thinking": "Free of charge",
+    "founder_reports_project_tier": "Free",
+    "project_for_attached_key_verified": false,
+    "actual_model_access_verified": false,
+    "remaining_project_quota_verified": false,
+    "zero_cost_for_this_credential_verified": false,
+    "provider_api_requests_made_this_session": 0,
+    "model_list_requests_made_this_session": 0,
+    "live_verified": false,
+    "smoke_test_status": "NOT_ATTEMPTED_MISSING_CREDENTIAL",
+    "conditional_user_authorization": {
+      "maximum_generation_requests": 1,
+      "maximum_cost_usd": 0,
+      "paid_calls_authorized": false,
+      "automatic_retries": false
+    }
+  },
+  "policy": {
+    "unpaid_content_may_be_used_for_product_improvement_and_human_review": true,
+    "personal_sensitive_confidential_inputs_forbidden": true,
+    "planned_input": "Reply with exactly AYO_GEMINI_OK.",
+    "planned_input_class": "operator-authored nonpersonal synthetic diagnostic",
+    "age_region_terms_requirements": "Existing operator must satisfy Google terms and available-region rules; no bypass authorized. Nigeria/Ghana listed; runtime/account eligibility not independently established.",
+    "research_crawl_private_inference_authorized_by_this_test": false
+  },
+  "public_documentation": {
+    "retrieved_at": "2026-10-27T14:43:03.128134+00:00",
+    "sources": [
+      {
+        "name": "pricing",
+        "url": "https://ai.google.dev/gemini-api/docs/pricing",
+        "final_url": "https://ai.google.dev/gemini-api/docs/pricing",
+        "status": 200,
+        "sha256": "01577016fdeb1d9f8ca7b04ac889233e57fa90f0d374691b2ba00fdd0de8ded0",
+        "bytes": 253874
+      },
+      {
+        "name": "billing",
+        "url": "https://ai.google.dev/gemini-api/docs/billing",
+        "final_url": "https://ai.google.dev/gemini-api/docs/billing",
+        "status": 200,
+        "sha256": "0732bac813d77ae56f36497d152eb147c2fecc0cb812902f84d33c75bfc28550",
+        "bytes": 137073
+      },
+      {
+        "name": "rate-limits",
+        "url": "https://ai.google.dev/gemini-api/docs/rate-limits",
+        "final_url": "https://ai.google.dev/gemini-api/docs/rate-limits",
+        "status": 200,
+        "sha256": "b1b204b84442181ddfeb625e3e65c4c2dad05eed8da548f089d41e391e50c7dc",
+        "bytes": 105737
+      },
+      {
+        "name": "terms",
+        "url": "https://ai.google.dev/gemini-api/terms",
+        "final_url": "https://ai.google.dev/gemini-api/terms",
+        "status": 200,
+        "sha256": "29d3fd38ae6a6c36b3c3efa1a0da7cf0ccdb13d0cb0c4ab7813f027f911ef980",
+        "bytes": 113278
+      },
+      {
+        "name": "model",
+        "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.5-flash-lite",
+        "final_url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.5-flash-lite",
+        "status": 200,
+        "sha256": "4e887e60122ee6fdaf305fefce680717a5937a2f90db4ceb2231bc3dafd5a574",
+        "bytes": 108093
+      },
+      {
+        "name": "deprecations",
+        "url": "https://ai.google.dev/gemini-api/docs/deprecations",
+        "final_url": "https://ai.google.dev/gemini-api/docs/deprecations",
+        "status": 200,
+        "sha256": "bb19cff21c268c05998567f2249af180b4498d6f2586063cfa1e06bebd45ba7f",
+        "bytes": 121478
+      },
+      {
+        "name": "regions",
+        "url": "https://ai.google.dev/gemini-api/docs/available-regions",
+        "final_url": "https://ai.google.dev/gemini-api/docs/available-regions",
+        "status": 200,
+        "sha256": "fb156cc120fde3dd6f769ef7cd6c002332bf035ec7c34d363280ea4fa8b92b0f",
+        "bytes": 94758
+      }
+    ]
+  },
+  "next": "Reattach prior private Codex workspace or bind its existing Ayo-project GEMINI_API_KEY to this environment. Confirm that exact project remains Free and has nonzero model quota in AI Studio. Then at most one synthetic generateContent request, no retries or paid features, and retain a redacted actual result. Proceed to the existing M4 ownership/correction milestone after verification.",
+  "application_code_changed": false,
+  "migrations_changed": false,
+  "providers_armed": false,
+  "mail_sent": false,
+  "deployment_performed": false
+}

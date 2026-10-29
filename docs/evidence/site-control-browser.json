@@ -1,0 +1,42 @@
+{
+  "date": "2026-10-29T16:30:42.395863+00:00",
+  "mode": "offline_fixture_site_control_browser",
+  "story": "Business \u2192 create challenge \u2192 explicit file check \u2192 logout/login/reopen \u2192 revoke \u2192 research available",
+  "database": "actual isolated PostgreSQL17 schema migrated through 0009",
+  "checks": [
+    {
+      "width": 390,
+      "create_check_relogin_reopen_revoke": true,
+      "no_horizontal_overflow": true,
+      "fixed_two_fixture_gets": true
+    },
+    {
+      "width": 768,
+      "create_check_relogin_reopen_revoke": true,
+      "no_horizontal_overflow": true,
+      "fixed_two_fixture_gets": true
+    },
+    {
+      "width": 1440,
+      "create_check_relogin_reopen_revoke": true,
+      "no_horizontal_overflow": true,
+      "fixed_two_fixture_gets": true
+    }
+  ],
+  "fixture_http_calls": {
+    "robots": 3,
+    "verification_file": 3
+  },
+  "real_website_requests": 0,
+  "real_provider_calls": 0,
+  "provider_cost_usd": 0,
+  "mail_delivered": false,
+  "domain_file_published": false,
+  "screenshots": "Synthetic fixtures in local scratch output, not hosted/live domain acceptance",
+  "page_errors": [],
+  "forbidden_requests": [],
+  "cleanup": {
+    "server_stopped": true,
+    "schema_removed": true
+  }
+}

@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Research status — Ayo{% endblock %}
+{% block body %}
+<main class="wrap research-page" id="main-content"{% if job.status not in ['succeeded','failed'] %} data-research-watch="/research/jobs/{{ job.id }}/updates" data-research-revision="{{ revision }}"{% endif %}>
+  <div class="eyebrow">PUBLIC RESEARCH / {{ job.status|upper }}</div>
+  <h1>{{ 'Research needs attention.' if job.status == 'failed' else 'Evidence takes a moment.' }}</h1>
+  <div role="status" aria-live="polite">
+    {% if job.status == 'failed' %}
+      <p class="research-lead">This research could not be completed. No completed report is available.</p>
+      {% set reason = {
+        'robots_denied': 'This website’s robots policy does not permit Ayo to read the selected page.',
+        'source_access_restricted': 'The website returned a login, bot challenge or access restriction.',
+        'source_requires_javascript': 'The page is a JavaScript-only shell and did not return readable public content.',
+        'unsupported_content_type': 'The address returned a file or content type that Ayo does not research as a webpage.',
+        'insufficient_evidence': 'The page did not contain enough readable business evidence for a report.',
+        'provider_unsafe_redirect': 'The website redirected outside the permitted public host or toward an unsafe network address.',
+        'website_url_required': 'Paste the public website address; business-name discovery is not configured for this worker.',
+        'source_unavailable': 'The public page was unavailable or did not return a readable response.',
+        'research_timeout': 'The website did not respond within the worker’s bounded time limit.'
+      }.get(job.error_code) %}
+      <p class="quiet">{{ reason or 'The source or analysis provider could not complete this request under the current limits.' }}</p>
+    {% elif job.status == 'queued' and job.attempts %}
+      <p class="research-lead">The source provider was temporarily unavailable. A bounded retry is waiting for its scheduled time. No report is complete yet.</p>
+    {% else %}
+      <p class="research-lead">{{ 'Your research is queued for a worker.' if job.status == 'queued' else 'The research worker is retrieving permitted evidence and checking Gemini analysis.' }} No report is complete yet.</p>
+    {% endif %}
+  </div>
+  {% if progress %}
+    <section aria-labelledby="research-progress-title">
+      <h2 id="research-progress-title">Recorded progress</h2>
+      <ol class="activity-list">
+        {% for event in progress %}
+          <li><div><p><strong>{{ event.label }}</strong>{% if event.attempt %} · Attempt {{ event.attempt }} of 3{% endif %}</p>
+            <time class="quiet" datetime="{{ event.datetime }}">{{ event.display_time }}</time>
+            {% if event.retry_at %}<p class="quiet">Next attempt no earlier than {{ event.retry_at }}.</p>{% endif %}
+          </div></li>
+        {% endfor %}
+      </ol>
+    </section>
+  {% endif %}
+  {% if job.status == 'failed' %}
+    <a class="pill" href="/">Start another search ↗</a>
+    <section class="research-recovery"><h2>Keep the research moving.</h2><p>Try a readable public product or about page. If this is your business, supply its description, products, pricing or an authorized text document instead.</p><a class="text-link" href="/business-analysis">Use your business information →</a><p class="quiet smallprint">Supplied information stays labeled as unverified merchant input.</p></section>
+  {% else %}
+    {% set dispatch_path = '/research/jobs/' ~ job.id ~ '/dispatch' %}{% include '_worker_dispatch.html' %}
+    <p class="quiet" data-research-poll-status role="status">This page checks for saved progress automatically and opens the report when ready. You can also check manually.</p>
+    <noscript><p class="quiet">JavaScript is off. Use the status button to open the report when the worker completes.</p></noscript>
+    <a class="pill" href="/research/jobs/{{ job.id }}">Check research status ↗</a>
+  {% endif %}
+</main>
+{% endblock %}

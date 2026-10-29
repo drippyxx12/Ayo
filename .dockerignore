@@ -1,0 +1,16 @@
+.git
+.venv
+.env
+.env.*
+*.zip
+*.db
+*.sqlite*
+*.pem
+*.key
+__pycache__
+**/__pycache__
+.pytest_cache
+.ruff_cache
+.vercel
+tests
+docs

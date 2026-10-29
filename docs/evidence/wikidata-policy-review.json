@@ -1,0 +1,23 @@
+{
+  "recorded_at": "2026-10-27T15:27:23.663723+00:00",
+  "scope": "licensing/policy documents only, no business discovery/API query or Firecrawl operation",
+  "sources": [
+    {
+      "url": "https://www.wikidata.org/wiki/Wikidata:Licensing",
+      "status": 200,
+      "sha256": "4d8ac6d487771432fec696c247f7e83ecede0dc2e3cfe480aeacfd6851ba6af8"
+    },
+    {
+      "url": "https://foundation.wikimedia.org/wiki/Policy:Wikimedia_Foundation_API_Usage_Guidelines",
+      "status": 200,
+      "sha256": "b41bcdd15fadb457b9f0048542fd05b511bfc96e97f4b5aae12876001aff19cc"
+    }
+  ],
+  "candidate_status": "review, not integrated or source allowlist approval",
+  "integration_update": {
+    "date": "2026-10-28",
+    "adapter": "wikidata_cc0",
+    "scope": "Structured company JSON records only; no namespace prose/storefront acquisition.",
+    "receipt": "small-company-live-worker-corrected.json"
+  }
+}

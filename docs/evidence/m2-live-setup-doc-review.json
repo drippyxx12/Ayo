@@ -1,0 +1,114 @@
+{
+  "review_date": "2026-10-26",
+  "mode": "ordinary_public_documentation_GETs_only",
+  "provider_api_calls": 0,
+  "credential_or_project_validated": false,
+  "model_recommendation": "gemini-3.5-flash-lite",
+  "model_status_source": "official_public_documentation_only",
+  "source_and_data_policy_approved": false,
+  "sources": [
+    {
+      "id": "models",
+      "url": "https://ai.google.dev/gemini-api/docs/models",
+      "final_url": "https://ai.google.dev/gemini-api/docs/models",
+      "status": 200,
+      "bytes": 155132,
+      "sha256": "2ff00335c790af1a5dd6bd49b64331aff3e8cca4dc9f21fd8a8c1beb0a62bb67"
+    },
+    {
+      "id": "deprecations",
+      "url": "https://ai.google.dev/gemini-api/docs/deprecations",
+      "final_url": "https://ai.google.dev/gemini-api/docs/deprecations",
+      "status": 200,
+      "bytes": 121482,
+      "sha256": "da810ce5458339e76d70cc3873033d8e831506064cec94f3dddfca5968056173"
+    },
+    {
+      "id": "pricing",
+      "url": "https://ai.google.dev/gemini-api/docs/pricing",
+      "final_url": "https://ai.google.dev/gemini-api/docs/pricing",
+      "status": 200,
+      "bytes": 253707,
+      "sha256": "9354abd8d15a91534d695494d490f54ca8114db1289a112067c2b3307cbb1d21"
+    },
+    {
+      "id": "key",
+      "url": "https://ai.google.dev/gemini-api/docs/api-key",
+      "final_url": "https://ai.google.dev/gemini-api/docs/api-key",
+      "status": 200,
+      "bytes": 127447,
+      "sha256": "b4011b886fb5466f55f701366a260270522f87688224e0496d3501b2c90fe9fd"
+    },
+    {
+      "id": "regions",
+      "url": "https://ai.google.dev/gemini-api/docs/available-regions",
+      "final_url": "https://ai.google.dev/gemini-api/docs/available-regions",
+      "status": 200,
+      "bytes": 94762,
+      "sha256": "8fa3117af22e2e6e6cc0cc4c630604fe37ff05cb3bceb18926185f412a85c9bb"
+    },
+    {
+      "id": "terms",
+      "url": "https://ai.google.dev/gemini-api/terms",
+      "final_url": "https://ai.google.dev/gemini-api/terms",
+      "status": 200,
+      "bytes": 113282,
+      "sha256": "fe72c50c2d14cda7376bcdd2214cecdb424dc8cbecc1c42f3baece56da061bcd"
+    },
+    {
+      "id": "thinking",
+      "url": "https://ai.google.dev/gemini-api/docs/thinking",
+      "final_url": "https://ai.google.dev/gemini-api/docs/thinking",
+      "status": 200,
+      "bytes": 288268,
+      "sha256": "d98fe30793506f8abd4e1b6f3dfcfe98a073d5c5b0853ec0971eb85ba247ab3a"
+    },
+    {
+      "id": "structured",
+      "url": "https://ai.google.dev/gemini-api/docs/structured-output",
+      "final_url": "https://ai.google.dev/gemini-api/docs/structured-output",
+      "status": 200,
+      "bytes": 426223,
+      "sha256": "f2c84c71bc3a14a89f0126e16c5035c91078f9fa9dc5fcc3d9c457fca5e37ee4"
+    },
+    {
+      "id": "generate",
+      "url": "https://ai.google.dev/api/generate-content",
+      "final_url": "https://ai.google.dev/api/generate-content",
+      "status": 200,
+      "bytes": 1231317,
+      "sha256": "823380aee190c6529a373ae5e6ebab687e1e8ee99ed6b9d69c030c8dbbf63fb1"
+    },
+    {
+      "id": "flashlite",
+      "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.5-flash-lite",
+      "status": 200,
+      "bytes": 108097,
+      "sha256": "db4888416fbdd8aa436bd7303b5c2feb93beb02ebaaea220ab6e23ad4dc0c0ce"
+    },
+    {
+      "url": "https://www.firecrawl.dev/pricing",
+      "status": 200,
+      "sha256": "c91bea448b9b7848723ac47bb2ee456df22569e26a1943897a0363f84ca0fcc2",
+      "bytes": 766999
+    },
+    {
+      "url": "https://docs.firecrawl.dev/features/search.md",
+      "status": 200,
+      "sha256": "822da4a7cdc9bbe62214bbe7cbbf22b18486740f9a6e9cd139ee15f4e44ef468",
+      "bytes": 29605
+    },
+    {
+      "url": "https://docs.firecrawl.dev/api-reference/endpoint/search.md",
+      "status": 200,
+      "sha256": "0dd976799da56b70d15e1f823b072b418518729a8fff3846c20e0cebd0f7ba8c",
+      "bytes": 68447
+    },
+    {
+      "url": "https://docs.firecrawl.dev/api-reference/endpoint/crawl-post.md",
+      "status": 200,
+      "sha256": "e05401c44d681698358d0149972384599a685650389be1d627bed9cbb0c89983",
+      "bytes": 48152
+    }
+  ]
+}

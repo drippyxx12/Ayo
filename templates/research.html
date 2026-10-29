@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Your starting profile' if preview.no_website else 'Research availability' }} — Ayo{% endblock %}
+{% block body %}
+<main class="wrap research-page" id="main-content">
+  <a class="navlink" href="/">← Start another search</a>
+  <div class="eyebrow research-kicker">AYO / {{ 'OWNER-PROVIDED STARTING PROFILE' if preview.no_website else 'PUBLIC RESEARCH' }}</div>
+  <h1>{{ 'A starting point.' if preview.no_website else 'Research is being set up.' }}</h1>
+  {% if error %}<div class="notice" role="alert">{{ error }}</div>{% endif %}
+  <p class="research-lead" role="status" data-research-status="{{ preview.status }}">{{ preview.message }}</p>
+  <dl class="research-summary">
+    <div><dt>{{ 'PUBLIC LINK ENTERED' if preview.input_kind == 'url' else 'BUSINESS NAME ENTERED' }}</dt><dd>{{ preview.query }}</dd></div>
+    <div><dt>SELECTED MARKET</dt><dd>{{ preview.country_name }}</dd></div>
+    {% if preview.city %}<div><dt>CITY ENTERED</dt><dd>{{ preview.city }}</dd></div>{% endif %}
+  </dl>
+  {% if preview.no_website %}
+  <section class="research-note" aria-labelledby="profile-heading">
+    <div class="eyebrow">OWNER_PROVIDED_UNVERIFIED</div>
+    <h2 id="profile-heading">What you told Ayo.</h2>
+    <p class="owner-description">{{ preview.owner_facts }}</p>
+    <p class="quiet">This is your description, not an independent website assessment or evidence of business ownership. It has not been saved to an account.</p>
+  </section>
+  {% endif %}
+  <section class="research-limitations" aria-labelledby="coverage-heading">
+    <h2 id="coverage-heading">What we can confirm.</h2>
+    <p>No public sources have been retrieved. There is no sourced mini-report or verified lead preview yet. Ayo has no private sales, order or customer information from this request.</p>
+    <p>Entering a business does not verify ownership, connect a store or authorize messages. Your submitted details are shown in this response and are not saved to a workspace.</p>
+  </section>
+  <section class="research-next" aria-labelledby="next-heading">
+    {% if preview_mode %}
+    <div><div class="eyebrow">DEVELOPMENT PREVIEW</div><h2 id="next-heading">Explore the current build.</h2><p>Accounts, saved reports and store connections are disabled in this preview. Your entered details are not saved.</p></div>
+    <div><a class="pill" href="/">Start another search <span aria-hidden="true">↗</span></a></div>
+    {% else %}
+    <div><div class="eyebrow">YOUR NEXT STEP</div><h2 id="next-heading">Keep moving, at your pace.</h2><p>You can create a private account now, or return to search. Shopify is optional. Saving and claiming research will be available after secure report handoff is built.</p></div>
+    <div><a class="pill" href="/signup">Create your free Ayo account <span aria-hidden="true">↗</span></a><a class="link-quiet" href="/login">I already have an account</a></div>
+    {% endif %}
+  </section>
+</main>
+{% endblock %}

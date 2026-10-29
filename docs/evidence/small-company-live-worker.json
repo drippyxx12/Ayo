@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-28T07:45:48.760213+00:00",
+  "operation": "python -m ayo.worker --once",
+  "source": "Wikidata CC0 company record",
+  "source_url": "https://www.wikidata.org/wiki/Special:EntityData/Q7835749.json",
+  "selected_item": "Q7835749",
+  "job_id": "ltj5NkcsRzDHyv7iJsj6a6lX5kJtg4pr",
+  "country_is_requested_market_not_proven_domicile": "GH",
+  "firecrawl_calls": 0,
+  "maximum_authorized_charge_usd": "0.00",
+  "paid_spending_enabled": false,
+  "public_deployment": false,
+  "prior_gemini_connectivity_repeated": false,
+  "live_worker_verified": false,
+  "worker_exit_code": 0,
+  "job_status": "succeeded",
+  "job_attempts": 1,
+  "error_code": null,
+  "report_id": "qkpYTrDtM7rvA5o_ecVXno-qsbJ681y3",
+  "analysis_status": "unavailable",
+  "analysis_error_code": "model_unavailable",
+  "source_captured_at": "2026-10-28T07:45:54.910440+00:00",
+  "source_sha256": "d5a100dd305990946a5ee85aa8595ba025172646e1cbf6bff6fd056da2415dd0",
+  "saved_to_research_workspace": true,
+  "today_usage_records": [
+    {
+      "id": "SpoulrIW8lgaLh20u1YEOK0o89CYcVSd",
+      "provider": "wikidata",
+      "operation": "search",
+      "outcome": "succeeded",
+      "reserved_microusd": 0,
+      "usage": {}
+    },
+    {
+      "id": "S32dJgGL_WPUYxIDo6HxyUpvgmxwP9Dk",
+      "provider": "wikidata",
+      "operation": "fetch",
+      "outcome": "succeeded",
+      "reserved_microusd": 0,
+      "usage": {}
+    },
+    {
+      "id": "Jr-ml-ty3eO9jnJO-E-BoAWQO7XzSHHx",
+      "provider": "gemini",
+      "operation": "analyze",
+      "outcome": "succeeded",
+      "reserved_microusd": 0,
+      "usage": {
+        "candidatesTokenCount": 646,
+        "promptTokenCount": 469,
+        "totalTokenCount": 1115
+      }
+    },
+    {
+      "id": "nBw0hM515b6TSPaFNVXUg76F4_kvcJ2H",
+      "provider": "wikidata",
+      "operation": "search",
+      "outcome": "succeeded",
+      "reserved_microusd": 0,
+      "usage": {}
+    },
+    {
+      "id": "8b8soJbrH9mx7D1gQJ_Uz7BIPCfo3Lkn",
+      "provider": "wikidata",
+      "operation": "fetch",
+      "outcome": "succeeded",
+      "reserved_microusd": 0,
+      "usage": {}
+    },
+    {
+      "id": "yWWZzeK2QHbRdYUvAG_OmZIO7_V21WJS",
+      "provider": "gemini",
+      "operation": "analyze",
+      "outcome": "uncertain",
+      "reserved_microusd": 0,
+      "usage": {}
+    }
+  ],
+  "free_calls_disarmed": true
+}

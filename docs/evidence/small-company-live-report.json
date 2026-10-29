@@ -1,0 +1,180 @@
+{
+  "schema": "ayo-saved-research-export-v1",
+  "report_id": "fynJLwhqiKG_DvOwBLe4jRz1CKFtP-S8",
+  "business_name": "Trashy Bags",
+  "target_url": "https://www.wikidata.org/wiki/Special:EntityData/Q7835749.json",
+  "country": "GH",
+  "status": "PARTIAL",
+  "origin": "public_web",
+  "created_at": "2026-10-28T07:45:54.910777+00:00",
+  "analysis_status": "completed",
+  "ownership_verified": false,
+  "claims": [
+    {
+      "text": "The retrieved public page contains this excerpt: \u201cWikidata item: Q7835749\nLabel: Trashy Bags\nDescription: organization\nCountry stated by Wikidata: Ghana\u201d",
+      "kind": "OBSERVED",
+      "evidence_ids": [
+        "wikidata-Q7835749-d5a100dd30599094"
+      ],
+      "observed_at": "2026-10-28T07:45:54.910440Z"
+    },
+    {
+      "text": "A structured product catalog was not established from the retrieved source. Products may exist on other pages or selling channels.",
+      "kind": "UNKNOWN",
+      "evidence_ids": [
+        "wikidata-Q7835749-d5a100dd30599094"
+      ],
+      "observed_at": null
+    },
+    {
+      "text": "The retrieved page sample does not establish delivery; other pages may contain this information.",
+      "kind": "UNKNOWN",
+      "evidence_ids": [
+        "wikidata-Q7835749-d5a100dd30599094"
+      ],
+      "observed_at": null
+    },
+    {
+      "text": "The retrieved page sample does not establish returns; other pages may contain this information.",
+      "kind": "UNKNOWN",
+      "evidence_ids": [
+        "wikidata-Q7835749-d5a100dd30599094"
+      ],
+      "observed_at": null
+    },
+    {
+      "text": "The retrieved page sample does not establish selling channels; other pages may contain this information.",
+      "kind": "UNKNOWN",
+      "evidence_ids": [
+        "wikidata-Q7835749-d5a100dd30599094"
+      ],
+      "observed_at": null
+    },
+    {
+      "text": "The retrieved text does not establish pricing in GHS; no currency has been inferred.",
+      "kind": "UNKNOWN",
+      "evidence_ids": [
+        "wikidata-Q7835749-d5a100dd30599094"
+      ],
+      "observed_at": null
+    },
+    {
+      "text": "Revenue, conversion, stock, customer counts and payment settlement cannot be determined from public page text.",
+      "kind": "UNKNOWN",
+      "evidence_ids": [],
+      "observed_at": null
+    }
+  ],
+  "opportunities": [
+    {
+      "title": "Clarify delivery coverage",
+      "description": "A clearer explanation of delivery may help customers decide what to do next. This is a hypothesis based only on the retrieved page sample.",
+      "evidence_ids": [
+        "wikidata-Q7835749-d5a100dd30599094"
+      ],
+      "next_step": "Review whether your public page clearly explains delivery locations, charges and timing.",
+      "classification": "INFERRED",
+      "status": "PROPOSED"
+    },
+    {
+      "title": "Make returns easy to find",
+      "description": "A clearer explanation of returns may help customers decide what to do next. This is a hypothesis based only on the retrieved page sample.",
+      "evidence_ids": [
+        "wikidata-Q7835749-d5a100dd30599094"
+      ],
+      "next_step": "Review a concise returns, refund and exchange policy for your actual selling channels.",
+      "classification": "INFERRED",
+      "status": "PROPOSED"
+    },
+    {
+      "title": "Make the next buying step clear",
+      "description": "A clearer explanation of selling channels may help customers decide what to do next. This is a hypothesis based only on the retrieved page sample.",
+      "evidence_ids": [
+        "wikidata-Q7835749-d5a100dd30599094"
+      ],
+      "next_step": "Review the route from product discovery to an authorized order or business enquiry.",
+      "classification": "INFERRED",
+      "status": "PROPOSED"
+    }
+  ],
+  "limitations": [
+    "Coverage is one permitted public page, not the full website or product catalog.",
+    "Public page statements are unverified merchant claims; ownership and store authorization are separate.",
+    "Robots compliance and controlled egress were requested from the configured hosted provider; independent vendor acceptance remains required.",
+    "Source-observation opportunities are rules-based hypotheses. Any Gemini analysis is labeled separately; no business outcomes have been verified.",
+    "This is a community-maintained CC0 company record, not a merchant website, product catalog, pricing audit or proof of Nigerian/Ghanaian domicile."
+  ],
+  "sources": [
+    {
+      "id": "wikidata-Q7835749-d5a100dd30599094",
+      "url": "https://www.wikidata.org/wiki/Special:EntityData/Q7835749.json",
+      "title": "Trashy Bags",
+      "excerpt": "Wikidata item: Q7835749\nLabel: Trashy Bags\nDescription: organization\nCountry stated by Wikidata: Ghana",
+      "retrieved_at": "2026-10-28T07:45:54.910440+00:00",
+      "source_hash": "d5a100dd305990946a5ee85aa8595ba025172646e1cbf6bff6fd056da2415dd0",
+      "html_source_hash": null,
+      "provider": "wikidata_cc0",
+      "classification": "PUBLIC_WEB",
+      "input_origin": null,
+      "input_field": null,
+      "products": [],
+      "channels": []
+    }
+  ],
+  "notice": "Public source statements remain unverified. AI inferences and recommendations are proposals. Saving does not establish ownership or authorize actions.",
+  "analysis": {
+    "claims": [
+      {
+        "text": "The entity Trashy Bags may operate within Ghana based on Wikidata organization metadata.",
+        "kind": "INFERRED",
+        "evidence_ids": [
+          "wikidata-Q7835749-d5a100dd30599094"
+        ],
+        "quote": ""
+      },
+      {
+        "text": "Trashy Bags is categorized generally as an organization in public repositories.",
+        "kind": "INFERRED",
+        "evidence_ids": [
+          "wikidata-Q7835749-d5a100dd30599094"
+        ],
+        "quote": ""
+      },
+      {
+        "text": "Specific digital product catalogs and exact selling channels are unverified from this dataset.",
+        "kind": "UNKNOWN",
+        "evidence_ids": [],
+        "quote": ""
+      }
+    ],
+    "recommendations": [
+      {
+        "text": "Verify active local selling channels and inventory listings for the entity.",
+        "evidence_ids": [
+          "wikidata-Q7835749-d5a100dd30599094"
+        ],
+        "permission_required": "merchant_review"
+      },
+      {
+        "text": "Audit the buyer journey touchpoints across available public storefronts.",
+        "evidence_ids": [
+          "wikidata-Q7835749-d5a100dd30599094"
+        ],
+        "permission_required": "merchant_review"
+      }
+    ],
+    "limitations": [
+      "Source evidence is limited to a single Wikidata item entry with minimal organizational details.",
+      "No private merchant financial metrics, revenue, or customer data are available.",
+      "Specific product prices and transaction flows cannot be confirmed.",
+      "Recommendations are proposals for merchant review; no external action has been performed.",
+      "Public website evidence does not establish private sales, profit, ownership or marketing consent.",
+      "AI analysis covers at most six retained public excerpts of up to 4,000 characters each."
+    ],
+    "policy_version": "evidence-v1",
+    "status": "completed",
+    "provider": "gemini",
+    "model": "gemini-3.5-flash-lite",
+    "generated_at": "2026-10-28T07:51:46.068933Z"
+  }
+}

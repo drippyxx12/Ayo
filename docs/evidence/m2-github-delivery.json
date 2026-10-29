@@ -1,0 +1,31 @@
+{
+  "code_commit": "187877b71f3bf7e5e5bb3712d945799e22aa8a29",
+  "tree": "688f8bc9d8452dd8502120ad0819159d8d2ef4e0",
+  "branch": "codex/africa-platform",
+  "pull_request": "https://github.com/drippyxx12/Ayo/pull/1",
+  "draft": true,
+  "merged": false,
+  "local_tests": {
+    "passed": 495,
+    "failed": 0,
+    "skipped": 0,
+    "database": "real_local_postgresql_and_sqlite",
+    "provider_mode": "offline_fixtures"
+  },
+  "ci": [
+    {
+      "run_id": 40285670027,
+      "conclusion": "success",
+      "url": "https://github.com/drippyxx12/Ayo/actions/runs/40285670027"
+    },
+    {
+      "run_id": 40285664336,
+      "conclusion": "success",
+      "url": "https://github.com/drippyxx12/Ayo/actions/runs/40285664336"
+    }
+  ],
+  "live_provider_workflow_verified": false,
+  "deployment_changed": false,
+  "overall_status": "PARTIALLY_COMPLETE",
+  "next": "Authorized independently reviewed real NG/GH Gemini and account/mail/save/reopen/leads acceptance"
+}
