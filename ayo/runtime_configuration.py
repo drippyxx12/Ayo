@@ -5,6 +5,7 @@ choose whether a local fallback is allowed before passing it here. Each call
 builds a new snapshot; running processes still need restarting after rotation.
 """
 from collections.abc import Mapping
+import re
 
 from ayo.provider_config import valid_api_key
 
@@ -18,6 +19,21 @@ PROVIDER_CREDENTIALS = ('GEMINI_API_KEY', 'FIRECRAWL_API_KEY')
 
 class RuntimeConfigurationError(ValueError):
     """Configuration errors contain fixed text, never configuration values."""
+
+
+def application_origin(configuration):
+    """Use trusted platform configuration, never a request Host/forwarded header.
+
+    Each protected Vercel preview has its own hostname. A stale fixed staging
+    origin would reject valid browser POSTs after every branch rebuild.
+    """
+    if configuration.get('VERCEL_ENV') == 'preview':
+        host = configuration.get('VERCEL_URL', '')
+        if not isinstance(host, str) or not re.fullmatch(
+                r'[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.vercel\.app', host):
+            raise RuntimeConfigurationError('The protected preview deployment hostname is unavailable or invalid.')
+        return 'https://' + host
+    return configuration.get('APP_ORIGIN', 'http://localhost:8000').rstrip('/')
 
 
 def build_child_environment(

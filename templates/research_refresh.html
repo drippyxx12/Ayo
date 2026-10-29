@@ -19,6 +19,7 @@
 <p class="quiet">{{ reasons.get(job.error_code, 'The source or current provider limits could not support this refresh.') }} Ayo has not filled the gaps with invented evidence.</p>
 {% else %}<p role="status">{{ 'Your reviewed refresh is queued.' if job.status == 'queued' else 'The worker is retrieving permitted evidence and checking analysis.' }} A new report is available only after its evidence checks finish.</p>
 <a class="pill" href="/research/library/{{ original_id }}/refresh/{{ job.id }}">Check refresh status ↗</a>{% endif %}
+{% set dispatch_path = '/research/library/' ~ original_id ~ '/refresh/' ~ job.id ~ '/dispatch' %}{% include '_worker_dispatch.html' %}
 {% if job.status not in ['succeeded','failed'] %}<p class="quiet smallprint" data-research-poll-status role="status">Checking saved progress automatically. The new version opens when ready.</p>{% endif %}
 {% else %}
 <a class="text-link" href="/research/library/{{ original.id }}">← Original saved report</a>

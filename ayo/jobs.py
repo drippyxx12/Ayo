@@ -126,14 +126,18 @@ def job_progress(session, job_id, anonymous_id):
     return result
 
 
-async def process_one(factory, fernet, research_factory=ResearchService.from_env, clock=time.time, *, analysis_provider=None):
+async def process_one(factory, fernet, research_factory=ResearchService.from_env, clock=time.time, *,
+                      analysis_provider=None, selected_job_id=None, source_only=False):
     """A lease fences stale workers; failed work never produces success/report data."""
     now = clock()
     with factory() as session:
-        row = session.scalar(select(ResearchJob).where(or_(
+        selection = select(ResearchJob).where(or_(
             (ResearchJob.status == 'queued') & or_(ResearchJob.lease_until.is_(None), ResearchJob.lease_until <= now),
             (ResearchJob.status == 'running') & (ResearchJob.lease_until <= now),
-        )).order_by(ResearchJob.created_at).with_for_update(skip_locked=True))
+        ))
+        if selected_job_id is not None:
+            selection = selection.where(ResearchJob.id == selected_job_id)
+        row = session.scalar(selection.order_by(ResearchJob.created_at).with_for_update(skip_locked=True))
         if row is None:
             return False
         if row.attempts >= 3 or row.created_at + 86400 <= now:
@@ -210,7 +214,8 @@ async def process_one(factory, fernet, research_factory=ResearchService.from_env
         # Stable across attempts: an interrupted billed model dispatch must not
         # be silently repeated. The durable ledger refuses duplicate dispatch.
         with budget_context(factory, **{**usage_scope, 'dispatch_prefix': job_id}):
-            report = await enrich_report(evidence_report, analysis_provider)
+            report = (await enrich_report(evidence_report, analysis_provider, source_only=True) if source_only else
+                      await enrich_report(evidence_report, analysis_provider))
     except BudgetError as exc:
         error = exc.code if exc.code in SAFE_ERRORS else 'research_failed'
     except ResearchError as exc:

@@ -10,10 +10,15 @@ from ayo.intelligence import IntelligenceError, IntelligenceOrchestrator, ModelP
 from ayo.research import ResearchReport
 
 
-async def enrich_report(report: ResearchReport, provider: ModelProvider | None = None, *, timeout_seconds: float = 40) -> ResearchReport:
+async def enrich_report(report: ResearchReport, provider: ModelProvider | None = None, *,
+                        timeout_seconds: float = 40, source_only: bool = False) -> ResearchReport:
     if not 0 < timeout_seconds <= 45:
         raise ValueError('Public inference deadline must be positive and below the worker lease')
     report = ResearchReport.model_validate(report.model_dump())
+    if source_only:
+        return ResearchReport.model_validate({**report.model_dump(), 'status': 'PARTIAL',
+            'analysis_status': 'unavailable', 'analysis': None,
+            'analysis_error_code': 'model_not_authorized_for_on_demand'})
     try:
         async with asyncio.timeout(timeout_seconds):
             result = await IntelligenceOrchestrator(provider).analyze_public(report.public_analysis_context())

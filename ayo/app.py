@@ -34,11 +34,12 @@ from ayo.money import display_minor, minor_units
 from ayo.http_security import BodyLimitMiddleware
 from ayo.public_research import prepare_public_research
 from ayo.website_research import SiteInputError
+from ayo.runtime_configuration import application_origin
 
 ROOT = Path(__file__).resolve().parent.parent
 ENV = os.getenv('ENVIRONMENT', 'development')
 PREVIEW_MODE = os.getenv('AYO_PREVIEW_MODE') == '1'
-ORIGIN = os.getenv('APP_ORIGIN', 'http://localhost:8000').rstrip('/')
+ORIGIN = application_origin(os.environ)
 SHOPIFY_ID = os.getenv('SHOPIFY_CLIENT_ID', '')
 SHOPIFY_SECRET = os.getenv('SHOPIFY_CLIENT_SECRET', '')
 SHOPIFY_API_VERSION = os.getenv('SHOPIFY_API_VERSION', '2026-10')

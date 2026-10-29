@@ -17,6 +17,7 @@ from ayo.intelligence import IntelligenceContext, IntelligenceError, Intelligenc
 from ayo.leads import LeadError, PipelineEvidence, discover_leads, transition_lead
 from ayo.mailer import queue_identity_mail
 from ayo.jobs import enqueue, get_job, job_progress, job_revision
+from ayo.on_demand_research import available as on_demand_available, dispatch as dispatch_on_demand
 from ayo.provider_usage import budget_context
 from ayo.account_deletion import remove_account
 from ayo.models import AuditEvent, Business, IntelligenceRun, Lead, LeadEvent, Membership, ResearchReportRecord
@@ -236,7 +237,17 @@ def install_routes(mod):
             return RedirectResponse('/research/' + job.report_id, 303)
         return mod.render(request, 'research_job.html', job=job, user=mod.session_user(request, sess),
                           revision=job_revision(sess, job),
+                          on_demand=on_demand_available(sess),
                           progress=job_progress(sess, job.id, request.session.get('anonymous_id')))
+
+    @app.post('/research/jobs/{job_id}/dispatch')
+    async def dispatch_public_research(job_id: str, request: Request, csrf: str = Form(...), sess=Depends(mod.db)):
+        guard(request, csrf, sess)
+        job = get_job(sess, job_id, request.session.get('anonymous_id'))
+        worked = await dispatch_on_demand(mod, sess, job)
+        if 'application/json' in request.headers.get('accept', ''):
+            return JSONResponse({'processed': worked}, status_code=200 if worked else 202)
+        return RedirectResponse('/research/jobs/' + job_id, 303)
 
     @app.get('/research/jobs/{job_id}/updates')
     def job_updates(job_id: str, request: Request, sess=Depends(mod.db)):

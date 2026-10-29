@@ -31,6 +31,39 @@ window.addEventListener('pageshow', () => {
   let failures = 0;
   let stopped = false;
   let timer;
+  let dispatching = false;
+  let attemptedDispatch = false;
+  const dispatchForm = watch.querySelector('form[data-research-dispatch]');
+  const dispatchJob = async () => {
+    if (!dispatchForm || attemptedDispatch) return;
+    const target = new URL(dispatchForm.action, window.location.origin);
+    if (target.origin !== window.location.origin) return;
+    attemptedDispatch = true;
+    dispatching = true;
+    const button = dispatchForm.querySelector('button[type=submit]');
+    const note = dispatchForm.querySelector('[data-worker-dispatch-status]');
+    if (button) { button.disabled = true; button.textContent = 'Research is running…'; }
+    if (note) note.textContent = 'The worker is checking permitted evidence. Keep this page open for the result.';
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 110000);
+    try {
+      const response = await fetch(target.href, {method: 'POST', body: new FormData(dispatchForm),
+        credentials: 'same-origin', headers: {Accept: 'application/json'},
+        redirect: 'error', signal: controller.signal});
+      if (!response.ok) throw new Error('Worker command unavailable');
+      const result = await response.json();
+      if (typeof result.processed !== 'boolean') throw new Error('Invalid worker response');
+      stopped = true;
+      window.location.replace(window.location.href);
+    } catch (_) {
+      // An interrupted response may have performed work. Never resubmit it here.
+      if (note) note.textContent = 'The worker response was interrupted or unavailable. Check saved status; Ayo has not automatically sent another request.';
+      if (button) button.textContent = 'Check the saved research status';
+    } finally {
+      dispatching = false;
+      clearTimeout(timeout);
+    }
+  };
   const pause = (text) => {
     stopped = true;
     if (message) message.textContent = text;
@@ -58,11 +91,17 @@ window.addEventListener('pageshow', () => {
         if (typeof data.revision !== 'string' || !/^[a-f0-9]{64}$/.test(data.revision)) throw new Error('Invalid status');
         failures = 0;
         if (data.revision !== watch.dataset.researchRevision) {
+          if (dispatching) {
+            watch.dataset.researchRevision = data.revision;
+            if (message) message.textContent = 'New progress has been saved. Waiting for this worker command to finish before opening the result.';
+            timer = setTimeout(check, 4000);
+            return;
+          }
           stopped = true;
           window.location.replace(window.location.href); // Existing server route authorizes report navigation.
           return;
         }
-        if (data.terminal === true) {
+        if (data.terminal === true && !dispatching) {
           pause('Processing has stopped. Use the status button to review the saved result.');
           return;
         }
@@ -81,6 +120,10 @@ window.addEventListener('pageshow', () => {
     timer = setTimeout(check, Math.min(4000 + count * 250, 12000));
   };
   timer = setTimeout(check, 4000);
+  if (dispatchForm) {
+    dispatchForm.addEventListener('submit', (event) => { event.preventDefault(); dispatchJob(); });
+    dispatchJob(); // The preceding research/review POST already authorized this queued job.
+  }
   window.addEventListener('pagehide', () => { stopped = true; clearTimeout(timer); }, {once: true});
   window.addEventListener('pageshow', (event) => { if (event.persisted) window.location.reload(); });
 })();

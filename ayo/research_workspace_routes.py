@@ -7,6 +7,7 @@ from ayo.identity import IdentityError
 from ayo.research_workspace import LibraryFilters, ResearchWorkspace
 from ayo.research_refresh import RefreshService
 from ayo.jobs import job_revision
+from ayo.on_demand_research import available as on_demand_available, dispatch as dispatch_on_demand
 
 
 def _parameters(request, allowed):
@@ -124,7 +125,21 @@ def install_routes(mod, context, protected, guard):
             return RedirectResponse('/research/library/' + job.report_id, 303)
         return mod.render(request, 'research_refresh.html', user=user, business=business,
                           active_page='research', job=job, original_id=report_id,
+                          on_demand=on_demand_available(sess),
                           revision=job_revision(sess, job))
+
+    @app.post('/research/library/{report_id}/refresh/{job_id}/dispatch')
+    async def dispatch_private_refresh(report_id: str, job_id: str, request: Request,
+                                       csrf: str = Form(...), sess=Depends(mod.db)):
+        user, business = protected(request, sess)
+        guard(request, csrf, sess)
+        service = RefreshService(sess, mod.fernet)
+        job = service.read(user.id, business.id, report_id, job_id)
+        service.original(user.id, business.id, report_id, write=True)
+        worked = await dispatch_on_demand(mod, sess, job)
+        if 'application/json' in request.headers.get('accept', ''):
+            return JSONResponse({'processed': worked}, status_code=200 if worked else 202)
+        return RedirectResponse('/research/library/' + report_id + '/refresh/' + job_id, 303)
 
     @app.get('/research/library/{report_id}/refresh/{job_id}/updates')
     def refresh_updates(report_id: str, job_id: str, request: Request, sess=Depends(mod.db)):

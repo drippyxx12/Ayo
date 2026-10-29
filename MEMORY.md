@@ -2,6 +2,14 @@
 
 Updated: 29 October 2026. Overall platform: **PARTIALLY COMPLETE**.
 
+**Verified delivery:** application `6ee91ad5580af37cc86ea699458df19ea4e0f745`, exact tested/staged tree `b957a9f6f63f69654075c82cbe10904ebc52d2f5`, existing branch advanced non-forced from751cb09 with expected-head protection; PR #1 remains draft/open/unmerged. CI40895239282 passed **1113 tests**,0 failures/skips,178.62s, one upstream warning; dependency audit/no known vulnerabilities and secrets passed. This includes the new manifest regression after the1112-test local full suite.
+
+**Actual protected staging recovered:** https://ayo-merchant-staging-n2ev828gv-ayodejiiolatunbosun-7460.vercel.app/ is READY from6ee91ad. Authenticated GET `/` returned200 with the revised interface, and GET `/research/jobs/ayo-readiness-nonexistent/updates` returned the expected application404, proving the research-table query is reachable. Missing-httpx import failure is resolved; no live source/model call or full hosted research claim. Existing original intake-only preview is separate. All deployments remain protected on the existing Hobby team.
+
+**On-demand worker milestone (local verified, publication/live pending):** explicit PostgreSQL worker POSTs target only the caller's exact queued job using existing leases/checkpoints. They default to source-only with no model initialization; paid/Firecrawl/SQLite modes are denied. GETs remain read-only and no after-response task is used. Commands are bounded100 seconds inside a120-second protected staging function; existing source45-second bounds remain. Repeated/concurrent commands dispatch once; status polling waits for the command body before navigating. Trusted Vercel origin selection fixes stale-preview browser POSTs without trusting Host/forwarded headers. **1137 full tests pass**,0 failures/skips,130.17s, one upstream warning;111 focused checks pass. Chromium390/768/1440 and a JS-disabled native keyboard journey pass with4 source fixtures/0 models; server/schema cleanup verified. [Receipt](docs/evidence/on-demand-worker-browser.json), [contract](docs/ON_DEMAND_RESEARCH_WORKER.md). Harness response-body-after-navigation and JS-disabled pointer automation were corrected; interrupted test processes/isolated schema cleaned without touching public data. Hosted source-only demo acceptance/delivery remains pending.
+
+**Spend correction:** actual nonsecret Vercel inspection found existing preview `AYO_PROVIDER_SPEND_AUTHORIZED=1` (production0, mail0). Lowered that existing preview setting to0 per founder's no-spending rule, without changing keys, money caps, consumed ledgers, model/mail approvals or protection. Immutable old deployments retain old snapshots; verify the new build before the hosted test. No paid call made. New on-demand host independently refuses paid mode and its extra Gemini switch defaults0. Planned hosted acceptance is exactly one Books to Scrape public demo job, up to3 permitted pages, no Gemini/Firecrawl/mail and maximum provider chargeUSD0. Do not repeat a dispatched uncertain attempt.
+
 ## Latest milestone — research-to-Work and refined interface
 
 Continued clean751cb09738147e8baa76b92bb2de4c430750f3e1, same branch/PR #1. Public/private research pages poll persisted opaque job revisions and open finished reports automatically; bounded GET-only checks retain manual/no-JS navigation. Product URLs accept2048 characters; names remain250. Actual catalogue/category/product-category links extend static coverage under unchanged page/deadline/robots/egress controls.
@@ -78,7 +86,7 @@ Read this memory each session and update verified milestones. Preserve architect
 
 ## Direct browser preview
 
-Separate Git-linked staging (751cb09/HTTP500 from missing dependency; fix prepared): https://ayo-merchant-staging-liy7cecnj-ayodejiiolatunbosun-7460.vercel.app/ . All deployments require Vercel Authentication. Actual hosted research/DB/worker/mail remains unverified; publication receipt follows. Preserve its observed existing bindings.
+Current Git-linked staging: https://ayo-merchant-staging-n2ev828gv-ayodejiiolatunbosun-7460.vercel.app/ . All deployments require Vercel Authentication. Revised interface GET200/research-table404 verified after dependency repair. Browser POST/worker/report/mail acceptance remains unfinished; on-demand worker/origin fixes are in progress. Preserve the existing observed DB/encryption/provider bindings.
 
 https://ayo-development-preview-5icko1nq4-ayodejiiolatunbosun-7460.vercel.app/
 

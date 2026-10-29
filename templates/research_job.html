@@ -42,6 +42,7 @@
     <a class="pill" href="/">Start another search ↗</a>
     <section class="research-recovery"><h2>Keep the research moving.</h2><p>Try a readable public product or about page. If this is your business, supply its description, products, pricing or an authorized text document instead.</p><a class="text-link" href="/business-analysis">Use your business information →</a><p class="quiet smallprint">Supplied information stays labeled as unverified merchant input.</p></section>
   {% else %}
+    {% set dispatch_path = '/research/jobs/' ~ job.id ~ '/dispatch' %}{% include '_worker_dispatch.html' %}
     <p class="quiet" data-research-poll-status role="status">This page checks for saved progress automatically and opens the report when ready. You can also check manually.</p>
     <noscript><p class="quiet">JavaScript is off. Use the status button to open the report when the worker completes.</p></noscript>
     <a class="pill" href="/research/jobs/{{ job.id }}">Check research status ↗</a>

@@ -52,7 +52,8 @@ def main():
             TOKEN_ENCRYPTION_KEY=Fernet.generate_key().decode(), APP_ORIGIN=origin,
             DATABASE_URL=url.update_query_dict({'options': '-csearch_path=' + schema}).render_as_string(hide_password=False),
             AYO_PROVIDER_SPEND_AUTHORIZED='0', AYO_MAIL_SEND_AUTHORIZED='0', AYO_GEMINI_FREE_CALLS_AUTHORIZED='0',
-            AYO_WIKIDATA_READ_AUTHORIZED='0', AYO_AI_DATA_POLICY='public_only_reviewed', AYO_PREVIEW_MODE='0')
+            AYO_WIKIDATA_READ_AUTHORIZED='0', AYO_AI_DATA_POLICY='public_only_reviewed', AYO_PREVIEW_MODE='0',
+            AYO_ON_DEMAND_RESEARCH='0', AYO_ON_DEMAND_GEMINI_AUTHORIZED='0')
         with admin.connect() as connection:
             connection.exec_driver_sql('SET search_path TO "' + schema + '"')
             connection.commit()

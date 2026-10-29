@@ -57,7 +57,11 @@
     "observed_runtime_error": "ModuleNotFoundError: httpx",
     "build_cause": "pyproject.toml selected with no project dependencies",
     "fix": "PEP621 manifest matches complete existing requirements.lock graph; no version change",
-    "publication_and_hosted_verification": "pending"
+    "publication_and_hosted_verification": "Dependency import repaired; protected root and research-table read verified. Browser POST/worker acceptance remains pending.",
+    "new_deployment_id": "dpl_7aRzPuTHUwfe7SdF1J5mmnoYFWGH",
+    "new_url": "https://ayo-merchant-staging-n2ev828gv-ayodejiiolatunbosun-7460.vercel.app",
+    "new_root_http_status": 200,
+    "research_table_read_missing_job_http_status": 404
   },
   "schema_migration": false,
   "new_live_provider_calls": 0,
@@ -71,5 +75,18 @@
     "Isolated JavaScript rendering",
     "Recurring monitoring",
     "Complete commerce/action/outreach integration and platform acceptance"
-  ]
+  ],
+  "application_commit": "6ee91ad5580af37cc86ea699458df19ea4e0f745",
+  "application_tree": "b957a9f6f63f69654075c82cbe10904ebc52d2f5",
+  "tested_staged_tree_exact_match": true,
+  "application_ci": {
+    "run_id": 40895239282,
+    "conclusion": "success",
+    "passed": 1113,
+    "failed": 0,
+    "skipped": 0,
+    "duration_seconds": 178.62,
+    "dependency_audit": "No known vulnerabilities found",
+    "secrets": "success"
+  }
 }
