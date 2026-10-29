@@ -1,10 +1,12 @@
 # Ayo — roadmap to the complete platform
 
-Version: 2026-10-28. Overall status: **PARTIALLY COMPLETE; one limited real research-worker report verified, full live acceptance unfinished**. Product scope is [PRODUCT_VISION.md](PRODUCT_VISION.md). This roadmap replaces narrow MVP-only sequencing as the delivery destination; [PLAN.md](PLAN.md) remains an earlier execution checkpoint. Working code is preserved. The public-Gemini implementation checkpoint follows the separately committed full-vision documentation baseline.
+Version: 2026-10-29. Overall status: **PARTIALLY COMPLETE; one limited real research-worker report verified, full live acceptance unfinished**. Product scope is [PRODUCT_VISION.md](PRODUCT_VISION.md). This roadmap replaces narrow MVP-only sequencing as the delivery destination; [PLAN.md](PLAN.md) remains an earlier execution checkpoint. Working code is preserved. The public-Gemini implementation checkpoint follows the separately committed full-vision documentation baseline.
 
-## Current checkpoint — 28 October 2026
+## Current checkpoint — 29 October 2026
 
 **29 October reviewed refresh continuation:** M4 now includes explicit review→private queued research→new immutable saved version, with source/model checkpointing, nonce/concurrency fences, revoked-access handling and removal/retention cleanup.1066 tests and the responsive loopback PostgreSQL browser story pass with labeled provider fixtures. [Scope and remaining work](docs/REVIEWED_RESEARCH_REFRESH.md). Domain ownership, scheduled monitoring, JavaScript rendering and independently verified live refresh remain open.
+
+Application23d977a is published on the existing development branch/PR #1. CI40849924327 passed1066 tests, dependency audit and secrets; [delivery receipt](docs/evidence/research-refresh-verification.json). Next independent development task: explicit domain-ownership proof, keeping research and merchant-write authorization separate. No deployment or merge.
 
 **29 October continuation:** M4 now includes bounded direct multi-page sampling (initial+two relevant actual same-site links), separate source provenance, combined product/policy observations and one existing synthesis after the complete evidence checkpoint commits. Robots specificity/wildcards/pacing and citation labels are covered by new regressions. [Scope and limits](docs/MULTI_PAGE_RESEARCH.md). This extends local implementation; live multi-page/source-quality, refresh, ownership and JavaScript rendering acceptance remain open.
 

@@ -1,10 +1,12 @@
 # Ayo feature status
 
-Updated: 2026-10-27. **Overall platform: PARTIALLY COMPLETE; minimum real-source Gemini journey BLOCKED LIVE.** The complete product is defined in [PRODUCT_VISION.md](PRODUCT_VISION.md); dependencies and exit evidence are in [ROADMAP.md](ROADMAP.md). The first working MVP is a milestone, not the destination.
+Updated: 2026-10-29. **Overall platform: PARTIALLY COMPLETE; one limited real-source Gemini report VERIFIED LIVE, fuller live acceptance unfinished.** The complete product is defined in [PRODUCT_VISION.md](PRODUCT_VISION.md); dependencies and exit evidence are in [ROADMAP.md](ROADMAP.md). The first working MVP is a milestone, not the destination.
 
-## Current verified delivery — 28 October 2026
+## Current verified delivery — 29 October 2026
 
 **29 October reviewed refresh:** saved public reports now offer an explicit reviewed private refresh that queues current bounded acquisition, commits new private evidence before inference and publishes a separate immutable version. Replay/concurrency/expired-nonce controls, async permission rechecks, account-removal and retention handling are tested.1066 full tests pass; focused Chromium/relogin flow passes390/768/1440 with actual PostgreSQL and source/model/mail fixtures. No live refresh or ownership proof claimed. [Contract](docs/REVIEWED_RESEARCH_REFRESH.md), [browser evidence](docs/evidence/research-refresh-browser.json).
+
+Refresh application23d977a: **1066 tests passed locally and in GitHub CI40849924327**; dependency audit found no known vulnerabilities and secrets passed. [Exact delivery receipt](docs/evidence/research-refresh-verification.json). PR #1 remains draft/open/unmerged; hosted preview unchanged.
 
 **29 October multi-page update:** direct website jobs now sample up to three actual same-site pages under one45-second budget, retain separate hashes/citations, and combine product/policy evidence before the existing Gemini step. Secondary-page failures remain explicit unknowns; robots matching/pacing and actual citation numbering are hardened. SQLite/PostgreSQL worker→claim→relogin→immutable export checks use labeled source/model fixtures. No new live/provider result is claimed. [Contract](docs/MULTI_PAGE_RESEARCH.md). Existing live milestones below remain unchanged.
 

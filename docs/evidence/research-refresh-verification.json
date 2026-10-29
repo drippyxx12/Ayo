@@ -4,6 +4,29 @@
   "scope": "Reviewed private source refresh and immutable report versions",
   "starting_commit": "013df6c602160ba49715a499edb8ed000df1c9ca",
   "branch": "codex/africa-platform",
+  "application_commit": "23d977a4a07b2604f17883d4901d780feeaf1211",
+  "application_tree": "f0354f8a32da09e40e96b87159438f674eee2b18",
+  "tested_staged_tree_exact_match": true,
+  "publication": {
+    "account": "drippyxx12",
+    "expected_head_protected": true,
+    "force": false,
+    "local_remote_equal_after_fetch": true,
+    "pull_request": 1,
+    "pull_request_state": "draft, open, unmerged"
+  },
+  "application_ci": {
+    "run_id": 40849924327,
+    "url": "https://github.com/drippyxx12/Ayo/actions/runs/40849924327",
+    "conclusion": "success",
+    "passed": 1066,
+    "failed": 0,
+    "skipped": 0,
+    "duration_seconds": 171.90,
+    "upstream_warnings": 1,
+    "dependency_audit": "No known vulnerabilities found",
+    "secrets_job": "success"
+  },
   "local_suite": {
     "passed": 1066,
     "failed": 0,
