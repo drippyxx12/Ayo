@@ -12,7 +12,7 @@ Each source retains its own URL/time/hashes and a URL+content-bound ID. Combined
 
 Tests caught/fixed a broad-Allow masking a specific robots denial in the old standard-library parser. The reader now applies most-specific matching groups/rules, wildcard/end markers and pacing with bounded non-backtracking matching. Relative/malformed source links are handled without poisoning otherwise readable HTML. [Scope and exact limits](docs/MULTI_PAGE_RESEARCH.md).
 
-This milestone uses synthetic source/model/account/outbox fixtures and actual SQLite/PostgreSQL. **Final suite:1030 passed,0 failed/skipped**,102.92s, one upstream warning. Ruff/dependency consistency/whitespace pass. No new live website/Gemini/Firecrawl/mail call, paid spending, deployment or merge. Earlier live receipts remain valid; do not rerun connectivity. [Verification receipt](docs/evidence/multi-page-verification.json). Publication/CI receipt follows.
+This milestone uses synthetic source/model/account/outbox fixtures and actual SQLite/PostgreSQL. **Final local suite:1030 passed,0 failed/skipped**,102.92s, one upstream warning. **Application CI40843977459 also passed1030 tests**,155.06s, dependency audit/no known vulnerabilities and secrets. Ruff/dependency consistency/whitespace/Jinja/document links pass; local redacted working-tree/25-commit-history secret scan found no leaks. No new live website/Gemini/Firecrawl/mail call, paid spending, deployment or merge. Earlier live receipts remain valid; do not rerun connectivity. [Verification receipt](docs/evidence/multi-page-verification.json).
 
 ## Latest milestone — generic public website worker
 
@@ -64,13 +64,15 @@ Existing protected preview is **interactive intake only**, with private accounts
 
 ## Stopped at / Next / Blocked by
 
-**Stopped at:** bounded multi-page sampling, per-source reports/citations and robots-rule hardening verified with1030 passing tests. GitHub delivery/CI receipt follows. Earlier live single-page and Gemini milestones are preserved.
+**Stopped at:** bounded multi-page sampling, per-source reports/citations and robots-rule hardening delivered as e663ba6; local and GitHub CI1030 tests passed. Earlier live single-page and Gemini milestones are preserved.
 
-**Next:** finish multi-page publication/CI, then reviewed refresh/ownership and richer licensed/owner-supplied evidence. JavaScript rendering remains unfinished and is reported explicitly.
+**Next:** reviewed refresh/ownership and richer licensed/owner-supplied evidence. JavaScript rendering remains unfinished and is reported explicitly.
 
-**Blocked by:** no blocker to single-page public URL retrieval. Sites may themselves deny robots/access or require JavaScript rendering. Live Gemini calls remain at the consumed dated cap; hosted API/worker/database, delivered mail and multi-page rendering are separate unfinished work. Paid calls, public deployment, outreach and merge stay unapproved.
+**Blocked by:** no blocker to continued local development or bounded public-page sampling. Individual sites may deny robots/access or require JavaScript rendering. New live Gemini calls need a current finite zero-cost policy; the previous dated allowance is not renewed automatically. Hosted services, delivered mail and JavaScript rendering remain unfinished. Paid calls, public deployment, outreach and merge stay unapproved.
 
 ## Verified GitHub delivery
+
+Latest application commit **`e663ba6f3d2ff870c2eb1464ed40727f49201fa0`**, tree `cf03051685cd03b5a711d8e4268ed96597e89a7b`, exactly matches tested/staged local content. Correct drippyxx12 connector used expected-head/no-force from48189a8; fetch confirmed clean equal local/remote branch. PR #1 remains draft/open/unmerged with current multi-page scope. CI [40843977459](https://github.com/drippyxx12/Ayo/actions/runs/40843977459) succeeded:1030 tests, dependency audit and secrets. The following documentation-only receipt changes no application/provider state. Existing protected preview remains intake-only and unchanged.
 
 Latest application commit **`f4c0931346dc81a69ab31b2ade242fe1a0fad66b`**, tree `58279e50e60343838a923c1ce04c76762a871f69`, matches the tested/staged local tree. Non-forced expected-head advance from28ba794 and fetch confirmed a clean matching local/remote branch. PR #1 remains draft/open/unmerged. CI [40740953363](https://github.com/drippyxx12/Ayo/actions/runs/40740953363) completed successfully:1004 tests, dependency audit and secret-scan jobs. Following documentation receipt changes no application/provider state. Correct drippyxx12 connector used; no deploy/merge/provider call occurred.
 
