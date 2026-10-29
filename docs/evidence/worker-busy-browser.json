@@ -1,0 +1,14 @@
+{
+  "date": "2026-10-29T15:42:18.571262+00:00",
+  "mode": "offline_browser_busy_response_protocol",
+  "response_status": 202,
+  "counts": {
+    "intake_get": 1,
+    "worker_post": 1,
+    "status_get": 1
+  },
+  "no_automatic_repost": true,
+  "real_source_model_calls": 0,
+  "page_errors": [],
+  "server_stopped": true
+}

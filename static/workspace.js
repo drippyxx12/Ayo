@@ -53,6 +53,11 @@ window.addEventListener('pageshow', () => {
       if (!response.ok) throw new Error('Worker command unavailable');
       const result = await response.json();
       if (typeof result.processed !== 'boolean') throw new Error('Invalid worker response');
+      if (!result.processed) {
+        if (button) button.textContent = 'Checking saved status…';
+        if (note) note.textContent = 'This command did not start another attempt. Ayo is checking the saved job status.';
+        return; // A busy/finished job must not reload into another automatic POST.
+      }
       stopped = true;
       window.location.replace(window.location.href);
     } catch (_) {
